@@ -1,5 +1,5 @@
-name: gradle-build
-run-name: {{ github.actor }} Gradle Build
+name: Gradle Build
+run-name: ${{ github.actor }} Gradle Build
 on: [push]
 jobs:
   gradle-build:
