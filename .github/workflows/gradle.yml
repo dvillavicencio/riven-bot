@@ -1,4 +1,4 @@
-name: Gradle Build
+name: gradle-build
 run-name: {{ github.actor }} Gradle Build
 on: [push]
 jobs:
