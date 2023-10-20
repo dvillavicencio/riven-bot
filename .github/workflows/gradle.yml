@@ -1,6 +1,6 @@
 name: Gradle Build
 run-name: ${{ github.actor }} Gradle Build
-on: [push]
+on: [self-hosted]
 jobs:
   gradle-build:
     runs-on: ubuntu/latest
