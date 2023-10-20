@@ -12,7 +12,7 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
           architecture: x64
-      - name: Run the Gradle Package Task
-        uses: gradle/gradle-build-action@749f47bda3e44aa060e82d7b3ef7e40d953bd629
-        with:
-          arguments: -b ci.gradle package
+      - name: Setup Gradle
+        uses: gradle/gradle-build-action@v2
+      - name: Run the Gradle Build
+        run: ./gradlew build
