@@ -10,9 +10,9 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 public class CharacterController {
 
-    @GetMapping("/user")
-    public ResponseEntity<UserDetails> getUserDetails() {
-
-    }
+//    @GetMapping("/user")
+//    public ResponseEntity<UserDetails> getUserDetails() {
+//
+//    }
 
 }
