@@ -24,7 +24,7 @@ public class SecurityConfig {
             HttpSecurity httpSecurity) throws Exception {
         return httpSecurity
                 .authorizeHttpRequests(authorize -> authorize
-                        .requestMatchers("/token").authenticated()
+                        .requestMatchers("/character/**").authenticated()
                         .requestMatchers("/**").permitAll())
                 .oauth2Login(oauth -> oauth
                         .userInfoEndpoint(c -> c.userService(this.customOAuth2Service())))

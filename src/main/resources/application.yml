@@ -1,4 +1,7 @@
 spring:
+  data:
+    redis:
+      port: 6379
   security:
     oauth2:
       client:
@@ -23,5 +26,9 @@ server:
     key-store-password: password
 
 bungie:
-  baseUrl: https://www.bungie.net/Platform
-  membershipDataForCurrentUserUrl: ${bungie.baseUrl}/User/GetMembershipsForCurrentUser/
+  api:
+    key: ${BUNGIE_API_KEY}
+    baseUrl: https://www.bungie.net/Platform
+    currentUserMembershipUrl: ${bungie.api.baseUrl}/User/GetMembershipsForCurrentUser/
+    profileDataUrl: ${bungie.api.baseUrl}/Destiny2/{membershipType}/Profile/{destinyMembershipId}/
+    manifestEntityDefinitionUrl: ${bungie.api.baseUrl}/Destiny2/Manifest/{entityType}/{hashIdentifier}/
