@@ -32,3 +32,5 @@ bungie:
     currentUserMembershipUrl: ${bungie.api.baseUrl}/User/GetMembershipsForCurrentUser/
     profileDataUrl: ${bungie.api.baseUrl}/Destiny2/{membershipType}/Profile/{destinyMembershipId}/
     manifestEntityDefinitionUrl: ${bungie.api.baseUrl}/Destiny2/Manifest/{entityType}/{hashIdentifier}/
+    entityToClassMap:
+      STAT_DEFINITION: StatDto

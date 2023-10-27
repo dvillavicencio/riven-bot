@@ -1,4 +1,4 @@
-package com.danielvm.destiny2bot.dto.destinydomain.membership;
+package com.danielvm.destiny2bot.dto.destiny.membership;
 
 import lombok.Data;
 
