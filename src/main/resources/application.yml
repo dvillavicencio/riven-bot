@@ -34,3 +34,10 @@ bungie:
     manifestEntityDefinitionUrl: ${bungie.api.baseUrl}/Destiny2/Manifest/{entityType}/{hashIdentifier}/
     entityToClassMap:
       STAT_DEFINITION: StatDto
+
+discord:
+  api:
+    version: 10
+    baseUrl: https://discord.com/api/v${discord.api.version}
+    botToken: ${DISCORD_BOT_TOKEN}
+    permissionsInteger: 137439217728
