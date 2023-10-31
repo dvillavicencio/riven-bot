@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class InteractionsController {
 
     @PostMapping(value = "/interactions")
-    public ResponseEntity<> getInteractions() {
+    public ResponseEntity<?> getInteractions() {
         return null;
     }
 }
