@@ -1,0 +1,14 @@
+version: 0.1.0-SNAPSHOT
+services:
+  destiny-2-bot-backend:
+    build: .
+    ports:
+      - "443:443"
+    depends_on:
+      - redis
+    env_file:
+      - .env
+  redis:
+    image: "redis:latest"
+    ports:
+      - "6379:6379"
