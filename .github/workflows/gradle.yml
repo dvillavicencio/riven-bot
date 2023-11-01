@@ -3,7 +3,7 @@ run-name: ${{ github.actor }} Gradle Build
 on: [push]
 jobs:
   gradle-build:
-    runs-on: [self-hosted]
+    runs-on: ubuntu
     steps:
       - uses: actions/checkout@v4
       - name: Set up JDK 17 for x64
