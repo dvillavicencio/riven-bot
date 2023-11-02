@@ -26,6 +26,10 @@ ext {
     set('snippetsDir', file("build/generated-snippets"))
 }
 
+jar {
+    enabled = false
+}
+
 dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-data-redis'
     implementation 'org.springframework.boot:spring-boot-starter-oauth2-client'
