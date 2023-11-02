@@ -54,4 +54,4 @@ jobs:
         uses: docker/build-push-action@v5
         with:  
           push: true
-          tags: {{ secrets.DOCKERHUB_USERNAME }}/{{ env.PROJECT_NAME }}:{{ env.PROJECT_VERSION }}
+          tags: ${{ secrets.DOCKERHUB_USERNAME }}/${{ env.PROJECT_NAME }}:${{ env.PROJECT_VERSION }}
