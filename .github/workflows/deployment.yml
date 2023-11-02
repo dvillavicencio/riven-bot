@@ -36,7 +36,7 @@ jobs:
           echo "PROJECT_NAME=$(./gradlew -q projectName)" >> $GITHUB_ENV
       - name: Verify environment variables
         run: |
-          echo {{ env.PROJECT_VERSION }}
+          echo {{ env.PROJECT_VERSION }} \
           echo {{ env.PROJECT_NAME }}
 
   dockerize-and-upload:
@@ -53,5 +53,5 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
-      - name: Build and Push
-        uses: docker/build-push-action@v5
+      # - name: Build and Push
+      #   uses: docker/build-push-action@v5
