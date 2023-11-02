@@ -1,5 +1,8 @@
 name: Deployment to EC2
 
+env:
+  DOCKERHUB_USERNAME: deahtstroke
+
 on:
   workflow_dispatch:
 
@@ -28,7 +31,7 @@ jobs:
 
       - name: Set Project name and version as environment variables
         run: |
-          echo "${{ secrets.DOCKERHUB_USERNAME}}/$(./gradlew -q version):$(./gradlew -q projectName)" >> imageName.txt
+          echo "${{ env.DOCKERHUB_USERNAME}}/$(./gradlew -q version):$(./gradlew -q projectName)" > imageName.txt
           cat imageName.txt
           
       - name: Upload Docker Image Name as Artifact
