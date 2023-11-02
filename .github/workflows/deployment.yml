@@ -38,7 +38,10 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: docker-image-name
-          path: imageName.txt
+          path: |
+            imageName.txt
+            !build/libs/destiny2bot-*-plain.jar
+            build/libs/destiny2bot-*.jar
 
   dockerize-and-upload:
     needs: build-and-package
@@ -73,3 +76,5 @@ jobs:
         with:  
           push: true
           tags: ${{ env.DOCKER_IMAGE_NAME }}
+          build-args: JAR_FILE=./build/libs/destiny2bot-*.jar
+          
