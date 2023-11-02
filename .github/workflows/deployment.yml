@@ -1,7 +1,7 @@
-name: EC2 Deployment
-run-name: EC2 Deployment Workflow
+name: Deployment to EC2
 
 on: workflow_dispatch
+
 jobs:
   build-and-package:
     runs-on: ubuntu-latest
@@ -27,12 +27,12 @@ jobs:
         with:
           name: uploaded-artifact
           path: |
-            /build/libs/destiny2bot-**.jar
+            /build/libs/destiny2bot-**.jar \
             !/build/libs/destiny2bot-**-plain.jar
 
       - name: Set Project name and version as environment variables
         run: |
-          echo "PROJECT_VERSION=$(./gradlew -q version)" >> $GITHUB_ENV
+          echo "PROJECT_VERSION=$(./gradlew -q version)" >> $GITHUB_ENV \
           echo "PROJECT_NAME=$(./gradlew -q projectName)" >> $GITHUB_ENV
       - name: Verify environment variables
         run: |
@@ -41,8 +41,8 @@ jobs:
 
   dockerize-and-upload:
     needs: build-and-package
+    
     runs-on: ubuntu-latest
-
     steps:
       - name: Login to Docker
         uses: docker@login-action@v3
@@ -54,4 +54,4 @@ jobs:
         uses: docker/setup-buildx-action@v3
 
       - name: Build and Push
-        uses: docker/build-push-action@v3
+        uses: docker/build-push-action@v5
