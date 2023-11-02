@@ -60,7 +60,7 @@ jobs:
           name: docker-image-name
 
       - name: List artifact files
-        run: ls docker-image-name
+        run: ls -R
 
       - name: Set variable with docker image name
         run: |
