@@ -41,7 +41,6 @@ jobs:
           path: |
             imageName.txt
             !build/libs/destiny2bot-*-plain.jar
-            build/libs/destiny2bot-*.jar
 
   dockerize-and-upload:
     needs: build-and-package
