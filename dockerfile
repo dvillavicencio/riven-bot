@@ -3,7 +3,6 @@
 FROM eclipse-temurin:17
 
 COPY ./build/libs/*.jar app.jar
-COPY ./keystore.p12 keystore.p12
 
 ENTRYPOINT ["java", "-jar", "/app.jar"]
 
