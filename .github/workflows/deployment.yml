@@ -74,11 +74,13 @@ jobs:
         id: find_jar_file
         run: |
           JAR_FILE=$(find ./build/libs -type f -name "destiny2bot-*.jar")
-          if[ -z "$JAR_FILE ]; then
+          
+          if [ -z "$JAR_FILE" ]; then
             echo "::debug::No JAR file found in build/libs with the specified pattern"
             exit 1
           fi
           echo "JAR_FILE=$JAR_FILE" >> $GITHUB_OUTPUT
+        shell: bash
 
       - name: Build and Push
         uses: docker/build-push-action@v5
