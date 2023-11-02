@@ -32,7 +32,7 @@ jobs:
           cat imageName.txt
           
       - name: Upload Docker Image Name as Artifact
-        uses: actions/artifact-upload@v3
+        uses: actions/upload-artifact@v3
         with:
           name: docker-image-name
           path: imageName.txt
@@ -52,7 +52,7 @@ jobs:
         uses: docker/setup-buildx-action@v3
 
       - name: Download Image Name File
-        uses: actions/artifact-download@v3
+        uses: actions/download-artifact@v3
         with:
           name: docker-image-name
 
