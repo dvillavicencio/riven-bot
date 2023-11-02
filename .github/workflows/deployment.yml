@@ -33,14 +33,14 @@ jobs:
         run: |
           echo "${{ env.DOCKERHUB_USERNAME}}/$(./gradlew -q projectName):$(./gradlew -q version)" > imageName.txt
           cat imageName.txt
-          
+            
       - name: Upload Docker Image Name as Artifact
         uses: actions/upload-artifact@v3
         with:
           name: docker-image-name
           path: |
             imageName.txt
-            !build/libs/destiny2bot-*-plain.jar
+            build/libs/**
 
   dockerize-and-upload:
     needs: build-and-package
@@ -69,11 +69,21 @@ jobs:
           content=$(cat ./imageName.txt)
           echo "DOCKER_IMAGE_NAME=$content" >> $GITHUB_ENV
         shell: bash
+      
+      - name: Find and set JAR file
+        id: find_jar_file
+        run: |
+          JAR_FILE=$(find ./build/libs -type f -name "destiny2bot-*.jar")
+          if[ -z "$JAR_FILE ]; then
+            echo "::debug::No JAR file found in build/libs with the specified pattern"
+            exit 1
+          fi
+          echo "JAR_FILE=$JAR_FILE" >> $GITHUB_OUTPUT
 
       - name: Build and Push
         uses: docker/build-push-action@v5
         with:  
           push: true
           tags: ${{ env.DOCKER_IMAGE_NAME }}
-          build-args: JAR_FILE=./build/libs/destiny2bot-*.jar
+          build-args: JAR_FILE=${{ steps.find_jar_file.output.JAR_FILE }}
           
