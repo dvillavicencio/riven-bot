@@ -50,6 +50,9 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
+      - name: Debug image name
+        run: echo "${{ secrets.DOCKERHUB_USERNAME }}/ ${{ env.PROJECT_NAME }}:${{ env.PROJECT_VERSION }}"
+
       - name: Build and Push
         uses: docker/build-push-action@v5
         with:  
