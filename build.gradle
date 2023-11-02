@@ -52,3 +52,12 @@ tasks.named('asciidoctor') {
     inputs.dir snippetsDir
     dependsOn test
 }
+
+tasks.register('version') {
+    println project.version
+}
+
+tasks.register('projectName') {
+    println project.name
+}
+
