@@ -10,6 +10,9 @@ jobs:
       - name: Checkout the project
         uses: actions/checkout@v4
 
+      - name: List the files
+        run: ls
+        
       - name: Set up JDK 17 for x64
         uses: actions/setup-java@v3
         with:
@@ -23,18 +26,16 @@ jobs:
       - name: Run the Gradle Build
         run: ./gradlew clean build
 
-      - name: Archive build JARs
-        uses: actions/upload-artifact@v3
-        with:
-          name: uploaded-artifact
-          path: |
-            /build/libs/destiny2bot-**.jar \
-            !/build/libs/destiny2bot-**-plain.jar
-
       - name: Set Project name and version as environment variables
         run: |
-          echo "PROJECT_VERSION=$(./gradlew -q version)" >> $GITHUB_ENV \
-          echo "PROJECT_NAME=$(./gradlew -q projectName)" >> $GITHUB_ENV
+          echo "${{ secrets.DOCKERHUB_USERNAME}}/$(./gradlew -q version):$(./gradlew -q projectName)" >> imageName.txt
+          cat imageName.txt
+          
+      - name: Upload Docker Image Name as Artifact
+        uses: actions/artifact-upload@v3
+        with:
+          name: docker-image-name
+          path: imageName.txt
 
   dockerize-and-upload:
     needs: build-and-package
@@ -50,11 +51,19 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
-      - name: Debug image name
-        run: echo "${{ secrets.DOCKERHUB_USERNAME }}/ ${{ env.PROJECT_NAME }}:${{ env.PROJECT_VERSION }}"
+      - name: Download Image Name File
+        uses: actions/artifact-download@v3
+        with:
+          name: docker-image-name
+
+      - name: Set variable with docker image name
+        run: |
+          content=$(cat docker-image-name/my-file.txt)
+          echo "DOCKER_IMAGE_NAME=$content" >> $GITHUB_ENV
+        shell: bash
 
       - name: Build and Push
         uses: docker/build-push-action@v5
         with:  
           push: true
-          tags: ${{ secrets.DOCKERHUB_USERNAME }}/${{ env.PROJECT_NAME }}:${{ env.PROJECT_VERSION }}
+          tags: ${{ env.DOCKER_IMAGE_NAME }}
