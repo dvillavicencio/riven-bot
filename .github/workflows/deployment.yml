@@ -1,7 +1,7 @@
 name: Deployment to EC2
 
 env:
-  DOCKERHUB_USERNAME: deahtstroke
+  DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
 
 on:
   workflow_dispatch:
