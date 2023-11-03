@@ -93,4 +93,10 @@ jobs:
     needs: dockerize-and-upload
     runs-on: ubuntu-latest
     steps:
-      - name:
+      - name: Connect to EC2 instance
+        uses: appleboy/ssh-action@v1.0.0
+        with: 
+          host: ${{ secrets.AWS_EC2_HOST }}
+          username: ${{ secrets.AWS_EC2_USERNAME }}
+          key: ${{ secrets.AWS_PRIVATE_KEY }}
+          script: whoami
