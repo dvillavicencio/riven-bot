@@ -105,6 +105,9 @@ jobs:
       - name: Pull image from DockerHub Script
         run: echo "sudo docker pull $(cat ./imageName.txt)" >> script.sh
 
+      - name: List contents of script.sh
+        run: cat ./script.sh
+
         ## TODO: Create .env file in the /Projects directory and call Docker compose
       - name: Connect to EC2 instance
         uses: appleboy/ssh-action@v1.0.0
