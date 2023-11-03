@@ -93,21 +93,6 @@ jobs:
     needs: dockerize-and-upload
     runs-on: ubuntu-latest
     steps:
-      # Build a bash script to run at once from the EC2 instance
-      - name: Docker Login Script
-        run: echo "sudo docker login -u ${{ secrets.DOCKERHUB_USERNAME }} -p ${{ secrets.DOCKERHUB_TOKEN }}" > script.sh
-
-      - name: Retrieve image name and tag
-        uses: actions/download-artifact@v3
-        with: 
-          name: docker-image-name
-
-      - name: Pull image from DockerHub Script
-        run: echo "sudo docker pull $(cat ./imageName.txt)" >> script.sh
-
-      - name: List contents of script.sh
-        run: cat ./script.sh
-
         ## TODO: Create .env file in the /Projects directory and call Docker compose
       - name: Connect to EC2 instance
         uses: appleboy/ssh-action@v1.0.0
@@ -115,6 +100,7 @@ jobs:
           host: ${{ secrets.AWS_EC2_HOST }}
           username: ${{ secrets.AWS_EC2_USERNAME }}
           key: ${{ secrets.AWS_PRIVATE_KEY }}
-          script: ./script.sh
-
-        
+          script: |
+            sudo docker login -u ${{ secrets.DOCKERHUB_USERNAME }} -p ${{ secrets.DOCKERHUB_TOKEN }} # Login to Docker
+            sudo docker pull $(cat ./imageName.txt) # Pull latest Destiny2Bot image
+            cd ./Projects && 
