@@ -88,4 +88,9 @@ jobs:
           push: true
           tags: ${{ env.DOCKER_IMAGE_NAME }}
           build-args: JAR_FILE=${{ steps.find_jar_file.output.JAR_FILE }}
-          
+
+  EC2-and-Docker-Compose:
+    needs: dockerize-and-upload
+    runs-on: ubuntu-latest
+    steps:
+      - name:
