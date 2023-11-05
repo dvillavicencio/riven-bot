@@ -51,22 +51,22 @@ public class BungieConfiguration {
 
     @Bean
     public BungieMembershipClient bungieMembershipClient() {
-        return createClient(this.currentUserMembershipUrl, BungieMembershipClient.class);
+        return createClient(BungieMembershipClient.class);
     }
 
     @Bean
     public BungieCharacterClient bungieCharacterClient() {
-        return createClient(this.profileDataUrl, BungieCharacterClient.class);
+        return createClient(BungieCharacterClient.class);
     }
 
     @Bean
     public BungieManifestClient bungieManifestClient() {
-        return createClient(this.manifestEntityDefinitionUrl, BungieManifestClient.class);
+        return createClient(BungieManifestClient.class);
     }
 
-    private <T> T createClient(String baseUrl, Class<T> clientType) {
+    private <T> T createClient(Class<T> clientType) {
         var webClient = WebClient.builder()
-                .baseUrl(baseUrl)
+                .baseUrl(this.baseUrl)
                 .defaultHeader(API_KEY_HEADER_NAME, this.key)
                 .build();
         return HttpServiceProxyFactory.builder()
