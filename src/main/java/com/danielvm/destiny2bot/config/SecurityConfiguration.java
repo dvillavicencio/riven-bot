@@ -18,7 +18,7 @@ import java.util.Map;
 
 @EnableWebSecurity
 @Configuration
-public class SecurityConfig {
+public class SecurityConfiguration {
 
     @Bean
     public SecurityFilterChain securityFilterChain(

@@ -39,6 +39,11 @@ public class BungieConfiguration {
      */
     private String manifestEntityDefinitionUrl;
 
+    /**
+     * Base url for Bungie Requests
+     */
+    private String baseUrl;
+
     @Bean
     public RestTemplate restTemplate() {
         return new RestTemplate();
@@ -60,7 +65,8 @@ public class BungieConfiguration {
     }
 
     private <T> T createClient(String baseUrl, Class<T> clientType) {
-        var webClient = WebClient.builder().baseUrl(baseUrl)
+        var webClient = WebClient.builder()
+                .baseUrl(baseUrl)
                 .defaultHeader(API_KEY_HEADER_NAME, this.key)
                 .build();
         return HttpServiceProxyFactory.builder()
