@@ -28,7 +28,7 @@ public class CharacterInfoController {
      * @return The details for the character
      */
     @GetMapping(value = "/characters", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Mono<CharactersResponse>> getCharacterInfoForCurrentUser(
+    public ResponseEntity<CharactersResponse> getCharacterInfoForCurrentUser(
             Authentication authentication) throws Exception {
         log.info("GET request received to get all characters");
         var response = characterInfoService.getCharacterInfoForCurrentUser(authentication);
