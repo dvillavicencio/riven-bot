@@ -1,56 +1,39 @@
 package com.danielvm.destiny2bot.service;
 
-import com.danielvm.destiny2bot.client.MembershipClient;
-import com.danielvm.destiny2bot.dto.destiny.membership.DestinyMembershipResponse;
+import com.danielvm.destiny2bot.client.BungieMembershipClient;
+import com.danielvm.destiny2bot.dto.destiny.membership.MembershipResponse;
+import com.danielvm.destiny2bot.util.MembershipUtil;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
 import org.springframework.stereotype.Service;
-
-import java.util.Objects;
+import org.springframework.util.Assert;
 
 @Service
 @Slf4j
+@RequiredArgsConstructor
 public class MembershipService {
 
-    private final MembershipClient membershipClient;
-
-    public MembershipService(MembershipClient membershipClient) {
-        this.membershipClient = membershipClient;
-    }
+    private static final String BEARER_TOKEN_FORMAT = "Bearer %s";
+    private final BungieMembershipClient membershipClient;
 
     /**
      * Get the current membership information for the currently logged-in user
      *
-     * @return {@link DestinyMembershipResponse}
+     * @return {@link MembershipResponse}
      */
-    public DestinyMembershipResponse getCurrentUserMembershipInformation() throws Exception {
-        var membershipData = membershipClient.getMembershipDataForCurrentUser();
-        var membershipId = extractMembershipId(membershipData);
-        var membershipType = membershipData.getResponse().getDestinyMemberships().get(0).getMembershipType();
-        if (Objects.isNull(membershipId) || Objects.isNull(membershipType)) {
-            log.error("Some required parameters are null: membershipId [{}], membershipType [{}]",
-                    membershipId, membershipType);
-            throw new Exception("Something unexpected happened, check the logs");
-        }
+    public MembershipResponse getCurrentUserMembershipInformation(Authentication authentication) throws Exception {
+        String accessToken = ((OAuth2AuthenticationToken) authentication)
+                .getPrincipal().getAttribute("access_token");
+        var membershipData = membershipClient.getMembershipForCurrentUser(
+                BEARER_TOKEN_FORMAT.formatted(accessToken)).getBody();
+
+        Assert.notNull(membershipData, "The membership characters for the current user is null");
+        Assert.notNull(MembershipUtil.extractMembershipId(membershipData), "Membership Id is null for current user");
+        Assert.notNull(MembershipUtil.extractMembershipId(membershipData), "Membership Type is null for current user");
         return membershipData;
     }
 
-    /**
-     * Utility to extract the membershipId
-     *
-     * @param response the membership response from Bungie
-     * @return the membershipId
-     */
-    public static String extractMembershipId(DestinyMembershipResponse response) {
-        return response.getResponse().getDestinyMemberships().get(0).getMembershipId();
-    }
 
-    /**
-     * Utility to extract the membershipType
-     *
-     * @param response the membership response from Bungie
-     * @return the membershipType
-     */
-    public static Integer extractMembershipType(DestinyMembershipResponse response) {
-        return response.getResponse().getDestinyMemberships().get(0).getMembershipType();
-    }
 }
