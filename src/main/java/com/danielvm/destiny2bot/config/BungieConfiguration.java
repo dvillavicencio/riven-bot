@@ -1,13 +1,12 @@
 package com.danielvm.destiny2bot.config;
 
-import com.danielvm.destiny2bot.client.BungieCharacterClient;
+import com.danielvm.destiny2bot.client.BungieProfileClient;
 import com.danielvm.destiny2bot.client.BungieManifestClient;
 import com.danielvm.destiny2bot.client.BungieMembershipClient;
 import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.HttpStatusCode;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.support.WebClientAdapter;
@@ -56,8 +55,8 @@ public class BungieConfiguration {
     }
 
     @Bean
-    public BungieCharacterClient bungieCharacterClient() {
-        return createClient(BungieCharacterClient.class);
+    public BungieProfileClient bungieCharacterClient() {
+        return createClient(BungieProfileClient.class);
     }
 
     @Bean

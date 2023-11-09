@@ -27,6 +27,7 @@ public class SecurityConfiguration {
                 .authorizeHttpRequests(authorize -> authorize
                         .requestMatchers("/character/**").authenticated()
                         .requestMatchers(HttpMethod.GET, "/characters**").authenticated()
+                        .requestMatchers(HttpMethod.GET, "/vault/**").authenticated()
                         .requestMatchers("/**").permitAll())
                 .oauth2Login(oauth -> oauth
                         .userInfoEndpoint(c -> c.userService(this.customOAuth2Service())))

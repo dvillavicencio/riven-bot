@@ -1,13 +1,16 @@
 package com.danielvm.destiny2bot.dto.destiny.character.info;
 
+import lombok.Data;
+
 import java.util.Map;
 
-public record CharacterInfo(
-        String membershipId,
-        Integer membershipType,
-        String characterId,
-        Integer light,
-        Map<String, Integer> stats,
-        Long classHash,
-        Long classType) {
+@Data
+public class CharacterInfo {
+    private String membershipId;
+    private Integer membershipType;
+    private String characterId;
+    private Integer light;
+    private Map<String, Integer> stats;
+    private Long classHash;
+    private Long classType;
 }

@@ -1,6 +1,6 @@
 package com.danielvm.destiny2bot.service;
 
-import com.danielvm.destiny2bot.client.BungieCharacterClient;
+import com.danielvm.destiny2bot.client.BungieProfileClient;
 import com.danielvm.destiny2bot.client.BungieManifestClient;
 import com.danielvm.destiny2bot.dto.CharactersResponse;
 import com.danielvm.destiny2bot.mapper.CharacterInfoMapper;
@@ -18,7 +18,7 @@ import reactor.core.publisher.Mono;
 @RequiredArgsConstructor
 public class CharacterInfoService {
 
-    private final BungieCharacterClient bungieCharacterClient;
+    private final BungieProfileClient bungieProfileClient;
     private final BungieManifestClient bungieManifestClient;
     private final MembershipService membershipService;
     private final CharacterInfoMapper characterInfoMapper;
@@ -38,10 +38,11 @@ public class CharacterInfoService {
         var membershipId = MembershipUtil.extractMembershipId(membershipInfo);
         var membershipType = MembershipUtil.extractMembershipType(membershipInfo);
 
-        var characterDetails = bungieCharacterClient.getCharacterDetails(bearerToken, membershipId, membershipType).getBody();
-        return new CharactersResponse(characterDetails.response().characters().data().values().stream()
+        var characterDetails = bungieProfileClient.getCharacterDetails(bearerToken, membershipType, membershipId).getBody();
+        return new CharactersResponse(characterDetails.getResponse().getCharacters().getData().values().stream()
                 .map(characterInfo -> characterInfoMapper.toResponse(characterInfo, bungieManifestClient))
                 .toList());
     }
+
 }
 
