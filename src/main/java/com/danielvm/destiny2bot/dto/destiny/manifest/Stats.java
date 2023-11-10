@@ -8,4 +8,6 @@ public class Stats {
     private Long statGroupHash;
     
     private StatValues stats;
+
+    private Long primaryBaseStatHash;
 }
