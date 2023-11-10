@@ -13,6 +13,9 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 import reactor.core.publisher.Mono;
+import reactor.core.scheduler.Schedulers;
+
+import java.util.logging.Logger;
 
 @RestController
 @Slf4j
@@ -60,6 +63,8 @@ public class CharacterInfoController {
     @GetMapping(value = "/vault/rxItems", produces = MediaType.APPLICATION_JSON_VALUE)
     public Mono<CharacterVault> getCharacterVaultItemsRx(
             Authentication authentication) throws Exception {
-        return characterWeaponsService.getVaultWeaponsRx(authentication);
+        return characterWeaponsService.getVaultWeaponsRx(authentication)
+                .doOnSuccess(characterVault -> log.info("Finished processing Vault weapons with size [{}]",
+                        characterVault.getWeapons().size()));
     }
 }

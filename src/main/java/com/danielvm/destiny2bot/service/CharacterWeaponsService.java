@@ -74,16 +74,17 @@ public class CharacterWeaponsService {
                             CharacterWeapon weapon = new CharacterWeapon();
                             return bungieManifestClient.getManifestEntityRx(
                                             ITEM_INVENTORY_DEFINITION.getId(), item.getItemHash())
-                                    .map(entity -> {
+                                    .mapNotNull(entity -> {
                                         var e = entity.getResponse();
-                                        Assert.notNull(e, "The response for item [%s] for hash [%s] cannot be null"
-                                                .formatted(ITEM_INVENTORY_DEFINITION, item.getItemHash()));
-                                        boolean isWeapon = Objects.equals(ItemTypeEnum.findByCode(e.getItemType()), ItemTypeEnum.WEAPON);
+                                        var isWeapon = Objects.equals(ItemTypeEnum.findByCode(e.getItemType()),
+                                                ItemTypeEnum.WEAPON);
                                         if (isWeapon) {
                                             weapon.setWeaponType(ItemSubTypeEnum.findById(e.getItemSubType()));
                                             weapon.setWeaponName(e.getDisplayProperties().getName());
                                             weapon.setWeaponIcon(e.getDisplayProperties().getHasIcon() ?
                                                     IMAGE_URL_ROOT + e.getDisplayProperties().getIcon() : null);
+                                        } else {
+                                            return null;
                                         }
                                         return weapon;
                                     });
