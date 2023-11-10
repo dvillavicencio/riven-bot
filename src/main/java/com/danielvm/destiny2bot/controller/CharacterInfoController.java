@@ -12,6 +12,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
+import reactor.core.publisher.Mono;
 
 @RestController
 @Slf4j
@@ -54,5 +55,11 @@ public class CharacterInfoController {
         var response = characterWeaponsService.getVaultWeapons(authentication);
         log.info("GET request completed to get vault items");
         return ResponseEntity.ok(response);
+    }
+
+    @GetMapping(value = "/vault/rxItems", produces = MediaType.APPLICATION_JSON_VALUE)
+    public Mono<CharacterVault> getCharacterVaultItemsRx(
+            Authentication authentication) throws Exception {
+        return characterWeaponsService.getVaultWeaponsRx(authentication);
     }
 }
