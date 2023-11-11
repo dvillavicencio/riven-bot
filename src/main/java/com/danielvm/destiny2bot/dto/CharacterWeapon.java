@@ -15,7 +15,7 @@ import java.util.List;
 public final class CharacterWeapon {
 
     /**
-     * Id of the item
+     * Identifier of the item
      */
     private String itemInstanceId;
 
