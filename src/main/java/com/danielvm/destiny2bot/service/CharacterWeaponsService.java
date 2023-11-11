@@ -6,9 +6,9 @@ import com.danielvm.destiny2bot.dto.CharacterVault;
 import com.danielvm.destiny2bot.dto.CharacterWeapon;
 import com.danielvm.destiny2bot.dto.CharacterWeaponsResponse;
 import com.danielvm.destiny2bot.dto.Stats;
+import com.danielvm.destiny2bot.dto.destiny.character.vaultitems.VaultItem;
 import com.danielvm.destiny2bot.enums.ItemSubTypeEnum;
 import com.danielvm.destiny2bot.enums.ItemTypeEnum;
-import com.danielvm.destiny2bot.mapper.CharacterWeaponMapper;
 import com.danielvm.destiny2bot.util.AuthenticationUtil;
 import com.danielvm.destiny2bot.util.MembershipUtil;
 import lombok.RequiredArgsConstructor;
@@ -33,7 +33,6 @@ public class CharacterWeaponsService {
 
     private final BungieProfileClient bungieProfileClient;
     private final MembershipService membershipService;
-    private final CharacterWeaponMapper weaponMapper;
     private final BungieManifestClientWrapper bungieManifestClient;
 
     /**
@@ -42,21 +41,6 @@ public class CharacterWeaponsService {
      * @param authentication The authentication object holding security details
      * @return {@link CharacterWeaponsResponse}
      */
-    public CharacterVault getVaultWeapons(Authentication authentication) throws Exception {
-        var membershipInfo = membershipService.getCurrentUserMembershipInformation(authentication);
-        var membershipId = MembershipUtil.extractMembershipId(membershipInfo);
-        var membershipType = MembershipUtil.extractMembershipType(membershipInfo);
-
-        var vaultWeapons = bungieProfileClient.getCharacterVaultItems(
-                AuthenticationUtil.getBearerToken(authentication), membershipType, membershipId);
-
-        return CharacterVault.builder()
-                .weapons(Objects.requireNonNull(vaultWeapons.getBody()).getResponse()
-                        .getProfileInventory().getData().getItems().stream()
-                        .map(weaponMapper::entityToWeapon)
-                        .toList()).build();
-    }
-
     public Mono<CharacterVault> getVaultWeaponsRx(Authentication authentication) {
         return membershipService.getCurrentUserMembershipInformationRx(authentication)
                 .flatMap(membershipResponse -> {
@@ -67,37 +51,40 @@ public class CharacterWeaponsService {
                 })
                 .flatMapMany(items ->
                         Flux.fromIterable(items.getResponse().getProfileInventory().getData().getItems()))
-                .flatMap(item -> {
-                            CharacterWeapon weapon = new CharacterWeapon();
-                            return bungieManifestClient.getManifestEntityRx(
-                                            ITEM_INVENTORY_DEFINITION.getId(), item.getItemHash())
-                                    .flatMap(entity -> {
-                                        var response = entity.getResponse();
-                                        var isWeapon = Objects.equals(ItemTypeEnum.findByCode(response.getItemType()),
-                                                ItemTypeEnum.WEAPON);
-                                        if (isWeapon) {
-                                            weapon.setWeaponType(ItemSubTypeEnum.findById(response.getItemSubType()));
-                                            weapon.setWeaponName(response.getDisplayProperties().getName());
-                                            weapon.setWeaponIcon(response.getDisplayProperties().getHasIcon() ?
-                                                    IMAGE_URL_ROOT + response.getDisplayProperties().getIcon() : null);
-                                        } else {
-                                            return Mono.empty();
-                                        }
-                                        return Flux.fromIterable(entity.getResponse().getStats().getStats().entrySet())
-                                                .flatMap(entry -> bungieManifestClient.getManifestEntityRx(
-                                                        STAT_DEFINITION.getId(), entry.getKey())
-                                                        .map(obj -> Tuples.of(entry, obj)))
-                                                .map(statManifest -> new Stats(statManifest.getT2().getResponse().getDisplayProperties().getName(), statManifest.getT1().getValue().getValue()))
-                                                .collectList()
-                                                .map(stats -> {
-                                                    weapon.setStats(stats);
-                                                    return weapon;
-                                                });
-                                    });
-                        }
+                .flatMap(this::mapToCharacterWeapon
                 )
                 .collectList()
                 .map(list -> CharacterVault.builder()
                         .weapons(list).build());
+    }
+
+    private Mono<CharacterWeapon> mapToCharacterWeapon(VaultItem item) {
+        CharacterWeapon weapon = new CharacterWeapon();
+        return bungieManifestClient.getManifestEntityRx(
+                        ITEM_INVENTORY_DEFINITION.getId(), item.getItemHash())
+                .flatMap(entity -> {
+                    var response = entity.getResponse();
+                    var isWeapon = Objects.equals(ItemTypeEnum.findByCode(response.getItemType()),
+                            ItemTypeEnum.WEAPON);
+                    if (isWeapon) {
+                        weapon.setWeaponType(ItemSubTypeEnum.findById(response.getItemSubType()));
+                        weapon.setWeaponName(response.getDisplayProperties().getName());
+                        weapon.setWeaponIcon(response.getDisplayProperties().getHasIcon() ?
+                                IMAGE_URL_ROOT + response.getDisplayProperties().getIcon() : null);
+                    } else {
+                        return Mono.empty();
+                    }
+                    return Flux.fromIterable(entity.getResponse().getStats().getStats().entrySet())
+                            .flatMap(entry -> bungieManifestClient.getManifestEntityRx(
+                                            STAT_DEFINITION.getId(), entry.getKey())
+                                    .map(obj -> Tuples.of(entry, obj)))
+                            .map(statManifest -> new Stats(statManifest.getT2().getResponse().getDisplayProperties().getName(),
+                                    statManifest.getT1().getValue().getValue()))
+                            .collectList()
+                            .map(stats -> {
+                                weapon.setStats(stats);
+                                return weapon;
+                            });
+                });
     }
 }

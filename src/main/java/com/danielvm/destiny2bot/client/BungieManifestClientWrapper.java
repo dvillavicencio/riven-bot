@@ -15,9 +15,15 @@ public class BungieManifestClientWrapper {
 
     private final BungieManifestClient bungieManifestClient;
 
+    /**
+     * Wraps the client call to the Manifest with a Cacheable method
+     *
+     * @param entityType     The entity type (see {@link com.danielvm.destiny2bot.enums.EntityTypeEnum})
+     * @param hashIdentifier The hash identifier
+     * @return {@link GenericResponse} of {@link ResponseFields}
+     */
     @Cacheable(cacheNames = "entity", cacheManager = "inMemoryCacheManager")
     public Mono<GenericResponse<ResponseFields>> getManifestEntityRx(String entityType, String hashIdentifier) {
-        log.info("Getting manifest {} {}", entityType, hashIdentifier);
         return bungieManifestClient.getManifestEntityRx(entityType, hashIdentifier).cache();
     }
 
