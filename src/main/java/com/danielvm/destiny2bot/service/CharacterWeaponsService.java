@@ -1,10 +1,11 @@
 package com.danielvm.destiny2bot.service;
 
-import com.danielvm.destiny2bot.client.BungieManifestClient;
+import com.danielvm.destiny2bot.client.BungieManifestClientWrapper;
 import com.danielvm.destiny2bot.client.BungieProfileClient;
 import com.danielvm.destiny2bot.dto.CharacterVault;
 import com.danielvm.destiny2bot.dto.CharacterWeapon;
 import com.danielvm.destiny2bot.dto.CharacterWeaponsResponse;
+import com.danielvm.destiny2bot.dto.Stats;
 import com.danielvm.destiny2bot.enums.ItemSubTypeEnum;
 import com.danielvm.destiny2bot.enums.ItemTypeEnum;
 import com.danielvm.destiny2bot.mapper.CharacterWeaponMapper;
@@ -16,10 +17,12 @@ import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+import reactor.util.function.Tuples;
 
 import java.util.Objects;
 
 import static com.danielvm.destiny2bot.enums.EntityTypeEnum.ITEM_INVENTORY_DEFINITION;
+import static com.danielvm.destiny2bot.enums.EntityTypeEnum.STAT_DEFINITION;
 
 @Service
 @RequiredArgsConstructor
@@ -31,7 +34,7 @@ public class CharacterWeaponsService {
     private final BungieProfileClient bungieProfileClient;
     private final MembershipService membershipService;
     private final CharacterWeaponMapper weaponMapper;
-    private final BungieManifestClient bungieManifestClient;
+    private final BungieManifestClientWrapper bungieManifestClient;
 
     /**
      * Get the weapons per character for the current user
@@ -68,19 +71,28 @@ public class CharacterWeaponsService {
                             CharacterWeapon weapon = new CharacterWeapon();
                             return bungieManifestClient.getManifestEntityRx(
                                             ITEM_INVENTORY_DEFINITION.getId(), item.getItemHash())
-                                    .mapNotNull(entity -> {
-                                        var e = entity.getResponse();
-                                        var isWeapon = Objects.equals(ItemTypeEnum.findByCode(e.getItemType()),
+                                    .flatMap(entity -> {
+                                        var response = entity.getResponse();
+                                        var isWeapon = Objects.equals(ItemTypeEnum.findByCode(response.getItemType()),
                                                 ItemTypeEnum.WEAPON);
                                         if (isWeapon) {
-                                            weapon.setWeaponType(ItemSubTypeEnum.findById(e.getItemSubType()));
-                                            weapon.setWeaponName(e.getDisplayProperties().getName());
-                                            weapon.setWeaponIcon(e.getDisplayProperties().getHasIcon() ?
-                                                    IMAGE_URL_ROOT + e.getDisplayProperties().getIcon() : null);
+                                            weapon.setWeaponType(ItemSubTypeEnum.findById(response.getItemSubType()));
+                                            weapon.setWeaponName(response.getDisplayProperties().getName());
+                                            weapon.setWeaponIcon(response.getDisplayProperties().getHasIcon() ?
+                                                    IMAGE_URL_ROOT + response.getDisplayProperties().getIcon() : null);
                                         } else {
-                                            return null;
+                                            return Mono.empty();
                                         }
-                                        return weapon;
+                                        return Flux.fromIterable(entity.getResponse().getStats().getStats().entrySet())
+                                                .flatMap(entry -> bungieManifestClient.getManifestEntityRx(
+                                                        STAT_DEFINITION.getId(), entry.getKey())
+                                                        .map(obj -> Tuples.of(entry, obj)))
+                                                .map(statManifest -> new Stats(statManifest.getT2().getResponse().getDisplayProperties().getName(), statManifest.getT1().getValue().getValue()))
+                                                .collectList()
+                                                .map(stats -> {
+                                                    weapon.setStats(stats);
+                                                    return weapon;
+                                                });
                                     });
                         }
                 )
