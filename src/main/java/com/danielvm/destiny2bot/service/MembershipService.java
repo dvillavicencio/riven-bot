@@ -25,9 +25,8 @@ public class MembershipService {
      *
      * @return {@link MembershipResponse}
      */
-    public MembershipResponse getCurrentUserMembershipInformation(Authentication authentication) throws Exception {
-        String accessToken = ((OAuth2AuthenticationToken) authentication)
-                .getPrincipal().getAttribute("access_token");
+    public MembershipResponse getCurrentUserMembershipInformation(Authentication authentication){
+        String accessToken = AuthenticationUtil.getBearerToken(authentication);
         var membershipData = membershipClient.getMembershipForCurrentUser(
                 BEARER_TOKEN_FORMAT.formatted(accessToken)).getBody();
 

@@ -9,7 +9,7 @@ import java.util.Map;
 public class CharacterData implements DataResponse {
 
     /**
-     * Data grouped by character Id
+     * Data grouped by characterId
      */
     private Map<String, CharacterInfo> data;
 }
