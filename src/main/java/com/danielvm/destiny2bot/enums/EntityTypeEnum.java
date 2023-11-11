@@ -6,12 +6,13 @@ public enum EntityTypeEnum {
 
     BUCKET_DEFINITION("DestinyInventoryItemDefinition"),
     STAT_DEFINITION("DestinyStatDefinition"),
-    CLASS_DEFINITION("DestinyClassDefinition");
+    CLASS_DEFINITION("DestinyClassDefinition"),
+    ITEM_INVENTORY_DEFINITION("DestinyInventoryItemDefinition");
 
     @Getter
-    private final String identifier;
+    private final String id;
 
-    EntityTypeEnum(String identifier) {
-        this.identifier = identifier;
+    EntityTypeEnum(String id) {
+        this.id = id;
     }
 }

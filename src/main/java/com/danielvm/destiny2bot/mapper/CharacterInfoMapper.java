@@ -25,17 +25,17 @@ public interface CharacterInfoMapper {
     default List<Stats> statsHash(Map<String, Integer> statsMap, @Context BungieManifestClient client) {
         return statsMap.entrySet().stream()
                 .map(entry -> {
-                    var entity = client.getManifestEntity(EntityTypeEnum.STAT_DEFINITION.getIdentifier(),
+                    var entity = client.getManifestEntity(EntityTypeEnum.STAT_DEFINITION.getId(),
                             String.valueOf(entry.getKey())).getBody();
                     Assert.notNull(entity, "Entity received for stat hash [%s] is null".formatted(entry.getValue()));
-                    return new Stats(entity.response().displayProperties().name(), entry.getValue());
+                    return new Stats(entity.getResponse().getDisplayProperties().getName(), entry.getValue());
                 }).toList();
     }
 
     @Named("classHash")
     default String classHash(String classHash, @Context BungieManifestClient client) {
-        var entity = client.getManifestEntity(EntityTypeEnum.CLASS_DEFINITION.getIdentifier(), classHash).getBody();
+        var entity = client.getManifestEntity(EntityTypeEnum.CLASS_DEFINITION.getId(), classHash).getBody();
         Assert.notNull(entity, "Entity received for class hash [%s] is null".formatted(classHash));
-        return entity.response().displayProperties().name();
+        return entity.getResponse().getDisplayProperties().getName();
     }
 }
