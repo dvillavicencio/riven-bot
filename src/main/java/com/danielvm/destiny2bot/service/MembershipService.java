@@ -17,18 +17,17 @@ import reactor.core.publisher.Mono;
 @RequiredArgsConstructor
 public class MembershipService {
 
-    private static final String BEARER_TOKEN_FORMAT = "Bearer %s";
     private final BungieMembershipClient membershipClient;
 
     /**
      * Get the current membership information for the currently logged-in user
      *
+     * @param authentication The object containing authentication information
      * @return {@link MembershipResponse}
      */
-    public MembershipResponse getCurrentUserMembershipInformation(Authentication authentication){
-        String accessToken = AuthenticationUtil.getBearerToken(authentication);
+    public MembershipResponse getCurrentUserMembershipInformation(Authentication authentication) {
         var membershipData = membershipClient.getMembershipForCurrentUser(
-                BEARER_TOKEN_FORMAT.formatted(accessToken)).getBody();
+                AuthenticationUtil.getBearerToken(authentication)).getBody();
 
         Assert.notNull(membershipData, "The membership characters for the current user is null");
         Assert.notNull(MembershipUtil.extractMembershipId(membershipData), "Membership Id is null for current user");
@@ -36,6 +35,12 @@ public class MembershipService {
         return membershipData;
     }
 
+    /**
+     * Get the current membership information for the currently logged-in user asynchronously
+     *
+     * @param authentication The object containing authentication information
+     * @return {@link MembershipResponse}
+     */
     public Mono<MembershipResponse> getCurrentUserMembershipInformationRx(Authentication authentication) {
         return membershipClient.getMembershipForCurrentUserRx(
                         AuthenticationUtil.getBearerToken(authentication))
