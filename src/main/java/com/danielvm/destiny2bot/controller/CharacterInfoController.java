@@ -43,15 +43,30 @@ public class CharacterInfoController {
     }
 
     /**
-     * Get information for all characters for the currently logged-in user
+     * Get Vault items for the currently logged-in user asynchronously
      *
+     * @param authentication The authentication information of the user
      * @return The details for the character
      */
-    @GetMapping(value = "/vault/items", produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(value = "/vault/rxItems", produces = MediaType.APPLICATION_JSON_VALUE)
     public Mono<CharacterVault> getCharacterVaultItemsRx(
             Authentication authentication) {
         return characterWeaponsService.getVaultWeaponsRx(authentication)
                 .doOnSuccess(characterVault -> log.info("Finished processing Vault weapons with size [{}]",
                         characterVault.getWeapons().size()));
+    }
+
+    /**
+     * Get Vault items for the currently logged-in user
+     *
+     * @return The details for the character
+     */
+    @GetMapping(value = "/vault/items", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<CharacterVault> getCharacterVaultItems(
+            Authentication authentication) {
+        log.info("Getting all vault items for current user");
+        var response = characterWeaponsService.getVaultWeapons(authentication);
+        log.info("Finished getting all  vault items for current user");
+        return ResponseEntity.ok(response);
     }
 }

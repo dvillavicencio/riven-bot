@@ -9,10 +9,22 @@ import reactor.core.publisher.Mono;
 
 public interface BungieMembershipClient {
 
+    /**
+     * Gets the membership info for the current user
+     *
+     * @param bearerToken The user's bearer token
+     * @return {@link MembershipResponse}
+     */
     @GetExchange("/User/GetMembershipsForCurrentUser/")
     ResponseEntity<MembershipResponse> getMembershipForCurrentUser(
             @RequestHeader(name = HttpHeaders.AUTHORIZATION) String bearerToken);
 
+    /**
+     * Gets the membership info for the current user asynchronously
+     *
+     * @param bearerToken The user's bearer token
+     * @return {@link MembershipResponse}
+     */
     @GetExchange("/User/GetMembershipsForCurrentUser/")
     Mono<MembershipResponse> getMembershipForCurrentUserRx(
             @RequestHeader(name = HttpHeaders.AUTHORIZATION) String bearerToken);
