@@ -17,12 +17,12 @@ import reactor.core.publisher.Mono;
 @RequiredArgsConstructor
 public class MembershipService {
 
-    private static final String BEARER_TOKEN_FORMAT = "Bearer %s";
     private final BungieMembershipClient membershipClient;
 
     /**
      * Get the current membership information for the currently logged-in user
      *
+     * @param authentication The object containing authentication information
      * @return {@link MembershipResponse}
      */
     public MembershipResponse getCurrentUserMembershipInformation(Authentication authentication) {
@@ -35,6 +35,12 @@ public class MembershipService {
         return membershipData;
     }
 
+    /**
+     * Get the current membership information for the currently logged-in user asynchronously
+     *
+     * @param authentication The object containing authentication information
+     * @return {@link MembershipResponse}
+     */
     public Mono<MembershipResponse> getCurrentUserMembershipInformationRx(Authentication authentication) {
         return membershipClient.getMembershipForCurrentUserRx(
                         AuthenticationUtil.getBearerToken(authentication))
