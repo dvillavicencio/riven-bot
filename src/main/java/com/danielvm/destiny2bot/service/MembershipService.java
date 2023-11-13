@@ -31,7 +31,7 @@ public class MembershipService {
 
         Assert.notNull(membershipData, "The membership characters for the current user is null");
         Assert.notNull(MembershipUtil.extractMembershipId(membershipData), "Membership Id is null for current user");
-        Assert.notNull(MembershipUtil.extractMembershipId(membershipData), "Membership Type is null for current user");
+        Assert.notNull(MembershipUtil.extractMembershipType(membershipData), "Membership Type is null for current user");
         return membershipData;
     }
 
