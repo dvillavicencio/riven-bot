@@ -25,10 +25,9 @@ public class MembershipService {
      *
      * @return {@link MembershipResponse}
      */
-    public MembershipResponse getCurrentUserMembershipInformation(Authentication authentication){
-        String accessToken = AuthenticationUtil.getBearerToken(authentication);
+    public MembershipResponse getCurrentUserMembershipInformation(Authentication authentication) {
         var membershipData = membershipClient.getMembershipForCurrentUser(
-                BEARER_TOKEN_FORMAT.formatted(accessToken)).getBody();
+                AuthenticationUtil.getBearerToken(authentication)).getBody();
 
         Assert.notNull(membershipData, "The membership characters for the current user is null");
         Assert.notNull(MembershipUtil.extractMembershipId(membershipData), "Membership Id is null for current user");
