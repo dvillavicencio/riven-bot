@@ -29,7 +29,6 @@ public interface BungieProfileClient {
             @PathVariable Integer membershipType,
             @PathVariable String destinyMembershipId);
 
-
     /**
      * Retrieves the vault items for a user
      *
@@ -44,6 +43,14 @@ public interface BungieProfileClient {
             @PathVariable Integer membershipType,
             @PathVariable String destinyMembershipId);
 
+    /**
+     * Retrieves the vault items for a user asynchronously
+     *
+     * @param bearerToken         The user's bearer token
+     * @param membershipType      The membershipType of the user
+     * @param destinyMembershipId The membershipId of the user
+     * @return {@link GenericResponse} of {@link ProfileInventory}
+     */
     @GetExchange("/Destiny2/{membershipType}/Profile/{destinyMembershipId}/?components=102")
     Mono<GenericResponse<ProfileInventory>> getCharacterVaultItemsRx(
             @RequestHeader(name = HttpHeaders.AUTHORIZATION) String bearerToken,

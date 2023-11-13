@@ -9,6 +9,7 @@ import com.danielvm.destiny2bot.dto.Stats;
 import com.danielvm.destiny2bot.dto.destiny.character.vaultitems.VaultItem;
 import com.danielvm.destiny2bot.enums.ItemSubTypeEnum;
 import com.danielvm.destiny2bot.enums.ItemTypeEnum;
+import com.danielvm.destiny2bot.mapper.VaultWeaponMapper;
 import com.danielvm.destiny2bot.util.AuthenticationUtil;
 import com.danielvm.destiny2bot.util.MembershipUtil;
 import lombok.RequiredArgsConstructor;
@@ -34,9 +35,10 @@ public class CharacterWeaponsService {
     private final BungieProfileClient bungieProfileClient;
     private final MembershipService membershipService;
     private final BungieManifestClientWrapper bungieManifestClient;
+    private final VaultWeaponMapper vaultWeaponMapper;
 
     /**
-     * Get the weapons per character for the current user
+     * Get all the weapons in the vault for the current user asynchronously
      *
      * @param authentication The authentication object holding security details
      * @return {@link CharacterWeaponsResponse}
@@ -86,5 +88,27 @@ public class CharacterWeaponsService {
                                 return weapon;
                             });
                 });
+    }
+
+    /**
+     * Get all the weapons in the vault for the current user asynchronously
+     *
+     * @param authentication The authentication object holding security details
+     * @return {@link CharacterWeaponsResponse}
+     */
+    public CharacterVault getVaultWeapons(Authentication authentication) {
+        var membershipInfo = membershipService.getCurrentUserMembershipInformation(authentication);
+        var membershipType = MembershipUtil.extractMembershipType(membershipInfo);
+        var membershipId = MembershipUtil.extractMembershipId(membershipInfo);
+
+        var vaultWeapons = bungieProfileClient.getCharacterVaultItems(
+                AuthenticationUtil.getBearerToken(authentication), membershipType, membershipId);
+
+        return CharacterVault.builder()
+                .weapons(Objects.requireNonNull(vaultWeapons.getBody()).getResponse()
+                        .getProfileInventory().getData().getItems().stream()
+                        .map(vaultWeaponMapper::entityToWeapon)
+                        .toList())
+                .build();
     }
 }

@@ -1,5 +1,6 @@
 package com.danielvm.destiny2bot.dto;
 
+import com.danielvm.destiny2bot.enums.DamageTypeEnum;
 import com.danielvm.destiny2bot.enums.ItemSubTypeEnum;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.AllArgsConstructor;
@@ -42,7 +43,7 @@ public final class CharacterWeapon {
     /**
      * Damage type of the weapon
      */
-    private String damageType;
+    private DamageTypeEnum damageType;
 
     /**
      * Stats of the weapon
