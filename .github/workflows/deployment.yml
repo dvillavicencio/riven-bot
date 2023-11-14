@@ -76,7 +76,7 @@ jobs:
       - name: Debug Docker Build
         run: |
           echo "Build Context: $(pwd)"
-          echo "JAR_FILE: ${{ steps.find_jar_file.output.JAR_FILE }}"
+          echo "JAR_FILE: ${{ steps.find_jar_file.outputs.JAR_FILE }}"
         shell: bash
 
       - name: Build and Push
@@ -85,7 +85,7 @@ jobs:
           push: true
           platforms: linux/amd64,linux/arm64
           tags: ${{ env.DOCKER_IMAGE_NAME }}
-          build-args: JAR_FILE=${{ steps.find_jar_file.output.JAR_FILE }}
+          build-args: JAR_FILE=${{ steps.find_jar_file.outputs.JAR_FILE }}
 
   Deployment:
     needs: Docker-Upload
