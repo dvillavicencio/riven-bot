@@ -54,9 +54,6 @@ jobs:
         with:
           name: docker-image-name
 
-      - name: List artifact files
-        run: ls -R
-
       - name: Set variable with docker image name
         run: |
           content=$(cat ./imageName.txt)
@@ -66,6 +63,7 @@ jobs:
       - name: Find and set JAR file
         id: find_jar_file
         run: |
+          echo $(find ./build/libs -type f -name "destiny2bot-*.jar")
           JAR_FILE=$(find ./build/libs -type f -name "destiny2bot-*.jar")
           
           if [ -z "$JAR_FILE" ]; then
@@ -73,6 +71,7 @@ jobs:
             exit 1
           fi
           echo "JAR_FILE=$JAR_FILE" >> $GITHUB_OUTPUT
+          echo $JAR_FILE
         shell: bash
 
       - name: Build and Push
