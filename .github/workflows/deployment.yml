@@ -64,7 +64,6 @@ jobs:
       - name: Find and set JAR file
         id: find_jar_file
         run: |
-          echo $(find ./build/libs -type f -name "destiny2bot-*.jar")
           JAR_FILE=$(find ./build/libs -type f -name "destiny2bot-*.jar")
           
           if [ -z "$JAR_FILE" ]; then
@@ -73,15 +72,6 @@ jobs:
           fi
           echo "JAR_FILE=$JAR_FILE" >> "$GITHUB_OUTPUT"
         shell: bash
-
-      - name: Debug Docker Build
-        run: |
-          echo "Build Context: $(pwd)"
-          echo "JAR_FILE: ${{ steps.find_jar_file.outputs.JAR_FILE }}"
-        shell: bash
-
-      - name: List Contents of build/libs
-        run: ls -la ./build/libs
 
       - name: Build and Push
         uses: docker/build-push-action@v5
