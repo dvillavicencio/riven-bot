@@ -84,7 +84,7 @@ jobs:
           build-args: JAR_FILE=${{ steps.find_jar_file.output.JAR_FILE }}
 
   Deployment:
-    needs: dockerize-and-upload
+    needs: Docker-Upload
     runs-on: ubuntu-latest
     steps:
         ## TODO: Create .env file in the /Projects directory and call Docker compose
