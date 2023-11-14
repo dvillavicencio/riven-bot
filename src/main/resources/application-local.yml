@@ -3,3 +3,11 @@ spring:
     redis:
       port: 6379
       host: localhost
+
+server:
+  port: 443
+  ssl:
+    key-store: keystore.p12
+    key-store-type: PKCS12
+    key-alias: tomcat
+    key-store-password: password
