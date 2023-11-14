@@ -35,7 +35,7 @@ jobs:
             imageName.txt
             build/libs/**
 
-  dockerize-and-upload:
+  Docker-Upload:
     needs: build-and-test
     
     runs-on: ubuntu-latest
@@ -79,6 +79,7 @@ jobs:
         uses: docker/build-push-action@v5
         with:  
           push: true
+          platforms: linux/amd64,linux/arm64
           tags: ${{ env.DOCKER_IMAGE_NAME }}
           build-args: JAR_FILE=${{ steps.find_jar_file.output.JAR_FILE }}
 
