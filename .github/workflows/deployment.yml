@@ -27,7 +27,7 @@ jobs:
           echo "${{ secrets.DOCKERHUB_USERNAME}}/$(./gradlew -q projectName):$(./gradlew -q version)" > imageName.txt
           cat imageName.txt
             
-      - name: Upload Docker Image Name as Artifact
+      - name: Upload Artifacts
         uses: actions/upload-artifact@v3
         with:
           name: docker-image-name
@@ -70,7 +70,7 @@ jobs:
             echo "::debug::No JAR file found in build/libs with the specified pattern"
             exit 1
           fi
-          echo "JAR_FILE=$JAR_FILE" >> $GITHUB_OUTPUT
+          echo "JAR_FILE=$JAR_FILE" >> "$GITHUB_OUTPUT"
         shell: bash
 
       - name: Debug Docker Build
