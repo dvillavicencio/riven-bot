@@ -1,27 +1,20 @@
-name: Deployment to EC2
-
-env:
-  DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
+name: Deployment to EC2 Instance
 
 on:
   workflow_dispatch:
 
 jobs:
-  build-and-package:
+  build-and-test:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout the project
         uses: actions/checkout@v4
-
-      - name: List the files
-        run: ls
         
-      - name: Set up JDK 17 for x64
+      - name: Set up JDK 21 for x64
         uses: actions/setup-java@v3
         with:
-          java-version: '17'
+          java-version: '21'
           distribution: 'temurin'
-          architecture: x64
 
       - name: Setup Gradle
         uses: gradle/gradle-build-action@v2
@@ -31,19 +24,20 @@ jobs:
 
       - name: Set Project name and version as environment variables
         run: |
-          echo "${{ env.DOCKERHUB_USERNAME}}/$(./gradlew -q projectName):$(./gradlew -q version)" > imageName.txt
+          echo "${{ secrets.DOCKERHUB_USERNAME}}/$(./gradlew -q projectName):$(./gradlew -q version)" > imageName.txt
           cat imageName.txt
             
-      - name: Upload Docker Image Name as Artifact
+      - name: Upload Artifacts
         uses: actions/upload-artifact@v3
         with:
           name: docker-image-name
           path: |
             imageName.txt
             build/libs/**
+            dockerfile
 
-  dockerize-and-upload:
-    needs: build-and-package
+  Docker-Upload:
+    needs: build-and-test
     
     runs-on: ubuntu-latest
     steps:
@@ -61,9 +55,6 @@ jobs:
         with:
           name: docker-image-name
 
-      - name: List artifact files
-        run: ls -R
-
       - name: Set variable with docker image name
         run: |
           content=$(cat ./imageName.txt)
@@ -79,18 +70,20 @@ jobs:
             echo "::debug::No JAR file found in build/libs with the specified pattern"
             exit 1
           fi
-          echo "JAR_FILE=$JAR_FILE" >> $GITHUB_OUTPUT
+          echo "JAR_FILE=$JAR_FILE" >> "$GITHUB_OUTPUT"
         shell: bash
 
       - name: Build and Push
         uses: docker/build-push-action@v5
         with:  
           push: true
+          platforms: linux/amd64,linux/arm64
           tags: ${{ env.DOCKER_IMAGE_NAME }}
-          build-args: JAR_FILE=${{ steps.find_jar_file.output.JAR_FILE }}
+          build-args: JAR_FILE=${{ steps.find_jar_file.outputs.JAR_FILE }}
+          context: .
 
-  EC2-and-Docker-Compose:
-    needs: dockerize-and-upload
+  Deployment:
+    needs: Docker-Upload
     runs-on: ubuntu-latest
     steps:
         ## TODO: Create .env file in the /Projects directory and call Docker compose
@@ -103,4 +96,5 @@ jobs:
           script: |
             sudo docker login -u ${{ secrets.DOCKERHUB_USERNAME }} -p ${{ secrets.DOCKERHUB_TOKEN }} # Login to Docker
             sudo docker pull $(cat ./imageName.txt) # Pull latest Destiny2Bot image
-            cd ./Projects && 
+            cd Projects/destiny2bot/
+            pwd
