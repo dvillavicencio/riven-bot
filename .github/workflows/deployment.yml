@@ -1,27 +1,20 @@
-name: Deployment to EC2
-
-env:
-  DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
+name: Deployment to EC2 Instance
 
 on:
   workflow_dispatch:
 
 jobs:
-  build-and-package:
+  build-and-test:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout the project
         uses: actions/checkout@v4
-
-      - name: List the files
-        run: ls
         
-      - name: Set up JDK 17 for x64
+      - name: Set up JDK 21 for x64
         uses: actions/setup-java@v3
         with:
-          java-version: '17'
+          java-version: '21'
           distribution: 'temurin'
-          architecture: x64
 
       - name: Setup Gradle
         uses: gradle/gradle-build-action@v2
@@ -31,7 +24,7 @@ jobs:
 
       - name: Set Project name and version as environment variables
         run: |
-          echo "${{ env.DOCKERHUB_USERNAME}}/$(./gradlew -q projectName):$(./gradlew -q version)" > imageName.txt
+          echo "${{ secrets.DOCKERHUB_USERNAME}}/$(./gradlew -q projectName):$(./gradlew -q version)" > imageName.txt
           cat imageName.txt
             
       - name: Upload Docker Image Name as Artifact
@@ -43,7 +36,7 @@ jobs:
             build/libs/**
 
   dockerize-and-upload:
-    needs: build-and-package
+    needs: build-and-test
     
     runs-on: ubuntu-latest
     steps:
@@ -89,7 +82,7 @@ jobs:
           tags: ${{ env.DOCKER_IMAGE_NAME }}
           build-args: JAR_FILE=${{ steps.find_jar_file.output.JAR_FILE }}
 
-  EC2-and-Docker-Compose:
+  Deployment:
     needs: dockerize-and-upload
     runs-on: ubuntu-latest
     steps:
@@ -103,4 +96,5 @@ jobs:
           script: |
             sudo docker login -u ${{ secrets.DOCKERHUB_USERNAME }} -p ${{ secrets.DOCKERHUB_TOKEN }} # Login to Docker
             sudo docker pull $(cat ./imageName.txt) # Pull latest Destiny2Bot image
-            cd ./Projects && 
+            cd Projects/destiny2bot/
+            pwd
