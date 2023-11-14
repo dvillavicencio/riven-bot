@@ -1,4 +1,4 @@
-# Destiny 2 Bot Service
+# Destiny 2 Bot for Discord
+> Source code for Destiny 2 Bot Discord
 
-Server-side project that will power the APIs the user-interface of the Discord bot will use for displaying data linked to a Bungie user.
-Currently, the project uses a mix of synchronous and asynchronous (Reactive) calls to Bungie to populate some fields to human-readable text.
+This repository has all the source code that makes the Destiny 2 Discord Bot work. This is meant to be a personal-project, therefore any issues or suggestions are appreciated but the development is solely mine and of selected-individuals.
