@@ -88,15 +88,33 @@ jobs:
     needs: Docker-Upload
     runs-on: ubuntu-latest
     steps:
-        ## TODO: Create .env file in the /Projects directory and call Docker compose
-      - name: Connect to EC2 instance
+      - name: Pull Saved Artifacts
+        uses: actions/download-artifact@v3
+        with:
+          name: docker-image-name
+          
+      - name: Set variable with docker image name
+        run: |
+          content=$(cat ./imageName.txt)
+          echo "DOCKER_IMAGE_NAME=$content" >> $GITHUB_ENV
+        shell: bash
+        
+      - name: Excute Commands in EC2 instance
         uses: appleboy/ssh-action@v1.0.0
         with: 
           host: ${{ secrets.AWS_EC2_HOST }}
           username: ${{ secrets.AWS_EC2_USERNAME }}
           key: ${{ secrets.AWS_PRIVATE_KEY }}
           script: |
-            sudo docker login -u ${{ secrets.DOCKERHUB_USERNAME }} -p ${{ secrets.DOCKERHUB_TOKEN }} # Login to Docker
-            sudo docker pull $(cat ./imageName.txt) # Pull latest Destiny2Bot image
             cd Projects/destiny2bot/
-            pwd
+            sudo docker login -u ${{ secrets.DOCKERHUB_USERNAME }} -p ${{ secrets.DOCKERHUB_TOKEN }} # Login to Docker
+            sudo docker pull ${{ env.DOCKER_IMAGE_NAME }} # Pull latest Destiny2Bot image
+            echo "DISCORD_BOT_TOKEN=${{ secrets.DISCORD_BOT_TOKEN }}" >> .env
+            echo "BUNGIE_API_KEY=${{ secrets.BUNGIE_API_KEY }}" >> .env
+            echo "BUNGIE_CLIENT_ID=${{ secrets.BUNGIE_CLIENT_ID }}" >> .env
+            echo "BUNGIE_CLIENT_SECRET=${{ secrets.BUNGIE_CLIENT_SECRET }}" >> .env
+            echo "KEYSTORE_PASSWORD=$${{ secrets.KEYSTORE_PASSWORD }}" >> .env
+            sudo docker compose up -d
+            
+            
+            
