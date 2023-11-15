@@ -1,7 +1,9 @@
 name: Deployment to EC2 Instance
 
 on:
-  workflow_dispatch:
+  push:
+    branches:
+      - main
 
 jobs:
   build-and-test:
