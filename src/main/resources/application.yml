@@ -19,7 +19,7 @@ spring:
             client-id: ${BUNGIE_CLIENT_ID}
             client-secret: ${BUNGIE_CLIENT_SECRET}
             authorization-grant-type: authorization_code
-            redirect-uri: https://localhost:443/login/oauth2/code/bungieOAuth2Client
+            redirect-uri: https://d2discord.app/login/oauth2/code/bungieOAuth2Client
 
 server:
   port: 443

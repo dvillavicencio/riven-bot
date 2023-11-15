@@ -3,6 +3,20 @@ spring:
     redis:
       port: 6379
       host: localhost
+  security:
+    oauth2:
+      client:
+        provider:
+          bungieOAuth2Client:
+            authorization-uri: https://www.bungie.net/en/oauth/authorize
+            token-uri: https://www.bungie.net/platform/app/oauth/token/
+        registration:
+          bungieOAuth2Client:
+            provider: bungieOAuth2Client
+            client-id: ${BUNGIE_CLIENT_ID}
+            client-secret: ${BUNGIE_CLIENT_SECRET}
+            authorization-grant-type: authorization_code
+            redirect-uri: https://localhost:443/login/oauth2/code/bungieOAuth2Client
 
 server:
   port: 443
