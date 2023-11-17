@@ -14,7 +14,6 @@ import com.danielvm.destiny2bot.util.AuthenticationUtil;
 import com.danielvm.destiny2bot.util.MembershipUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -40,16 +39,15 @@ public class CharacterWeaponsService {
     /**
      * Get all the weapons in the vault for the current user asynchronously
      *
-     * @param authentication The authentication object holding security details
+     * @param bearerToken The user's bearer token
      * @return {@link CharacterWeaponsResponse}
      */
-    public Mono<CharacterVault> getVaultWeaponsRx(Authentication authentication) {
-        return membershipService.getCurrentUserMembershipInformationRx(authentication)
+    public Mono<CharacterVault> getVaultWeaponsRx(String bearerToken) {
+        return membershipService.getCurrentUserMembershipInformationRx(bearerToken)
                 .flatMap(membershipResponse -> {
                     var membershipId = MembershipUtil.extractMembershipId(membershipResponse);
                     var membershipType = MembershipUtil.extractMembershipType(membershipResponse);
-                    return bungieProfileClient.getCharacterVaultItemsRx(
-                            AuthenticationUtil.getBearerToken(authentication), membershipType, membershipId);
+                    return bungieProfileClient.getCharacterVaultItemsRx(bearerToken, membershipType, membershipId);
                 })
                 .flatMapMany(items ->
                         Flux.fromIterable(items.getResponse().getProfileInventory().getData().getItems()))
@@ -93,16 +91,16 @@ public class CharacterWeaponsService {
     /**
      * Get all the weapons in the vault for the current user asynchronously
      *
-     * @param authentication The authentication object holding security details
+     * @param bearerToken The user's bearer token
      * @return {@link CharacterWeaponsResponse}
      */
-    public CharacterVault getVaultWeapons(Authentication authentication) {
-        var membershipInfo = membershipService.getCurrentUserMembershipInformation(authentication);
+    public CharacterVault getVaultWeapons(String bearerToken) {
+        var membershipInfo = membershipService.getCurrentUserMembershipInformation(bearerToken);
         var membershipType = MembershipUtil.extractMembershipType(membershipInfo);
         var membershipId = MembershipUtil.extractMembershipId(membershipInfo);
 
         var vaultWeapons = bungieProfileClient.getCharacterVaultItems(
-                AuthenticationUtil.getBearerToken(authentication), membershipType, membershipId);
+                bearerToken, membershipType, membershipId);
 
         return CharacterVault.builder()
                 .weapons(Objects.requireNonNull(vaultWeapons.getBody()).getResponse()

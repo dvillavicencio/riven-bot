@@ -1,6 +1,6 @@
 version: 0.1.0-SNAPSHOT
 services:
-  destiny-2-bot-backend:
+  bot-application:
     image: "deahtstroke/destiny2bot:0.0.1-SNAPSHOT"
     ports:
       - "443:443"

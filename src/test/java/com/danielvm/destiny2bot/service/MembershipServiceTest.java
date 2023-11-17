@@ -4,7 +4,6 @@ import com.danielvm.destiny2bot.client.BungieMembershipClient;
 import com.danielvm.destiny2bot.dto.destiny.membership.DestinyMembershipData;
 import com.danielvm.destiny2bot.dto.destiny.membership.MembershipResponse;
 import com.danielvm.destiny2bot.dto.destiny.membership.Memberships;
-import com.danielvm.destiny2bot.util.AuthenticationUtil;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -12,12 +11,8 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
-import org.springframework.security.oauth2.core.user.DefaultOAuth2User;
 
-import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.when;
@@ -38,13 +33,12 @@ public class MembershipServiceTest {
         var bearerToken = "SomeBearerToken";
         var membershipResponse = new MembershipResponse(
                 new Memberships(List.of(new DestinyMembershipData(3, "membershipId"))));
-        var mockAuthentication = createMockAuthentication(bearerToken);
 
-        when(bungieClientMock.getMembershipForCurrentUser(AuthenticationUtil.getBearerToken(mockAuthentication)))
+        when(bungieClientMock.getMembershipForCurrentUser(bearerToken))
                 .thenReturn(ResponseEntity.ok(membershipResponse));
 
         // when
-        var response = sut.getCurrentUserMembershipInformation(mockAuthentication);
+        var response = sut.getCurrentUserMembershipInformation(bearerToken);
 
         // then
         assertAll("Destiny Membership response is correct",
@@ -59,14 +53,13 @@ public class MembershipServiceTest {
     public void getCurrentMembershipNullData() {
         // given
         var bearerToken = "SomeBearerToken";
-        var mockAuthentication = createMockAuthentication(bearerToken);
 
-        when(bungieClientMock.getMembershipForCurrentUser(AuthenticationUtil.getBearerToken(mockAuthentication)))
+        when(bungieClientMock.getMembershipForCurrentUser(bearerToken))
                 .thenReturn(ResponseEntity.ok(null));
 
         // when
         assertThrows(IllegalArgumentException.class,
-                () -> sut.getCurrentUserMembershipInformation(mockAuthentication),
+                () -> sut.getCurrentUserMembershipInformation(bearerToken),
                 "The membership characters for the current user is null");
     }
 
@@ -75,15 +68,15 @@ public class MembershipServiceTest {
     public void membershipIdNegativeTest() {
         // given
         var bearerToken = "SomeBearerToken";
-        var mockAuthentication = createMockAuthentication(bearerToken);
+
         var membershipResponse = new MembershipResponse(
                 new Memberships(List.of(new DestinyMembershipData(3, null))));
-        when(bungieClientMock.getMembershipForCurrentUser(AuthenticationUtil.getBearerToken(mockAuthentication)))
+        when(bungieClientMock.getMembershipForCurrentUser(bearerToken))
                 .thenReturn(ResponseEntity.ok(membershipResponse));
 
         // when
         assertThrows(IllegalArgumentException.class,
-                () -> sut.getCurrentUserMembershipInformation(mockAuthentication),
+                () -> sut.getCurrentUserMembershipInformation(bearerToken),
                 "Membership Id is null for current user");
     }
 
@@ -92,23 +85,15 @@ public class MembershipServiceTest {
     public void membershipTypeNegativeTest() {
         // given
         var bearerToken = "SomeBearerToken";
-        var mockAuthentication = createMockAuthentication(bearerToken);
         var membershipResponse = new MembershipResponse(
                 new Memberships(List.of(new DestinyMembershipData(null, "membershipId"))));
 
-        when(bungieClientMock.getMembershipForCurrentUser(AuthenticationUtil.getBearerToken(mockAuthentication)))
+        when(bungieClientMock.getMembershipForCurrentUser(bearerToken))
                 .thenReturn(ResponseEntity.ok(membershipResponse));
 
         // when
         assertThrows(IllegalArgumentException.class,
-                () -> sut.getCurrentUserMembershipInformation(mockAuthentication),
+                () -> sut.getCurrentUserMembershipInformation(bearerToken),
                 "Membership Type is null for current user");
-    }
-
-    private OAuth2AuthenticationToken createMockAuthentication(String bearerToken) {
-        return new OAuth2AuthenticationToken(
-                new DefaultOAuth2User(Collections.emptyList(),
-                        Map.of("access_token", bearerToken, "name", "no_name"), "name"),
-                Collections.emptyList(), "bungieOAuth2Client");
     }
 }
