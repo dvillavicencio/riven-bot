@@ -6,7 +6,7 @@ plugins {
 }
 
 group = 'com.danielvm'
-version = '0.0.1-PR'
+version = '1.0.0'
 
 
 java {
