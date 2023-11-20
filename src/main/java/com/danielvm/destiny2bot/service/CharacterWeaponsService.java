@@ -1,5 +1,6 @@
 package com.danielvm.destiny2bot.service;
 
+import com.danielvm.destiny2bot.annotation.Authorized;
 import com.danielvm.destiny2bot.client.BungieManifestClientWrapper;
 import com.danielvm.destiny2bot.client.BungieProfileClient;
 import com.danielvm.destiny2bot.dto.CharacterVault;
@@ -42,6 +43,7 @@ public class CharacterWeaponsService {
      * @param bearerToken The user's bearer token
      * @return {@link CharacterWeaponsResponse}
      */
+    @Authorized
     public Mono<CharacterVault> getVaultWeaponsRx(String bearerToken) {
         return membershipService.getCurrentUserMembershipInformationRx(bearerToken)
                 .flatMap(membershipResponse -> {

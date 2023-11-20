@@ -42,6 +42,11 @@ public class OAuth2Params {
      */
     public static final String REFRESH_TOKEN = "refresh_token";
 
+    /**
+     * OAuth2 constant for the authorization code field
+     */
+    public static final String AUTHORIZATION_CODE = "authorization_code";
+
     private OAuth2Params() {
     }
 }

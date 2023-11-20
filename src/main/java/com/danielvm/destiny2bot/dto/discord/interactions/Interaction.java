@@ -24,7 +24,7 @@ public class Interaction implements Serializable {
     private Object applicationId;
 
     /**
-     * The type of the interaction (see {@link com.danielvm.destiny2bot.enums.InteractionType}
+     * The type of the interaction (see {@link com.danielvm.destiny2bot.enums.InteractionType})
      */
     private Integer type;
 
@@ -32,4 +32,9 @@ public class Interaction implements Serializable {
      * Additional data of the interaction, will be attached to all interactions besides PING
      */
     private InteractionData data;
+
+    /**
+     * Information about the user that sent the interaction
+     */
+    private DiscordUser user;
 }

@@ -27,9 +27,8 @@ public class InteractionService {
     /**
      * Handles the incoming interactions
      *
-     * @param request   The incoming httpServletRequest
-     * @param signature The signature of the interaction
-     * @param timestamp The timestamp of the interaction
+     * @param interaction The received interaction from Discord chat
+     * @return {@link InteractionResponse}
      */
     public InteractionResponse handleInteraction(Interaction interaction) {
         if (interaction.getType().equals(InteractionType.APPLICATION_COMMAND.getType())) {
@@ -43,161 +42,12 @@ public class InteractionService {
                                                                                 
                                         Please use the link below""")
                                 .embeds(List.of(
-                                                Embedded.builder()
-                                                        .title("Register Here")
-                                                        .description("This is the registration link... duh")
-                                                        .url(buildRegistrationLink())
-                                                        .build(),
-                                                Embedded.builder()
-                                                        .title("Submission")
-                                                        .image(EmbeddedImage.builder()
-                                                                .url("http://www.bungie.net/common/destiny2_content/icons/4d596b18d607700aca914f348fa188f6.jpg")
-                                                                .width(10)
-                                                                .height(10)
-                                                                .build()
-                                                        )
-                                                        .fields(List.of(
-                                                                        EmbeddedField.builder().name("power")
-                                                                                .value("1800")
-                                                                                .inline(true)
-                                                                                .build(),
-                                                                        EmbeddedField.builder()
-                                                                                .name("Impact")
-                                                                                .value("100")
-                                                                                .inline(true)
-                                                                                .build()
-                                                                )
-                                                        )
-                                                        .build(),
                                         Embedded.builder()
-                                                .title("Submission")
-                                                .image(EmbeddedImage.builder()
-                                                        .url("http://www.bungie.net/common/destiny2_content/icons/4d596b18d607700aca914f348fa188f6.jpg")
-                                                        .width(10)
-                                                        .height(10)
-                                                        .build()
-                                                )
-                                                .fields(List.of(
-                                                                EmbeddedField.builder().name("power")
-                                                                        .value("1800")
-                                                                        .inline(true)
-                                                                        .build(),
-                                                                EmbeddedField.builder()
-                                                                        .name("Impact")
-                                                                        .value("100")
-                                                                        .inline(true)
-                                                                        .build()
-                                                        )
-                                                )
-                                                .build(),
-                                        Embedded.builder()
-                                                .title("Submission")
-                                                .image(EmbeddedImage.builder()
-                                                        .url("http://www.bungie.net/common/destiny2_content/icons/4d596b18d607700aca914f348fa188f6.jpg")
-                                                        .width(10)
-                                                        .height(10)
-                                                        .build()
-                                                )
-                                                .fields(List.of(
-                                                                EmbeddedField.builder().name("power")
-                                                                        .value("1800")
-                                                                        .inline(true)
-                                                                        .build(),
-                                                                EmbeddedField.builder()
-                                                                        .name("Impact")
-                                                                        .value("100")
-                                                                        .inline(true)
-                                                                        .build()
-                                                        )
-                                                )
-                                                .build(),
-                                        Embedded.builder()
-                                                .title("Submission")
-                                                .image(EmbeddedImage.builder()
-                                                        .url("http://www.bungie.net/common/destiny2_content/icons/4d596b18d607700aca914f348fa188f6.jpg")
-                                                        .width(10)
-                                                        .height(10)
-                                                        .build()
-                                                )
-                                                .fields(List.of(
-                                                                EmbeddedField.builder().name("power")
-                                                                        .value("1800")
-                                                                        .inline(true)
-                                                                        .build(),
-                                                                EmbeddedField.builder()
-                                                                        .name("Impact")
-                                                                        .value("100")
-                                                                        .inline(true)
-                                                                        .build()
-                                                        )
-                                                )
-                                                .build(),
-                                        Embedded.builder()
-                                                .title("Submission")
-                                                .image(EmbeddedImage.builder()
-                                                        .url("http://www.bungie.net/common/destiny2_content/icons/4d596b18d607700aca914f348fa188f6.jpg")
-                                                        .width(10)
-                                                        .height(10)
-                                                        .build()
-                                                )
-                                                .fields(List.of(
-                                                                EmbeddedField.builder().name("power")
-                                                                        .value("1800")
-                                                                        .inline(true)
-                                                                        .build(),
-                                                                EmbeddedField.builder()
-                                                                        .name("Impact")
-                                                                        .value("100")
-                                                                        .inline(true)
-                                                                        .build()
-                                                        )
-                                                )
-                                                .build(),
-                                        Embedded.builder()
-                                                .title("Submission")
-                                                .image(EmbeddedImage.builder()
-                                                        .url("http://www.bungie.net/common/destiny2_content/icons/4d596b18d607700aca914f348fa188f6.jpg")
-                                                        .width(10)
-                                                        .height(10)
-                                                        .build()
-                                                )
-                                                .fields(List.of(
-                                                                EmbeddedField.builder().name("power")
-                                                                        .value("1800")
-                                                                        .inline(true)
-                                                                        .build(),
-                                                                EmbeddedField.builder()
-                                                                        .name("Impact")
-                                                                        .value("100")
-                                                                        .inline(true)
-                                                                        .build()
-                                                        )
-                                                )
-                                                .build(),
-                                        Embedded.builder()
-                                                .title("Submission")
-                                                .image(EmbeddedImage.builder()
-                                                        .url("http://www.bungie.net/common/destiny2_content/icons/4d596b18d607700aca914f348fa188f6.jpg")
-                                                        .width(10)
-                                                        .height(10)
-                                                        .build()
-                                                )
-                                                .fields(List.of(
-                                                                EmbeddedField.builder().name("power")
-                                                                        .value("1800")
-                                                                        .inline(true)
-                                                                        .build(),
-                                                                EmbeddedField.builder()
-                                                                        .name("Impact")
-                                                                        .value("100")
-                                                                        .inline(true)
-                                                                        .build()
-                                                        )
-                                                )
-                                                .build()
-                                        )
-                                )
-                                .build()
+                                                .title("Register Here")
+                                                .description("This registration link will redirect you to authorize the bot")
+                                                .url(buildRegistrationLink())
+                                                .build())
+                                ).build()
                         )
                         .build();
             }

@@ -7,6 +7,8 @@ import com.danielvm.destiny2bot.dto.oauth2.TokenResponse;
 import com.danielvm.destiny2bot.entity.UserDetails;
 import com.danielvm.destiny2bot.repository.UserDetailsRepository;
 import com.danielvm.destiny2bot.util.AuthenticationUtil;
+import com.danielvm.destiny2bot.util.OAuth2Params;
+import com.danielvm.destiny2bot.util.OAuth2Util;
 import jakarta.servlet.http.HttpSession;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
@@ -18,11 +20,12 @@ import org.springframework.util.MultiValueMap;
 import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
 
+import java.time.Instant;
+
 @Service
 @Slf4j
-public class CallbackService {
+public class UserAuthorizationService {
 
-    private static final String AUTHORIZATION_CODE = "authorization_code";
     private static final String DISCORD_USER_ID_KEY = "discordUserId";
     private static final String DISCORD_USER_ALIAS_KEY = "discordUserAlias";
 
@@ -33,7 +36,7 @@ public class CallbackService {
     private final UserDetailsRepository userDetailsRepository;
 
 
-    public CallbackService(
+    public UserAuthorizationService(
             DiscordConfiguration discordConfiguration,
             BungieConfiguration bungieConfiguration,
             WebClient.Builder webClientBuilder,
@@ -75,7 +78,7 @@ public class CallbackService {
      * @param authorizationCode The authorization code from Bungie
      * @param httpSession       The HttpSession the user is linked to
      */
-    public void registerUser(String authorizationCode, HttpSession httpSession) {
+    public void linkUserDetails(String authorizationCode, HttpSession httpSession) {
         var tokenResponse = getTokenResponse(authorizationCode, bungieConfiguration.getCallbackUrl(),
                 bungieConfiguration.getClientSecret(), bungieConfiguration.getClientId(), bungieConfiguration.getTokenUrl());
         Assert.notNull(tokenResponse, "The token response from Bungie is null");
@@ -85,20 +88,16 @@ public class CallbackService {
                 .discordId((String) httpSession.getAttribute(DISCORD_USER_ID_KEY))
                 .accessToken(tokenResponse.getAccessToken())
                 .refreshToken(tokenResponse.getRefreshToken())
-                .expiresIn(tokenResponse.getExpiresIn())
+                .expiration(Instant.now().plusSeconds(tokenResponse.getExpiresIn()))
                 .build();
-        log.info("Saving user [{}] to MongoDB", userDetails);
         userDetailsRepository.save(userDetails);
         httpSession.invalidate();
     }
 
     private TokenResponse getTokenResponse(
             String authorizationCode, String callbackUrl, String clientSecret, String clientId, String tokenUrl) {
-        MultiValueMap<String, String> map = buildFormParameters(
-                authorizationCode,
-                callbackUrl,
-                clientSecret,
-                clientId);
+        MultiValueMap<String, String> map =
+                OAuth2Util.buildTokenExchangeParameters(authorizationCode, callbackUrl, clientSecret, clientId);
 
         var client = webClient.baseUrl(tokenUrl)
                 .defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_FORM_URLENCODED_VALUE)
@@ -108,14 +107,4 @@ public class CallbackService {
                 .block();
     }
 
-    private MultiValueMap<String, String> buildFormParameters(
-            String authorizationCode, String redirectUri, String clientSecret, String clientId) {
-        MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
-        map.add("code", authorizationCode);
-        map.add("grant_type", AUTHORIZATION_CODE);
-        map.add("redirect_uri", redirectUri);
-        map.add("client_secret", clientSecret);
-        map.add("client_id", clientId);
-        return map;
-    }
 }

@@ -8,11 +8,13 @@ import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.cache.concurrent.ConcurrentMapCacheManager;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.EnableAspectJAutoProxy;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.servlet.view.InternalResourceViewResolver;
 
 @EnableCaching
 @SpringBootApplication
+@EnableAspectJAutoProxy
 public class Destiny2botApplication {
 
     public static void main(String[] args) {

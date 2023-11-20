@@ -5,21 +5,23 @@ import lombok.Data;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import java.time.Instant;
+
 @Data
 @Document
 @Builder
 public class UserDetails {
 
     @Id
-    public String id;
+    private String id;
 
-    public String discordUsername;
+    private String discordUsername;
 
-    public String discordId;
+    private String discordId;
 
-    public String accessToken;
+    private String accessToken;
 
-    public String refreshToken;
+    private String refreshToken;
 
-    public Long expiresIn;
+    private Instant expiration;
 }

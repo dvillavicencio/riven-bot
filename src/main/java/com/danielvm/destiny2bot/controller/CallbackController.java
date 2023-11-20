@@ -1,7 +1,7 @@
 package com.danielvm.destiny2bot.controller;
 
 import com.danielvm.destiny2bot.config.BungieConfiguration;
-import com.danielvm.destiny2bot.service.CallbackService;
+import com.danielvm.destiny2bot.service.UserAuthorizationService;
 import jakarta.servlet.http.HttpSession;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -14,13 +14,13 @@ import org.springframework.web.servlet.view.RedirectView;
 @RestController
 public class CallbackController {
 
-    private final CallbackService callbackService;
+    private final UserAuthorizationService userAuthorizationService;
     private final BungieConfiguration bungieConfiguration;
 
     public CallbackController(
-            CallbackService callbackService,
+            UserAuthorizationService userAuthorizationService,
             BungieConfiguration bungieConfiguration) {
-        this.callbackService = callbackService;
+        this.userAuthorizationService = userAuthorizationService;
         this.bungieConfiguration = bungieConfiguration;
     }
 
@@ -34,7 +34,7 @@ public class CallbackController {
     public RedirectView handleCallBackFromDiscord(
             @RequestParam("code") String authorizationCode,
             HttpSession httpSession) {
-        callbackService.authenticateDiscordUser(authorizationCode, httpSession);
+        userAuthorizationService.authenticateDiscordUser(authorizationCode, httpSession);
         return new RedirectView(bungieOAuth2Url());
     }
 
@@ -48,7 +48,7 @@ public class CallbackController {
     public ResponseEntity<?> handleCallBackFromBungie(
             @RequestParam("code") String authorizationCode,
             HttpSession httpSession) {
-        callbackService.registerUser(authorizationCode, httpSession);
+        userAuthorizationService.linkUserDetails(authorizationCode, httpSession);
         return ResponseEntity.noContent().build();
     }
 
