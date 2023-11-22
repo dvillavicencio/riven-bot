@@ -8,7 +8,6 @@ public class OAuth2Util {
     private OAuth2Util() {
     }
 
-
     /**
      * Build body parameters for a token request to an OAuth2 resource provider
      *
@@ -36,10 +35,12 @@ public class OAuth2Util {
      * @return {@link MultiValueMap} of OAuth2 attributes for refresh token exchange
      */
     public static MultiValueMap<String, String> buildRefreshTokenExchangeParameters(
-            String refreshToken) {
+            String refreshToken, String clientId, String clientSecret) {
         MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
         map.add(OAuth2Params.GRANT_TYPE, OAuth2Params.REFRESH_TOKEN);
         map.add(OAuth2Params.REFRESH_TOKEN, refreshToken);
+        map.add(OAuth2Params.CLIENT_ID, clientId);
+        map.add(OAuth2Params.CLIENT_SECRET, clientSecret);
         return map;
     }
 }

@@ -34,7 +34,7 @@ public class Interaction implements Serializable {
     private InteractionData data;
 
     /**
-     * Information about the user that sent the interaction
+     * Member Data of the user that invoked the command
      */
-    private DiscordUser user;
+    private Member member;
 }

@@ -13,11 +13,9 @@ import java.time.Instant;
 public class UserDetails {
 
     @Id
-    private String id;
+    private String discordId;
 
     private String discordUsername;
-
-    private String discordId;
 
     private String accessToken;
 

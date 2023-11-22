@@ -1,6 +1,7 @@
 package com.danielvm.destiny2bot.service;
 
 import com.danielvm.destiny2bot.config.DiscordConfiguration;
+import com.danielvm.destiny2bot.context.UserIdentityContext;
 import com.danielvm.destiny2bot.dto.discord.interactions.*;
 import com.danielvm.destiny2bot.enums.InteractionType;
 import com.danielvm.destiny2bot.util.OAuth2Params;
@@ -11,17 +12,23 @@ import org.springframework.web.util.UriComponentsBuilder;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
+import java.util.Objects;
 
 import static com.danielvm.destiny2bot.enums.InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE;
+import static com.danielvm.destiny2bot.enums.InteractionType.*;
 
 @Service
 @Slf4j
 public class InteractionService {
 
     private final DiscordConfiguration discordConfiguration;
+    private final CharacterWeaponsService characterWeaponsService;
 
-    public InteractionService(DiscordConfiguration discordConfiguration) {
+    public InteractionService(
+            DiscordConfiguration discordConfiguration,
+            CharacterWeaponsService characterWeaponsService) {
         this.discordConfiguration = discordConfiguration;
+        this.characterWeaponsService = characterWeaponsService;
     }
 
     /**
@@ -31,7 +38,7 @@ public class InteractionService {
      * @return {@link InteractionResponse}
      */
     public InteractionResponse handleInteraction(Interaction interaction) {
-        if (interaction.getType().equals(InteractionType.APPLICATION_COMMAND.getType())) {
+        if (Objects.equals(findByValue(interaction.getType()), APPLICATION_COMMAND)) {
             if (interaction.getData().getName().equals("authorize")) {
                 return InteractionResponse.builder()
                         .type(CHANNEL_MESSAGE_WITH_SOURCE.getType())
@@ -50,11 +57,14 @@ public class InteractionService {
                                 ).build()
                         )
                         .build();
+
+            } else if (interaction.getData().getName().equals("weapons")) {
+                characterWeaponsService.getVaultWeapons();
+                return null;
             }
-        }
-        if (interaction.getType().equals(InteractionType.PING.getType())) {
+        } else if (Objects.equals(findByValue(interaction.getType()), PING)) {
             return InteractionResponse.builder()
-                    .type(InteractionType.PING.getType())
+                    .type(PING.getType())
                     .build();
         }
         return null;

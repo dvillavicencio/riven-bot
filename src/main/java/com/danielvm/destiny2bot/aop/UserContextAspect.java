@@ -29,14 +29,17 @@ public class UserContextAspect {
      *
      * @param interaction The interaction sent by Discord
      */
-    @Before(value = "execution(* com.danielvm.destiny2bot.service.InteractionService.handleInteraction(..)) " +
-            "&& args(interaction)")
+    @Before(value = "" +
+            "within(com.danielvm.destiny2bot..*) && " +
+            "execution(* com.danielvm.destiny2bot.service.InteractionService.handleInteraction(..)) && " +
+            "args(interaction)")
     public void userContextAdvice(Interaction interaction) throws UserIdentityNotFoundException {
-        var userDiscordId = interaction.getUser().getId();
-        if (Objects.equals(InteractionType.PING.getType(), interaction.getType())) {
-            log.debug("Interaction received was of type PING. No user identity context required");
+        if (Objects.equals(InteractionType.PING.getType(), interaction.getType()) ||
+                Objects.equals(interaction.getData().getName(), "authorize")) {
+            log.info("Interaction received was of type PING. No user identity context required");
             return;
         }
+        var userDiscordId = interaction.getMember().getUser().getId();
         if (userDetailsRepository.existsByDiscordId(userDiscordId)) {
             UserIdentityContext.setUserIdentity(new UserIdentity(userDiscordId));
         } else {

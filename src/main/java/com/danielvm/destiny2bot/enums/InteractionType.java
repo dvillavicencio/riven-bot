@@ -2,6 +2,9 @@ package com.danielvm.destiny2bot.enums;
 
 import lombok.Getter;
 
+import java.util.Arrays;
+import java.util.Objects;
+
 public enum InteractionType {
     PING(1),
     APPLICATION_COMMAND(2),
@@ -14,5 +17,17 @@ public enum InteractionType {
 
     InteractionType(Integer type) {
         this.type = type;
+    }
+
+    /**
+     * Find an InteractionType type by their integer code
+     *
+     * @param type The integer code of the interaction
+     * @return {@link InteractionType}
+     */
+    public static InteractionType findByValue(Integer type) {
+        return Arrays.stream(InteractionType.values())
+                .filter(it -> Objects.equals(it.type, type))
+                .findFirst().orElse(null);
     }
 }

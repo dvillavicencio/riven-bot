@@ -1,7 +1,8 @@
 package com.danielvm.destiny2bot.aop;
 
+import com.danielvm.destiny2bot.config.BungieConfiguration;
 import com.danielvm.destiny2bot.config.DiscordConfiguration;
-import com.danielvm.destiny2bot.dto.discord.interactions.DiscordUser;
+import com.danielvm.destiny2bot.context.UserIdentityContext;
 import com.danielvm.destiny2bot.dto.oauth2.TokenResponse;
 import com.danielvm.destiny2bot.entity.UserDetails;
 import com.danielvm.destiny2bot.exception.ResourceNotFoundException;
@@ -25,28 +26,29 @@ import java.time.Instant;
 public class TokenValidationAspect {
 
     private final UserDetailsRepository userDetailsRepository;
-    private final DiscordConfiguration discordConfiguration;
+    private final BungieConfiguration bungieConfiguration;
     private final WebClient.Builder webclient;
 
     public TokenValidationAspect(
             UserDetailsRepository userDetailsRepository,
-            DiscordConfiguration discordConfiguration,
+            BungieConfiguration bungieConfiguration,
             WebClient.Builder webclient) {
         this.userDetailsRepository = userDetailsRepository;
-        this.discordConfiguration = discordConfiguration;
+        this.bungieConfiguration = bungieConfiguration;
         this.webclient = webclient;
     }
 
     /**
-     * Advice that makes sure that before every method call that involves a Discord
-     * @param discordUser
+     * Advice that makes sure that before every method call that calls Bungie's API has
+     * a valid access_token, if it does not, then refresh it.
      */
-    @Before(value = "@target(com.danielvm.destiny2bot.annotation.Authorized) " +
-            "&& args(discordUser)")
-    public void accessTokenAdvice(DiscordUser discordUser) {
-        var entity = userDetailsRepository.getUserDetailsByDiscordId(discordUser.getId())
+    @Before(value = "within(com.danielvm.destiny2bot..*) && " +
+            "@annotation(com.danielvm.destiny2bot.annotation.Authorized)")
+    public void accessTokenAdvice() {
+        var discordUserId = UserIdentityContext.getUserIdentity().getDiscordId();
+        var entity = userDetailsRepository.getUserDetailsByDiscordId(discordUserId)
                 .orElseThrow(() -> new ResourceNotFoundException(
-                        "Database resource not found with user Id [%s]".formatted(discordUser.getId())));
+                        "Database resource not found with user Id [%s]".formatted(discordUserId)));
         var isTokenExpired = Instant.now().isAfter(entity.getExpiration());
         if (isTokenExpired) {
             refreshToken(entity);
@@ -54,11 +56,12 @@ public class TokenValidationAspect {
     }
 
     private void refreshToken(UserDetails userDetails) {
-        var tokenClient = webclient.baseUrl(discordConfiguration.getTokenUrl())
+        var tokenClient = webclient.baseUrl(bungieConfiguration.getTokenUrl())
                 .defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_FORM_URLENCODED_VALUE)
                 .build();
         MultiValueMap<String, String> bodyParams =
-                OAuth2Util.buildRefreshTokenExchangeParameters(userDetails.getRefreshToken());
+                OAuth2Util.buildRefreshTokenExchangeParameters(userDetails.getRefreshToken(),
+                        bungieConfiguration.getClientId(), bungieConfiguration.getClientSecret());
 
         var tokenResponse = tokenClient.post().body(BodyInserters.fromFormData(bodyParams))
                 .exchangeToMono(c -> {
@@ -69,7 +72,7 @@ public class TokenValidationAspect {
                                 .flatMap(err -> Mono.error(new ResourceNotFoundException(err.getResponseBodyAsString())));
                     }
                 }).block();
-        Assert.notNull(tokenResponse, "The token response from Discord was null");
+        Assert.notNull(tokenResponse, "The token response from Bungie was null");
         refreshDatabaseEntry(tokenResponse, userDetails);
     }
 
