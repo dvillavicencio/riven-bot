@@ -10,43 +10,22 @@ spring:
       password: password
       authentication-database: admin
       database: d2armory
-  security:
-    oauth2:
-      client:
-        provider:
-          discordOAuth2Client:
-            authorization-uri:
-            token-uri:
-          bungieOAuth2Client:
-            authorization-uri: https://www.bungie.net/en/oauth/authorize
-            token-uri: https://www.bungie.net/platform/app/oauth/token/
-        registration:
-          bungieOAuth2Client:
-            provider: bungieOAuth2Client
-            client-id: ${BUNGIE_CLIENT_ID}
-            client-secret: ${BUNGIE_CLIENT_SECRET}
-            authorization-grant-type: authorization_code
-            redirect-uri: https://localhost:443/login/oauth2/code/bungieOAuth2Client
-          discordOAuth2Client:
-            provider: bungieOAuth2Client
-            client-id: ${DISCORD_CLIENT_ID}
-            client-secret: ${DISCORD_CLIENT_SECRET}
-            authorization-grant-type: authorization_code
-            redirect-uri: https://localhost:443/discord/callback
 
 bungie:
   api:
-    callbackUrl: https://localhost:443/bungie/callback
+    callbackUrl: ${application.callback.url}/bungie/callback
 
 discord:
   api:
-    callbackUrl: https://localhost:443/discord/callback
+    callbackUrl: ${application.callback.url}/discord/callback
 
 server:
-  port: 443
+  port: 8080
   ssl:
-    key-store: keystore.p12
-    key-store-type: PKCS12
-    key-alias: tomcat
-    key-store-password: password
+    enabled: false
+
+application:
+  callback:
+    # Replace with your own callback url masking port 8080 to run locally
+    url: https://5ba3-2600-1700-4390-a930-a0c5-3cf0-b839-bdcc.ngrok-free.app
 

@@ -9,29 +9,6 @@ spring:
     mongodb:
       port: 27017
       host: mongoDB
-  security:
-    oauth2:
-      client:
-        provider:
-          discordOAuth2Client:
-            authorization-uri: https://discord.com/oauth2/authorize
-            token-uri: https://discord.com/api/oauth2/token
-          bungieOAuth2Client:
-            authorization-uri: https://www.bungie.net/en/oauth/authorize
-            token-uri: https://www.bungie.net/platform/app/oauth/token/
-        registration:
-          bungieOAuth2Client:
-            provider: bungieOAuth2Client
-            client-id: ${BUNGIE_CLIENT_ID}
-            client-secret: ${BUNGIE_CLIENT_SECRET}
-            authorization-grant-type: authorization_code
-            redirect-uri: https://d2discord.app/login/oauth2/code/bungieOAuth2Client
-          discordOAuth2Client:
-            provider: bungieOAuth2Client
-            client-secret: ${DISCORD_CLIENT_ID}
-            client-name: ${DISCORD_CLIENT_SECRET}
-            authorization-grant-type: authorization_code
-            redirect-uri: https://d2discord.app/login/oauth2/code/discordOAuth2Client
 
 server:
   port: 443
@@ -48,7 +25,7 @@ bungie:
     baseUrl: https://www.bungie.net/Platform
     authorizationUrl: https://www.bungie.net/en/oauth/authorize
     tokenUrl: https://www.bungie.net/platform/app/oauth/token/
-    callbackUrl: https://www.d2discord.app/bungie/callback
+    callbackUrl: ${application.callback.url}/bungie/callback
     currentUserMembershipUrl: ${bungie.api.baseUrl}/User/GetMembershipsForCurrentUser/
     profileDataUrl: ${bungie.api.baseUrl}/Destiny2/{membershipType}/Profile/{destinyMembershipId}/
     manifestEntityDefinitionUrl: ${bungie.api.baseUrl}/Destiny2/Manifest/{entityType}/{hashIdentifier}/
@@ -58,7 +35,7 @@ discord:
     version: 10
     baseUrl: https://discord.com/api/v${discord.api.version}
     tokenUrl: https://discord.com/api/oauth2/token
-    callbackUrl: https://d2discord.app/discord/callback
+    callbackUrl: ${application.callback.url}/discord/callback
     authorizationUrl: https://discord.com/oauth2/authorize
     botToken: ${DISCORD_BOT_TOKEN}
     botPublicKey: ${DISCORD_BOT_PUBLIC_KEY}
@@ -66,3 +43,7 @@ discord:
     clientId: ${DISCORD_CLIENT_ID}
     clientSecret: ${DISCORD_CLIENT_SECRET}
     scopes: identify
+
+application:
+  callback:
+    url: https://d2discord.app
