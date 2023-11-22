@@ -2,12 +2,9 @@ package com.danielvm.destiny2bot.service;
 
 import com.danielvm.destiny2bot.client.BungieMembershipClient;
 import com.danielvm.destiny2bot.dto.destiny.membership.MembershipResponse;
-import com.danielvm.destiny2bot.util.AuthenticationUtil;
 import com.danielvm.destiny2bot.util.MembershipUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 import reactor.core.publisher.Mono;
@@ -22,12 +19,12 @@ public class MembershipService {
     /**
      * Get the current membership information for the currently logged-in user
      *
-     * @param authentication The object containing authentication information
+     * @param bearerToken The user's bearer token
      * @return {@link MembershipResponse}
      */
-    public MembershipResponse getCurrentUserMembershipInformation(Authentication authentication) {
+    public MembershipResponse getCurrentUserMembershipInformation(String bearerToken) {
         var membershipData = membershipClient.getMembershipForCurrentUser(
-                AuthenticationUtil.getBearerToken(authentication)).getBody();
+                bearerToken).getBody();
 
         Assert.notNull(membershipData, "The membership characters for the current user is null");
         Assert.notNull(MembershipUtil.extractMembershipId(membershipData), "Membership Id is null for current user");
@@ -38,12 +35,11 @@ public class MembershipService {
     /**
      * Get the current membership information for the currently logged-in user asynchronously
      *
-     * @param authentication The object containing authentication information
+     * @param bearerToken The user's bearer token
      * @return {@link MembershipResponse}
      */
-    public Mono<MembershipResponse> getCurrentUserMembershipInformationRx(Authentication authentication) {
-        return membershipClient.getMembershipForCurrentUserRx(
-                        AuthenticationUtil.getBearerToken(authentication))
+    public Mono<MembershipResponse> getCurrentUserMembershipInformationRx(String bearerToken) {
+        return membershipClient.getMembershipForCurrentUserRx(bearerToken)
                 .map(membershipResponse -> {
                     Assert.notNull(membershipResponse, "The membership characters for the current user is null");
                     Assert.notNull(MembershipUtil.extractMembershipId(membershipResponse), "Membership Id is null for current user");

@@ -1,7 +1,9 @@
 package com.danielvm.destiny2bot.service;
 
+import com.danielvm.destiny2bot.annotation.Authorized;
 import com.danielvm.destiny2bot.client.BungieManifestClientWrapper;
 import com.danielvm.destiny2bot.client.BungieProfileClient;
+import com.danielvm.destiny2bot.context.UserIdentityContext;
 import com.danielvm.destiny2bot.dto.CharacterVault;
 import com.danielvm.destiny2bot.dto.CharacterWeapon;
 import com.danielvm.destiny2bot.dto.CharacterWeaponsResponse;
@@ -9,12 +11,13 @@ import com.danielvm.destiny2bot.dto.Stats;
 import com.danielvm.destiny2bot.dto.destiny.character.vaultitems.VaultItem;
 import com.danielvm.destiny2bot.enums.ItemSubTypeEnum;
 import com.danielvm.destiny2bot.enums.ItemTypeEnum;
+import com.danielvm.destiny2bot.exception.ResourceNotFoundException;
 import com.danielvm.destiny2bot.mapper.VaultWeaponMapper;
+import com.danielvm.destiny2bot.repository.UserDetailsRepository;
 import com.danielvm.destiny2bot.util.AuthenticationUtil;
 import com.danielvm.destiny2bot.util.MembershipUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -36,20 +39,21 @@ public class CharacterWeaponsService {
     private final MembershipService membershipService;
     private final BungieManifestClientWrapper bungieManifestClient;
     private final VaultWeaponMapper vaultWeaponMapper;
+    private final UserDetailsRepository userDetailsRepository;
 
     /**
      * Get all the weapons in the vault for the current user asynchronously
      *
-     * @param authentication The authentication object holding security details
      * @return {@link CharacterWeaponsResponse}
      */
-    public Mono<CharacterVault> getVaultWeaponsRx(Authentication authentication) {
-        return membershipService.getCurrentUserMembershipInformationRx(authentication)
+    public Mono<CharacterVault> getVaultWeaponsRx() {
+        var bearerToken = userDetailsRepository.getUserDetailsByDiscordId(UserIdentityContext.getUserIdentity().getDiscordId())
+                .orElse(null).getAccessToken();
+        return membershipService.getCurrentUserMembershipInformationRx(bearerToken)
                 .flatMap(membershipResponse -> {
                     var membershipId = MembershipUtil.extractMembershipId(membershipResponse);
                     var membershipType = MembershipUtil.extractMembershipType(membershipResponse);
-                    return bungieProfileClient.getCharacterVaultItemsRx(
-                            AuthenticationUtil.getBearerToken(authentication), membershipType, membershipId);
+                    return bungieProfileClient.getCharacterVaultItemsRx(bearerToken, membershipType, membershipId);
                 })
                 .flatMapMany(items ->
                         Flux.fromIterable(items.getResponse().getProfileInventory().getData().getItems()))
@@ -93,16 +97,19 @@ public class CharacterWeaponsService {
     /**
      * Get all the weapons in the vault for the current user asynchronously
      *
-     * @param authentication The authentication object holding security details
      * @return {@link CharacterWeaponsResponse}
      */
-    public CharacterVault getVaultWeapons(Authentication authentication) {
-        var membershipInfo = membershipService.getCurrentUserMembershipInformation(authentication);
+    @Authorized
+    public CharacterVault getVaultWeapons() {
+        var bearerToken = AuthenticationUtil.formatBearerToken(userDetailsRepository.getUserDetailsByDiscordId(UserIdentityContext.getUserIdentity().getDiscordId())
+                .orElseThrow(() -> new ResourceNotFoundException("Access token was invalid for current user"))
+                .getAccessToken());
+        var membershipInfo = membershipService.getCurrentUserMembershipInformation(bearerToken);
         var membershipType = MembershipUtil.extractMembershipType(membershipInfo);
         var membershipId = MembershipUtil.extractMembershipId(membershipInfo);
 
         var vaultWeapons = bungieProfileClient.getCharacterVaultItems(
-                AuthenticationUtil.getBearerToken(authentication), membershipType, membershipId);
+                bearerToken, membershipType, membershipId);
 
         return CharacterVault.builder()
                 .weapons(Objects.requireNonNull(vaultWeapons.getBody()).getResponse()

@@ -39,6 +39,16 @@ public class BungieConfiguration {
     private String key;
 
     /**
+     * Bungie clientId
+     */
+    private String clientId;
+
+    /**
+     * Bungie client secret
+     */
+    private String clientSecret;
+
+    /**
      * Url for getting manifest definitions of things, based on hashes
      */
     private String manifestEntityDefinitionUrl;
@@ -47,6 +57,21 @@ public class BungieConfiguration {
      * Base url for Bungie Requests
      */
     private String baseUrl;
+
+    /**
+     * Url for Bungie Token endpoint
+     */
+    private String tokenUrl;
+
+    /**
+     * Url for OAuth2 authorization flow
+     */
+    private String authorizationUrl;
+
+    /**
+     * Url for callback during OAuth2 authorization
+     */
+    private String callbackUrl;
 
     @Bean
     public RestTemplate restTemplate() {

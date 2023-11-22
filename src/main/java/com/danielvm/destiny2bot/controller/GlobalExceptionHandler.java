@@ -1,5 +1,6 @@
 package com.danielvm.destiny2bot.controller;
 
+import jakarta.validation.ConstraintViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -22,4 +23,12 @@ public class GlobalExceptionHandler {
         detail.setDetail(wcre.getResponseBodyAsString());
         return detail;
     }
+
+    @ExceptionHandler
+    public ProblemDetail handleConstraintViolationException(ConstraintViolationException cve) {
+        var detail = ProblemDetail.forStatus(HttpStatus.BAD_REQUEST);
+        detail.setDetail(cve.getMessage());
+        return detail;
+    }
+
 }
