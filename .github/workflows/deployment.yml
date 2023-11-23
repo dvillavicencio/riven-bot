@@ -105,27 +105,23 @@ jobs:
           script: |
             # Change to correct directory
             cd Projects/destiny2bot/
-            pwd
             
             # Pull latest image
             sudo docker login -u ${{ secrets.DOCKERHUB_USERNAME }} -p ${{ secrets.DOCKERHUB_TOKEN }}
             sudo docker pull ${{ env.DOCKER_IMAGE_NAME }} # Pull latest Destiny2Bot image
             
             # Setup variables for bot application
-            rm -f .env
-            echo "DISCORD_BOT_TOKEN=${{ secrets.DISCORD_BOT_TOKEN }}" > .env-bot
-            echo "BUNGIE_API_KEY=${{ secrets.BUNGIE_API_KEY }}" >> .env-bot
-            echo "BUNGIE_CLIENT_ID=${{ secrets.BUNGIE_CLIENT_ID }}" >> .env-bot
-            echo "BUNGIE_CLIENT_SECRET=${{ secrets.BUNGIE_CLIENT_SECRET }}" >> .env-bot
-            echo "KEYSTORE_PASSWORD=${{ secrets.KEYSTORE_PASSWORD }}" >> .env-bot
-            echo "DISCORD_BOT_PUBLIC_KEY=${{ secrets.DISCORD_BOT_PUBLIC_KEY }}" >> .env-bot
-            echo "DISCORD_CLIENT_ID=${{ secrets.DISCORD_CLIENT_ID }}" >> .env-bot
-            echo "DISCORD_CLIENT_SECRET=${{ secrets.DISCORD_CLIENT_SECRET }}" >> .env-bot
-            echo "IMAGE_NAME=${{ env.DOCKER_IMAGE_NAME }}" >> .env-bot
-
-            # Setup variables for mongo DB
-            echo "MONGO_INITDB_ROOT_USERNAME=${{ secrets. MONGO_INITDB_ROOT_USERNAME }}" >> .env-db
-            echo "MONGO_INITDB_ROOT_PASSWORD=${{ secrets.MONGO_INITDB_ROOT_PASSWORD }}" >> .env-db
+            echo "DISCORD_BOT_TOKEN=${{ secrets.DISCORD_BOT_TOKEN }}" > .env
+            echo "BUNGIE_API_KEY=${{ secrets.BUNGIE_API_KEY }}" >> .env
+            echo "BUNGIE_CLIENT_ID=${{ secrets.BUNGIE_CLIENT_ID }}" >> .env
+            echo "BUNGIE_CLIENT_SECRET=${{ secrets.BUNGIE_CLIENT_SECRET }}" >> .env
+            echo "KEYSTORE_PASSWORD=${{ secrets.KEYSTORE_PASSWORD }}" >> .env
+            echo "DISCORD_BOT_PUBLIC_KEY=${{ secrets.DISCORD_BOT_PUBLIC_KEY }}" >> .env
+            echo "DISCORD_CLIENT_ID=${{ secrets.DISCORD_CLIENT_ID }}" >> .env
+            echo "DISCORD_CLIENT_SECRET=${{ secrets.DISCORD_CLIENT_SECRET }}" >> .env
+            echo "IMAGE_NAME=${{ env.DOCKER_IMAGE_NAME }}" >> .env
+            echo "MONGO_INITDB_ROOT_USERNAME=${{ secrets. MONGO_INITDB_ROOT_USERNAME }}" >> .env
+            echo "MONGO_INITDB_ROOT_PASSWORD=${{ secrets.MONGO_INITDB_ROOT_PASSWORD }}" >> .env
             
             # Start up the cocker compose app
             sudo docker compose up -d
