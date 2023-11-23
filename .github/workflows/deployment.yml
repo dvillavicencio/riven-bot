@@ -117,7 +117,7 @@ jobs:
             echo "BUNGIE_API_KEY=${{ secrets.BUNGIE_API_KEY }}" >> .env-bot
             echo "BUNGIE_CLIENT_ID=${{ secrets.BUNGIE_CLIENT_ID }}" >> .env-bot
             echo "BUNGIE_CLIENT_SECRET=${{ secrets.BUNGIE_CLIENT_SECRET }}" >> .env-bot
-            echo "KEYSTORE_PASSWORD=${{ secrets.KEYSTORE_PASSWORD }}" >> .env
+            echo "KEYSTORE_PASSWORD=${{ secrets.KEYSTORE_PASSWORD }}" >> .env-bot
             echo "DISCORD_BOT_PUBLIC_KEY=${{ secrets.DISCORD_BOT_PUBLIC_KEY }}" >> .env-bot
             echo "DISCORD_CLIENT_ID=${{ secrets.DISCORD_CLIENT_ID }}" >> .env-bot
             echo "DISCORD_CLIENT_SECRET=${{ secrets.DISCORD_CLIENT_SECRET }}" >> .env-bot
