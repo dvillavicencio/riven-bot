@@ -104,7 +104,8 @@ jobs:
           key: ${{ secrets.AWS_PRIVATE_KEY }}
           script: |
             # Change to correct directory
-            cd Projects/destiny2Bot/
+            cd Projects/destiny2bot/
+            pwd
             
             # Pull latest image
             sudo docker login -u ${{ secrets.DOCKERHUB_USERNAME }} -p ${{ secrets.DOCKERHUB_TOKEN }}
