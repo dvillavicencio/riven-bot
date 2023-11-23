@@ -8,7 +8,11 @@ spring:
       host: redis
     mongodb:
       port: 27017
-      host: mongoDB
+      host: mongo
+      username: ${MONGO_INITDB_ROOT_USERNAME}
+      password: ${MONGO_INITDB_ROOT_USERNAME}
+      authentication-database: admin
+      database: destiny2bot
 
 server:
   port: 443
