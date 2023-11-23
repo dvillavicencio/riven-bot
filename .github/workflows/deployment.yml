@@ -108,7 +108,6 @@ jobs:
             sudo docker pull ${{ env.DOCKER_IMAGE_NAME }} # Pull latest Destiny2Bot image
             
             # Setup variables for bot application
-            rm -f bot.env
             echo "DISCORD_BOT_TOKEN=${{ secrets.DISCORD_BOT_TOKEN }}" > bot.env
             echo "BUNGIE_API_KEY=${{ secrets.BUNGIE_API_KEY }}" >> bot.env
             echo "BUNGIE_CLIENT_ID=${{ secrets.BUNGIE_CLIENT_ID }}" >> bot.env
@@ -120,7 +119,6 @@ jobs:
             echo "IMAGE_NAME=${{ env.DOCKER_IMAGE_NAME }}" >> bot.env
             
             # Setup variables for MongoDB
-            rm -f db.env
             echo "MONGO_INITDB_ROOT_USERNAME=${{ secrets. MONGO_INITDB_ROOT_USERNAME }}" > db.env
             echo "MONGO_INITDB_ROOT_PASSWORD=${{ secrets.MONGO_INITDB_ROOT_PASSWORD }}" >> db.env
             
