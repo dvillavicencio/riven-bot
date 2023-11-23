@@ -9,8 +9,8 @@ spring:
     mongodb:
       port: 27017
       host: mongo
-      username: ${MONGO_ROOT_USERNAME}
-      password: ${MONGO_ROOT_PASSWORD}
+      username: ${MONGO_INITDB_ROOT_USERNAME}
+      password: ${MONGO_INITDB_ROOT_USERNAME}
       authentication-database: admin
       database: destiny2bot
 
