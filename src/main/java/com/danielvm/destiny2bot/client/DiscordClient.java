@@ -8,13 +8,13 @@ import org.springframework.web.service.annotation.GetExchange;
 
 public interface DiscordClient {
 
-    /**
-     * Gets the current Discord user details
-     *
-     * @param bearerToken The bearer token of the Discord user
-     * @return {@link UserResponse}
-     */
-    @GetExchange("/users/@me")
-    ResponseEntity<UserResponse> getUser(
-            @RequestHeader(HttpHeaders.AUTHORIZATION) String bearerToken);
+  /**
+   * Gets the current Discord user details
+   *
+   * @param bearerToken The bearer token of the Discord user
+   * @return {@link UserResponse}
+   */
+  @GetExchange("/users/@me")
+  ResponseEntity<UserResponse> getUser(
+      @RequestHeader(HttpHeaders.AUTHORIZATION) String bearerToken);
 }

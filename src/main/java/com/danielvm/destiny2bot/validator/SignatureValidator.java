@@ -5,26 +5,25 @@ import com.danielvm.destiny2bot.config.DiscordConfiguration;
 import com.danielvm.destiny2bot.util.CryptoUtil;
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
-import lombok.SneakyThrows;
 import org.springframework.web.util.ContentCachingRequestWrapper;
 
-public class SignatureValidator implements ConstraintValidator<ValidSignature, ContentCachingRequestWrapper> {
+public class SignatureValidator implements
+    ConstraintValidator<ValidSignature, ContentCachingRequestWrapper> {
 
-    private static final String SIGNATURE_HEADER_NAME = "X-Signature-Ed25519";
-    private static final String TIMESTAMP_HEADER_NAME = "X-Signature-Timestamp";
+  private static final String SIGNATURE_HEADER_NAME = "X-Signature-Ed25519";
+  private static final String TIMESTAMP_HEADER_NAME = "X-Signature-Timestamp";
 
-    private final DiscordConfiguration discordConfiguration;
+  private final DiscordConfiguration discordConfiguration;
 
-    public SignatureValidator(DiscordConfiguration discordConfiguration) {
-        this.discordConfiguration = discordConfiguration;
-    }
+  public SignatureValidator(DiscordConfiguration discordConfiguration) {
+    this.discordConfiguration = discordConfiguration;
+  }
 
-    @SneakyThrows
-    @Override
-    public boolean isValid(ContentCachingRequestWrapper value, ConstraintValidatorContext context) {
-        var signature = value.getHeader(SIGNATURE_HEADER_NAME);
-        var timestamp = value.getHeader(TIMESTAMP_HEADER_NAME);
-        var botPublicKey = discordConfiguration.getBotPublicKey();
-        return CryptoUtil.validateSignature(value, signature, botPublicKey, timestamp);
-    }
+  @Override
+  public boolean isValid(ContentCachingRequestWrapper value, ConstraintValidatorContext context) {
+    var signature = value.getHeader(SIGNATURE_HEADER_NAME);
+    var timestamp = value.getHeader(TIMESTAMP_HEADER_NAME);
+    var botPublicKey = discordConfiguration.getBotPublicKey();
+    return CryptoUtil.validateSignature(value, signature, botPublicKey, timestamp);
+  }
 }

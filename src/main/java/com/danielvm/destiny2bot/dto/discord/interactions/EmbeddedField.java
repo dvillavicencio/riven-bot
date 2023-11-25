@@ -7,9 +7,9 @@ import lombok.Data;
 @Builder
 public class EmbeddedField {
 
-    private String name;
+  private String name;
 
-    private String value;
+  private String value;
 
-    private Boolean inline;
+  private Boolean inline;
 }

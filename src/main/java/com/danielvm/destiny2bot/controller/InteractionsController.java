@@ -16,27 +16,27 @@ import org.springframework.web.util.ContentCachingRequestWrapper;
 @Validated
 public class InteractionsController {
 
-    private final InteractionService interactionService;
+  private final InteractionService interactionService;
 
-    public InteractionsController(
-            InteractionService interactionService) {
-        this.interactionService = interactionService;
-    }
+  public InteractionsController(
+      InteractionService interactionService) {
+    this.interactionService = interactionService;
+  }
 
-    /**
-     * Handles interactions sent from Discord Chat
-     *
-     * @param interaction The interaction sent by Discord
-     * @param request     This request is used only to validate the signature of the message
-     * @return TBD
-     */
-    @PostMapping("/interactions")
-    public ResponseEntity<?> interactions(
-            @RequestBody Interaction interaction,
-            @ValidSignature ContentCachingRequestWrapper request) {
-        log.info("Interaction received [{}]", interaction);
-        var response = interactionService.handleInteraction(interaction);
-        log.info("Interaction completed [{}]", interaction);
-        return ResponseEntity.ok(response);
-    }
+  /**
+   * Handles interactions sent from Discord Chat
+   *
+   * @param interaction The interaction sent by Discord
+   * @param request     This request is used only to validate the signature of the message
+   * @return TBD
+   */
+  @PostMapping("/interactions")
+  public ResponseEntity<?> interactions(
+      @RequestBody Interaction interaction,
+      @ValidSignature ContentCachingRequestWrapper request) {
+    log.info("Interaction received [{}]", interaction);
+    var response = interactionService.handleInteraction(interaction);
+    log.info("Interaction completed [{}]", interaction);
+    return ResponseEntity.ok(response);
+  }
 }
