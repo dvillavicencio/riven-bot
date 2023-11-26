@@ -11,9 +11,9 @@ spring:
 
 bungie:
   api:
-    key: ${BUNGIE_API_KEY}
-    clientSecret: ${BUNGIE_CLIENT_SECRET}
-    clientId: ${BUNGIE_CLIENT_ID}
+    key: 511cd98d-2abb-4b14-9ee1-23ce4e1ba24d
+    clientSecret: 4289bd68-13e7-46d1-b7b6-9c0245abd745
+    clientId: 2a20e240-4f2f-4c2c-8674-ade6f045012f
     baseUrl: https//localhost:6969/bungie
     authorizationUrl: http://localhost:6969/en/oauth/authorize
     tokenUrl: http://localhost:6969/platform/app/oauth/token/
@@ -29,13 +29,9 @@ discord:
     tokenUrl: http://localhost:6969/api/oauth2/token
     callbackUrl: ${application.callback.url}/discord/callback
     authorizationUrl: http://localhost:6969/oauth2/authorize
-    botToken: ${DISCORD_BOT_TOKEN}
-    botPublicKey: ${DISCORD_BOT_PUBLIC_KEY}
+    botToken: 6c377985-3f4c-496e-bf9f-7025d4bd4f96
+    botPublicKey: fe78bf42-a404-466c-ad99-cca53857cc28
     permissionsInteger: 137439217728
-    clientId: ${DISCORD_CLIENT_ID}
-    clientSecret: ${DISCORD_CLIENT_SECRET}
+    clientId: 5c417aab-ee4c-44c0-8029-043a5361460d
+    clientSecret: a3cd6133-be30-4c3b-ab1d-26a1f14215fc
     scopes: identify
-
-application:
-  callback:
-    url: http://localhost:8080

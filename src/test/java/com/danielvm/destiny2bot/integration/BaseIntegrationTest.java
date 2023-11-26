@@ -1,12 +1,16 @@
 package com.danielvm.destiny2bot.integration;
 
+import com.github.tomakehurst.wiremock.WireMockServer;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.cloud.contract.wiremock.AutoConfigureWireMock;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
+import org.springframework.test.web.servlet.MockMvc;
 import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.containers.MongoDBContainer;
 import org.testcontainers.junit.jupiter.Container;
@@ -15,8 +19,15 @@ import org.testcontainers.utility.DockerImageName;
 
 @ExtendWith(MockitoExtension.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-@AutoConfigureWireMock(port = 6969)
+@AutoConfigureWireMock(port = 0)
+@AutoConfigureMockMvc
 public abstract class BaseIntegrationTest {
+
+  @Autowired
+  MockMvc mockMvc;
+
+  @Autowired
+  WireMockServer wireMockServer;
 
   @Container
   static final MongoDBContainer mongoDBContainer = new MongoDBContainer(
@@ -29,6 +40,12 @@ public abstract class BaseIntegrationTest {
   @LocalServerPort
   protected static int localServerPort;
 
+  /**
+   * Starts up some dynamic properties that change because of TestContainers usage, as well as the
+   * test environment having a random port
+   *
+   * @param registry {@link DynamicPropertyRegistry}
+   */
   @DynamicPropertySource
   public static void setupMe(DynamicPropertyRegistry registry) {
     Startables.deepStart(mongoDBContainer, redisContainer).join();
