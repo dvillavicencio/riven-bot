@@ -1,24 +1,22 @@
 package com.danielvm.destiny2bot.config;
 
 import com.danielvm.destiny2bot.client.BungieClient;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.extern.slf4j.Slf4j;
+import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.web.client.RestTemplate;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.support.WebClientAdapter;
 import org.springframework.web.service.invoker.HttpServiceProxyFactory;
 
-@Slf4j
-@Getter
-@Setter
+@Data
 @Configuration
 @ConfigurationProperties(prefix = "bungie.api")
 public class BungieConfiguration {
 
+  /**
+   * The name of the Bungie API key header
+   */
   private static final String API_KEY_HEADER_NAME = "x-api-key";
 
   /**
@@ -72,26 +70,14 @@ public class BungieConfiguration {
   private String callbackUrl;
 
   @Bean
-  public RestTemplate restTemplate() {
-    return new RestTemplate();
-  }
-
-  @Bean
-  public BungieClient bungieCharacterClient() {
-    return createClient();
-  }
-
-
-  private BungieClient createClient() {
-    var webClient = WebClient.builder()
+  public BungieClient bungieCharacterClient(WebClient.Builder builder) {
+    var webClient = builder
         .baseUrl(this.baseUrl)
         .defaultHeader(API_KEY_HEADER_NAME, this.key)
-        .defaultStatusHandler(code -> code.is4xxClientError() || code.is5xxServerError(),
-            clientResponse -> clientResponse.createException()
-                .map(ex -> new Exception(ex.getResponseBodyAsString(), ex.getCause())))
         .build();
     return HttpServiceProxyFactory.builder()
         .exchangeAdapter(WebClientAdapter.create(webClient))
-        .build().createClient(BungieClient.class);
+        .build()
+        .createClient(BungieClient.class);
   }
 }

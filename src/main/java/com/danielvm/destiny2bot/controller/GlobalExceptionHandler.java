@@ -1,6 +1,6 @@
 package com.danielvm.destiny2bot.controller;
 
-import com.danielvm.destiny2bot.exception.InvalidSignatureException;
+import com.danielvm.destiny2bot.exception.BaseException;
 import jakarta.validation.ConstraintViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
@@ -10,13 +10,6 @@ import org.springframework.web.reactive.function.client.WebClientResponseExcepti
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
-
-  @ExceptionHandler
-  public ProblemDetail handleIllegalStateException(IllegalStateException ise) {
-    var detail = ProblemDetail.forStatus(HttpStatus.BAD_REQUEST);
-    detail.setDetail(ise.getMessage());
-    return detail;
-  }
 
   @ExceptionHandler
   public ProblemDetail handleWebClientException(WebClientResponseException wcre) {
@@ -33,9 +26,9 @@ public class GlobalExceptionHandler {
   }
 
   @ExceptionHandler
-  public ProblemDetail handleInvalidSignatureException(InvalidSignatureException ise) {
-    var detail = ProblemDetail.forStatus(HttpStatus.BAD_REQUEST);
-    detail.setDetail(ise.getMessage());
+  public ProblemDetail handleBaseException(BaseException baseException) {
+    var detail = ProblemDetail.forStatus(baseException.getStatus());
+    detail.setDetail(baseException.getMessage());
     return detail;
   }
 

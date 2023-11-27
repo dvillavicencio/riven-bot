@@ -18,6 +18,7 @@ import org.springframework.util.Assert;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.web.reactive.function.client.WebClient.Builder;
 
 @Service
 @Slf4j
@@ -28,21 +29,22 @@ public class UserAuthorizationService {
 
   private final DiscordConfiguration discordConfiguration;
   private final BungieConfiguration bungieConfiguration;
-  private final WebClient.Builder webClient;
   private final DiscordClient discordClient;
   private final UserDetailsRepository userDetailsRepository;
+  private final WebClient.Builder defaultWebClientBuilder;
 
 
   public UserAuthorizationService(
       DiscordConfiguration discordConfiguration,
       BungieConfiguration bungieConfiguration,
-      WebClient.Builder webClientBuilder,
-      DiscordClient discordClient, UserDetailsRepository userDetailsRepository) {
+      DiscordClient discordClient,
+      UserDetailsRepository userDetailsRepository,
+      Builder defaultWebClientBuilder) {
     this.discordConfiguration = discordConfiguration;
     this.bungieConfiguration = bungieConfiguration;
-    this.webClient = webClientBuilder;
     this.discordClient = discordClient;
     this.userDetailsRepository = userDetailsRepository;
+    this.defaultWebClientBuilder = defaultWebClientBuilder;
   }
 
   /**
@@ -53,9 +55,8 @@ public class UserAuthorizationService {
    */
   public void authenticateDiscordUser(String authorizationCode, HttpSession session) {
     TokenResponse tokenResponse = getTokenResponse(authorizationCode,
-        discordConfiguration.getCallbackUrl(),
-        discordConfiguration.getClientSecret(), discordConfiguration.getClientId(),
-        discordConfiguration.getTokenUrl());
+        discordConfiguration.getCallbackUrl(), discordConfiguration.getClientSecret(),
+        discordConfiguration.getClientId(), discordConfiguration.getTokenUrl());
 
     Assert.notNull(tokenResponse, "The token response was null");
     Assert.notNull(tokenResponse.getAccessToken(), "The access_token received is null");
@@ -101,11 +102,15 @@ public class UserAuthorizationService {
         OAuth2Util.buildTokenExchangeParameters(authorizationCode, callbackUrl, clientSecret,
             clientId);
 
-    var client = webClient.baseUrl(tokenUrl)
+    var tokenClient = defaultWebClientBuilder
+        .baseUrl(tokenUrl)
         .defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_FORM_URLENCODED_VALUE)
+        .defaultHeader(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
         .build();
-    return client.post().body(BodyInserters.fromFormData(map))
-        .exchangeToMono(c -> c.bodyToMono(TokenResponse.class))
+
+    return tokenClient.post().body(BodyInserters.fromFormData(map))
+        .retrieve()
+        .bodyToMono(TokenResponse.class)
         .block();
   }
 

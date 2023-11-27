@@ -4,7 +4,7 @@ import com.danielvm.destiny2bot.context.UserIdentity;
 import com.danielvm.destiny2bot.context.UserIdentityContext;
 import com.danielvm.destiny2bot.dto.discord.interactions.Interaction;
 import com.danielvm.destiny2bot.enums.InteractionType;
-import com.danielvm.destiny2bot.exception.UserIdentityNotFoundException;
+import com.danielvm.destiny2bot.exception.IdentityNotFoundException;
 import com.danielvm.destiny2bot.repository.UserDetailsRepository;
 import java.util.Objects;
 import lombok.extern.slf4j.Slf4j;
@@ -33,7 +33,7 @@ public class UserContextAspect {
       "within(com.danielvm.destiny2bot..*) && " +
       "execution(* com.danielvm.destiny2bot.service.InteractionService.handleInteraction(..)) && " +
       "args(interaction)")
-  public void userContextAdvice(Interaction interaction) throws UserIdentityNotFoundException {
+  public void userContextAdvice(Interaction interaction) throws IdentityNotFoundException {
     if (Objects.equals(InteractionType.PING.getType(), interaction.getType()) ||
         Objects.equals(interaction.getData().getName(), "authorize")) {
       log.info("Interaction received was of type PING. No user identity context required");
@@ -43,7 +43,7 @@ public class UserContextAspect {
     if (userDetailsRepository.existsByDiscordId(userDiscordId)) {
       UserIdentityContext.setUserIdentity(new UserIdentity(userDiscordId));
     } else {
-      throw new UserIdentityNotFoundException(
+      throw new IdentityNotFoundException(
           "User identity not found for Discord Id [%s]".formatted(userDiscordId));
     }
   }

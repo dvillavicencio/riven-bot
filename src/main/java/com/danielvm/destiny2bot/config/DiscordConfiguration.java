@@ -61,15 +61,13 @@ public class DiscordConfiguration {
   private List<String> scopes;
 
   @Bean
-  public DiscordClient discordClient() {
-    var webClient = WebClient.builder()
+  public DiscordClient discordClient(WebClient.Builder defaultBuilder) {
+    var webClient = defaultBuilder
         .baseUrl(this.baseUrl)
-        .defaultStatusHandler(code -> code.is4xxClientError() || code.is5xxServerError(),
-            clientResponse -> clientResponse.createException()
-                .map(ex -> new Exception(ex.getResponseBodyAsString(), ex.getCause())))
         .build();
     return HttpServiceProxyFactory.builder()
         .exchangeAdapter(WebClientAdapter.create(webClient))
-        .build().createClient(DiscordClient.class);
+        .build()
+        .createClient(DiscordClient.class);
   }
 }

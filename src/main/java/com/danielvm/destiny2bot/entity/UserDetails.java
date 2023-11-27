@@ -7,8 +7,8 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 @Data
-@Document
 @Builder
+@Document
 public class UserDetails {
 
   @Id

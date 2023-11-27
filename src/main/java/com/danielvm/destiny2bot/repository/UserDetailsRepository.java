@@ -4,7 +4,7 @@ import com.danielvm.destiny2bot.entity.UserDetails;
 import java.util.Optional;
 import org.springframework.data.mongodb.repository.MongoRepository;
 
-public interface UserDetailsRepository extends MongoRepository<UserDetails, Long> {
+public interface UserDetailsRepository extends MongoRepository<UserDetails, String> {
 
   /**
    * Get user details by their DiscordId

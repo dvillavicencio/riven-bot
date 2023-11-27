@@ -1,6 +1,9 @@
 package com.danielvm.destiny2bot.integration;
 
-import com.github.tomakehurst.wiremock.WireMockServer;
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.json.JsonMapper;
+import java.util.Map;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,31 +17,35 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.containers.MongoDBContainer;
 import org.testcontainers.junit.jupiter.Container;
-import org.testcontainers.lifecycle.Startables;
+import org.testcontainers.junit.jupiter.Testcontainers;
 import org.testcontainers.utility.DockerImageName;
 
 @ExtendWith(MockitoExtension.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-@AutoConfigureWireMock(port = 0)
+@AutoConfigureWireMock
 @AutoConfigureMockMvc
+@Testcontainers
 public abstract class BaseIntegrationTest {
 
   @Autowired
   MockMvc mockMvc;
 
-  @Autowired
-  WireMockServer wireMockServer;
+  static JsonMapper jsonMapper;
 
   @Container
-  static final MongoDBContainer mongoDBContainer = new MongoDBContainer(
+  static final MongoDBContainer MONGO_DB_CONTAINER = new MongoDBContainer(
       DockerImageName.parse("mongo"));
+//      .withEnv(Map.of(
+//          "MONGO_INITDB_ROOT_USERNAME", "test",
+//          "MONGO_INITDB_ROOT_PASSWORD", "test",
+//          "MONGO_INITDB_DATABASE", "destiny2bot-test"));
 
   @Container
-  static final GenericContainer<?> redisContainer = new GenericContainer<>("redis:5.0.3-alpine")
+  static final GenericContainer<?> REDIS_CONTAINER = new GenericContainer<>("redis:5.0.3-alpine")
       .withExposedPorts(6379);
 
   @LocalServerPort
-  protected static int localServerPort;
+  protected int localServerPort;
 
   /**
    * Starts up some dynamic properties that change because of TestContainers usage, as well as the
@@ -48,16 +55,23 @@ public abstract class BaseIntegrationTest {
    */
   @DynamicPropertySource
   public static void setupMe(DynamicPropertyRegistry registry) {
-    Startables.deepStart(mongoDBContainer, redisContainer).join();
+    registry.add("spring.data.mongodb.port", MONGO_DB_CONTAINER::getFirstMappedPort);
+    registry.add("spring.data.mongodb.host", MONGO_DB_CONTAINER::getHost);
+//    registry.add("spring.data.mongodb.username",
+//        () -> MONGO_DB_CONTAINER.getEnvMap().get("MONGO_INITDB_ROOT_USERNAME"));
+//    registry.add("spring.data.mongodb.password",
+//        () -> MONGO_DB_CONTAINER.getEnvMap().get("MONGO_INITDB_ROOT_PASSWORD"));
+//    registry.add("spring.data.mongodb.password",
+//        () -> MONGO_DB_CONTAINER.getEnvMap().get("MONGO_INITDB_ROOT_PASSWORD"));
 
-    registry.add("spring.data.mongodb.port", mongoDBContainer::getFirstMappedPort);
-    registry.add("spring.data.mongodb.host", mongoDBContainer::getHost);
+    registry.add("spring.data.redis.port", REDIS_CONTAINER::getFirstMappedPort);
+    registry.add("spring.data.redis.host", REDIS_CONTAINER::getHost);
+  }
 
-    registry.add("spring.data.redis.port", redisContainer::getFirstMappedPort);
-    registry.add("spring.data.redis.host", redisContainer::getHost);
-
-    registry.add("application.callback.url",
-        () -> "http://localhost:%s".formatted(localServerPort));
+  @BeforeAll
+  public static void setup() {
+    jsonMapper = new JsonMapper();
+    jsonMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
   }
 
 }

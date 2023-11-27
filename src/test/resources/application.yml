@@ -4,20 +4,17 @@ spring:
       enabled: true
   data:
     mongodb:
-      username: test
-      password: test
-      authentication-database: admin
-      database: destiny2bot-test
+      database: test
 
 bungie:
   api:
     key: 511cd98d-2abb-4b14-9ee1-23ce4e1ba24d
     clientSecret: 4289bd68-13e7-46d1-b7b6-9c0245abd745
     clientId: 2a20e240-4f2f-4c2c-8674-ade6f045012f
-    baseUrl: https//localhost:6969/bungie
-    authorizationUrl: http://localhost:6969/en/oauth/authorize
-    tokenUrl: http://localhost:6969/platform/app/oauth/token/
-    callbackUrl: ${application.callback.url}/bungie/callback
+    baseUrl: http://localhost:8080/bungie
+    authorizationUrl: http://localhost:8080/en/oauth/authorize
+    tokenUrl: http://localhost:8080/platform/app/oauth/token/
+    callbackUrl: http://localhost:${server.port}/bungie/callback
     currentUserMembershipUrl: ${bungie.api.baseUrl}/User/GetMembershipsForCurrentUser/
     profileDataUrl: ${bungie.api.baseUrl}/Destiny2/{membershipType}/Profile/{destinyMembershipId}/
     manifestEntityDefinitionUrl: ${bungie.api.baseUrl}/Destiny2/Manifest/{entityType}/{hashIdentifier}/
@@ -25,10 +22,10 @@ bungie:
 discord:
   api:
     version: 10
-    baseUrl: http://localhost:6969/api/v${discord.api.version}
-    tokenUrl: http://localhost:6969/api/oauth2/token
-    callbackUrl: ${application.callback.url}/discord/callback
-    authorizationUrl: http://localhost:6969/oauth2/authorize
+    baseUrl: http://localhost:8080/api/v${discord.api.version}
+    tokenUrl: http://localhost:8080/api/oauth2/token
+    callbackUrl: http://localhost:${server.port}/discord/callback
+    authorizationUrl: http://localhost:8080/oauth2/authorize
     botToken: 6c377985-3f4c-496e-bf9f-7025d4bd4f96
     botPublicKey: fe78bf42-a404-466c-ad99-cca53857cc28
     permissionsInteger: 137439217728
