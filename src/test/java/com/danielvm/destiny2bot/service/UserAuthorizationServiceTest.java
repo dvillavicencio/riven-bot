@@ -189,6 +189,40 @@ public class UserAuthorizationServiceTest {
     assertThat(httpSession.isInvalid()).isTrue();
   }
 
+  @ParameterizedTest
+  @MethodSource("bungieTokenMissingAttributes")
+  @DisplayName("Linking and registering user fails if Bungie's access token is missing fields")
+  public void linkDiscordUserToBungieFailsIfSomeFieldsAreNotPresent(
+      TokenResponse bungieToken) {
+    // given: authorization code and an HttpSession with previous Discord data
+    var authorizationCode = "someAuthorizationCode";
+
+    var discordUserId = "88012312784012";
+    var discordUsername = "generic_discord_user";
+
+    var httpSession = new MockHttpSession();
+    httpSession.setAttribute("discordUserId", discordUserId);
+    httpSession.setAttribute("discordUserAlias", discordUsername);
+
+    mockGetTokenMethodCalls();
+
+    when(responseSpec.bodyToMono(TokenResponse.class))
+        .thenReturn(Mono.just(bungieToken));
+
+    // when: linkDiscordUserToBungieAccount is called, an exception is thrown with an error message
+    assertThatThrownBy(() -> sut.linkDiscordUserToBungieAccount(authorizationCode, httpSession))
+        .isInstanceOf(IllegalArgumentException.class)
+        .hasMessage(
+            "Some required fields from Bungie's access_token are null, unable to register current user");
+  }
+
+  static Stream<Arguments> bungieTokenMissingAttributes() {
+    return Stream.of(
+        arguments(new TokenResponse(null, "Bearer", 3600L, "someRefreshToken")),
+        arguments(new TokenResponse("someAccessToken", "Bearer", null, "someRefreshToken")),
+        arguments(new TokenResponse("someAccessToken", "Bearer", 3600L, null)));
+  }
+
   public void mockGetTokenMethodCalls() {
     // Leniency is needed for these two mock
     lenient().when(discordConfigurationMock.getTokenUrl())

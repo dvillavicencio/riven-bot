@@ -21,9 +21,10 @@ public class SignatureValidator implements
 
   @Override
   public boolean isValid(ContentCachingRequestWrapper value, ConstraintValidatorContext context) {
-    var signature = value.getHeader(SIGNATURE_HEADER_NAME);
-    var timestamp = value.getHeader(TIMESTAMP_HEADER_NAME);
-    var botPublicKey = discordConfiguration.getBotPublicKey();
-    return CryptoUtil.validateSignature(value, signature, botPublicKey, timestamp);
+    String signature = value.getHeader(SIGNATURE_HEADER_NAME);
+    String timestamp = value.getHeader(TIMESTAMP_HEADER_NAME);
+    String botPublicKey = discordConfiguration.getBotPublicKey();
+    byte[] bodyBytes = value.getContentAsByteArray();
+    return CryptoUtil.validateSignature(bodyBytes, signature, botPublicKey, timestamp);
   }
 }

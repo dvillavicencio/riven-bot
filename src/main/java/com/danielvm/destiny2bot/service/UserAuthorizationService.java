@@ -1,5 +1,7 @@
 package com.danielvm.destiny2bot.service;
 
+import static java.util.Objects.isNull;
+
 import com.danielvm.destiny2bot.client.DiscordClient;
 import com.danielvm.destiny2bot.config.BungieConfiguration;
 import com.danielvm.destiny2bot.config.DiscordConfiguration;
@@ -9,7 +11,8 @@ import com.danielvm.destiny2bot.repository.UserDetailsRepository;
 import com.danielvm.destiny2bot.util.OAuth2Util;
 import jakarta.servlet.http.HttpSession;
 import java.time.Instant;
-import java.util.Objects;
+import java.util.ArrayList;
+import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -19,6 +22,7 @@ import org.springframework.util.MultiValueMap;
 import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.WebClient.Builder;
+import reactor.core.publisher.Mono;
 
 @Service
 @Slf4j
@@ -63,7 +67,7 @@ public class UserAuthorizationService {
     var user = discordClient.getUser(
         OAuth2Util.formatBearerToken(tokenResponse.getAccessToken())).getBody();
 
-    if (Objects.isNull(user) || Objects.isNull(user.getId()) || Objects.isNull(
+    if (isNull(user) || isNull(user.getId()) || isNull(
         user.getUsername())) {
       log.error("The user object [{}] is null or has null required attributes", user);
       throw new IllegalStateException(
@@ -84,7 +88,14 @@ public class UserAuthorizationService {
     var tokenResponse = getTokenResponse(authorizationCode, bungieConfiguration.getCallbackUrl(),
         bungieConfiguration.getClientSecret(), bungieConfiguration.getClientId(),
         bungieConfiguration.getTokenUrl());
-    Assert.notNull(tokenResponse, "The token response from Bungie is null");
+
+    List<Object> unvalidatedFields = new ArrayList<>();
+    unvalidatedFields.add(tokenResponse.getAccessToken());
+    unvalidatedFields.add(tokenResponse.getRefreshToken());
+    unvalidatedFields.add(tokenResponse.getExpiresIn());
+
+    Assert.noNullElements(unvalidatedFields,
+        "Some required fields from Bungie's access_token are null, unable to register current user");
 
     UserDetails userDetails = UserDetails.builder()
         .discordUsername((String) httpSession.getAttribute(DISCORD_USER_ALIAS_KEY))
@@ -113,6 +124,7 @@ public class UserAuthorizationService {
     return tokenClient.post().body(BodyInserters.fromFormData(map))
         .retrieve()
         .bodyToMono(TokenResponse.class)
+        .switchIfEmpty(Mono.just(new TokenResponse())) // fallback to empty token response
         .block();
   }
 

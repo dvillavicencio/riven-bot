@@ -5,7 +5,6 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 import com.danielvm.destiny2bot.exception.InvalidSignatureException;
 import org.apache.commons.codec.DecoderException;
 import org.apache.commons.codec.binary.Hex;
-import org.springframework.web.util.ContentCachingRequestWrapper;
 import software.pando.crypto.nacl.Crypto;
 
 public class CryptoUtil {
@@ -24,11 +23,9 @@ public class CryptoUtil {
    * @return False if the signature is invalid, else True
    */
   public static boolean validateSignature(
-      ContentCachingRequestWrapper request, String signature,
+      byte[] bytes, String signature,
       String publicKey, String timestamp) {
-    String rawBody;
-    byte[] bytes = request.getContentAsByteArray();
-    rawBody = new String(bytes, UTF_8);
+    String rawBody = new String(bytes, UTF_8);
     try {
       return Crypto.signVerify(
           Crypto.signingPublicKey(Hex.decodeHex(publicKey.toCharArray())),
