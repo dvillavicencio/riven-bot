@@ -6,10 +6,10 @@ import com.danielvm.destiny2bot.config.DiscordConfiguration;
 import com.danielvm.destiny2bot.dto.oauth2.TokenResponse;
 import com.danielvm.destiny2bot.entity.UserDetails;
 import com.danielvm.destiny2bot.repository.UserDetailsRepository;
-import com.danielvm.destiny2bot.util.AuthenticationUtil;
 import com.danielvm.destiny2bot.util.OAuth2Util;
 import jakarta.servlet.http.HttpSession;
 import java.time.Instant;
+import java.util.Objects;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -58,15 +58,17 @@ public class UserAuthorizationService {
         discordConfiguration.getCallbackUrl(), discordConfiguration.getClientSecret(),
         discordConfiguration.getClientId(), discordConfiguration.getTokenUrl());
 
-    Assert.notNull(tokenResponse, "The token response was null");
     Assert.notNull(tokenResponse.getAccessToken(), "The access_token received is null");
 
     var user = discordClient.getUser(
-        AuthenticationUtil.formatBearerToken(tokenResponse.getAccessToken())).getBody();
+        OAuth2Util.formatBearerToken(tokenResponse.getAccessToken())).getBody();
 
-    Assert.notNull(user, "User response is null");
-    Assert.notNull(user.getId(), "User Id is null");
-    Assert.notNull(user.getUsername(), "User Alias is null");
+    if (Objects.isNull(user) || Objects.isNull(user.getId()) || Objects.isNull(
+        user.getUsername())) {
+      log.error("The user object [{}] is null or has null required attributes", user);
+      throw new IllegalStateException(
+          "Some required arguments for registration are null for the current user");
+    }
 
     session.setAttribute(DISCORD_USER_ID_KEY, user.getId());
     session.setAttribute(DISCORD_USER_ALIAS_KEY, user.getUsername());

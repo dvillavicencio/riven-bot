@@ -1,6 +1,6 @@
 package com.danielvm.destiny2bot.client;
 
-import com.danielvm.destiny2bot.dto.discord.user.UserResponse;
+import com.danielvm.destiny2bot.dto.discord.user.DiscordUserResponse;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestHeader;
@@ -12,9 +12,9 @@ public interface DiscordClient {
    * Gets the current Discord user details
    *
    * @param bearerToken The bearer token of the Discord user
-   * @return {@link UserResponse}
+   * @return {@link DiscordUserResponse}
    */
   @GetExchange("/users/@me")
-  ResponseEntity<UserResponse> getUser(
+  ResponseEntity<DiscordUserResponse> getUser(
       @RequestHeader(HttpHeaders.AUTHORIZATION) String bearerToken);
 }

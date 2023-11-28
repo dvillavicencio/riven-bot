@@ -1,9 +1,11 @@
 package com.danielvm.destiny2bot.dto.discord.user;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
 
 @Data
-public class UserResponse {
+@AllArgsConstructor
+public class DiscordUserResponse {
 
   private String id;
 
