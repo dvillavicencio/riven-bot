@@ -1,5 +1,6 @@
 package com.danielvm.destiny2bot.controller;
 
+import com.danielvm.destiny2bot.exception.BaseException;
 import jakarta.validation.ConstraintViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
@@ -10,25 +11,25 @@ import org.springframework.web.reactive.function.client.WebClientResponseExcepti
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
-    @ExceptionHandler
-    public ProblemDetail handleIllegalStateException(IllegalStateException ise) {
-        var detail = ProblemDetail.forStatus(HttpStatus.BAD_REQUEST);
-        detail.setDetail(ise.getMessage());
-        return detail;
-    }
+  @ExceptionHandler
+  public ProblemDetail handleWebClientException(WebClientResponseException wcre) {
+    var detail = ProblemDetail.forStatus(HttpStatus.BAD_REQUEST);
+    detail.setDetail(wcre.getResponseBodyAsString());
+    return detail;
+  }
 
-    @ExceptionHandler
-    public ProblemDetail handleWebClientException(WebClientResponseException wcre) {
-        var detail = ProblemDetail.forStatus(HttpStatus.BAD_REQUEST);
-        detail.setDetail(wcre.getResponseBodyAsString());
-        return detail;
-    }
+  @ExceptionHandler
+  public ProblemDetail handleConstraintViolationException(ConstraintViolationException cve) {
+    var detail = ProblemDetail.forStatus(HttpStatus.BAD_REQUEST);
+    detail.setDetail(cve.getMessage());
+    return detail;
+  }
 
-    @ExceptionHandler
-    public ProblemDetail handleConstraintViolationException(ConstraintViolationException cve) {
-        var detail = ProblemDetail.forStatus(HttpStatus.BAD_REQUEST);
-        detail.setDetail(cve.getMessage());
-        return detail;
-    }
+  @ExceptionHandler
+  public ProblemDetail handleBaseException(BaseException baseException) {
+    var detail = ProblemDetail.forStatus(baseException.getStatus());
+    detail.setDetail(baseException.getMessage());
+    return detail;
+  }
 
 }

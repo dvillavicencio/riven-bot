@@ -7,9 +7,9 @@ import lombok.Data;
 @Builder
 public class EmbeddedImage {
 
-    private String url;
+  private String url;
 
-    private Integer height;
+  private Integer height;
 
-    private Integer width;
+  private Integer width;
 }

@@ -5,9 +5,9 @@ import lombok.Data;
 @Data
 public class StatDetails {
 
-    private Long statHash;
-    private Integer value;
-    private Integer minimum;
-    private Integer maximum;
-    private Integer displayMaximum;
+  private Long statHash;
+  private Integer value;
+  private Integer minimum;
+  private Integer maximum;
+  private Integer displayMaximum;
 }

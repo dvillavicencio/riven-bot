@@ -1,108 +1,83 @@
 package com.danielvm.destiny2bot.config;
 
-import com.danielvm.destiny2bot.client.BungieManifestClient;
-import com.danielvm.destiny2bot.client.BungieMembershipClient;
-import com.danielvm.destiny2bot.client.BungieProfileClient;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.extern.slf4j.Slf4j;
+import com.danielvm.destiny2bot.client.BungieClient;
+import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.web.client.RestTemplate;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.support.WebClientAdapter;
 import org.springframework.web.service.invoker.HttpServiceProxyFactory;
 
-@Slf4j
-@Getter
-@Setter
+@Data
 @Configuration
 @ConfigurationProperties(prefix = "bungie.api")
 public class BungieConfiguration {
 
-    private static final String API_KEY_HEADER_NAME = "x-api-key";
+  /**
+   * The name of the Bungie API key header
+   */
+  private static final String API_KEY_HEADER_NAME = "x-api-key";
 
-    /**
-     * Url for getting membership characters for current user
-     */
-    private String currentUserMembershipUrl;
+  /**
+   * Url for getting membership characters for current user
+   */
+  private String currentUserMembershipUrl;
 
-    /**
-     * Url for getting profile characters based on membershipId and membershipType
-     */
-    private String profileDataUrl;
+  /**
+   * Url for getting profile characters based on membershipId and membershipType
+   */
+  private String profileDataUrl;
 
-    /**
-     * API key provided by Bungie when registering an application in their portal
-     */
-    private String key;
+  /**
+   * API key provided by Bungie when registering an application in their portal
+   */
+  private String key;
 
-    /**
-     * Bungie clientId
-     */
-    private String clientId;
+  /**
+   * Bungie clientId
+   */
+  private String clientId;
 
-    /**
-     * Bungie client secret
-     */
-    private String clientSecret;
+  /**
+   * Bungie client secret
+   */
+  private String clientSecret;
 
-    /**
-     * Url for getting manifest definitions of things, based on hashes
-     */
-    private String manifestEntityDefinitionUrl;
+  /**
+   * Url for getting manifest definitions of things, based on hashes
+   */
+  private String manifestEntityDefinitionUrl;
 
-    /**
-     * Base url for Bungie Requests
-     */
-    private String baseUrl;
+  /**
+   * Base url for Bungie Requests
+   */
+  private String baseUrl;
 
-    /**
-     * Url for Bungie Token endpoint
-     */
-    private String tokenUrl;
+  /**
+   * Url for Bungie Token endpoint
+   */
+  private String tokenUrl;
 
-    /**
-     * Url for OAuth2 authorization flow
-     */
-    private String authorizationUrl;
+  /**
+   * Url for OAuth2 authorization flow
+   */
+  private String authorizationUrl;
 
-    /**
-     * Url for callback during OAuth2 authorization
-     */
-    private String callbackUrl;
+  /**
+   * Url for callback during OAuth2 authorization
+   */
+  private String callbackUrl;
 
-    @Bean
-    public RestTemplate restTemplate() {
-        return new RestTemplate();
-    }
-
-    @Bean
-    public BungieMembershipClient bungieMembershipClient() {
-        return createClient(BungieMembershipClient.class);
-    }
-
-    @Bean
-    public BungieProfileClient bungieCharacterClient() {
-        return createClient(BungieProfileClient.class);
-    }
-
-    @Bean
-    public BungieManifestClient bungieManifestClient() {
-        return createClient(BungieManifestClient.class);
-    }
-
-    private <T> T createClient(Class<T> clientType) {
-        var webClient = WebClient.builder()
-                .baseUrl(this.baseUrl)
-                .defaultHeader(API_KEY_HEADER_NAME, this.key)
-                .defaultStatusHandler(code -> code.is4xxClientError() || code.is5xxServerError(),
-                        clientResponse -> clientResponse.createException()
-                                .map(ex -> new Exception(ex.getResponseBodyAsString(), ex.getCause())))
-                .build();
-        return HttpServiceProxyFactory.builder()
-                .exchangeAdapter(WebClientAdapter.create(webClient))
-                .build().createClient(clientType);
-    }
+  @Bean
+  public BungieClient bungieCharacterClient(WebClient.Builder builder) {
+    var webClient = builder
+        .baseUrl(this.baseUrl)
+        .defaultHeader(API_KEY_HEADER_NAME, this.key)
+        .build();
+    return HttpServiceProxyFactory.builder()
+        .exchangeAdapter(WebClientAdapter.create(webClient))
+        .build()
+        .createClient(BungieClient.class);
+  }
 }

@@ -9,8 +9,8 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class UserIdentity {
 
-    /**
-     * The user DiscordId
-     */
-    private String discordId;
+  /**
+   * The user DiscordId
+   */
+  private String discordId;
 }

@@ -3,52 +3,18 @@ spring:
     virtual:
       enabled: true
   data:
-    redis:
-      port: 6379
-      host: redis
     mongodb:
-      port: 27017
-      host: mongoDB
-  security:
-    oauth2:
-      client:
-        provider:
-          discordOAuth2Client:
-            authorization-uri: https://discord.com/oauth2/authorize
-            token-uri: https://discord.com/api/oauth2/token
-          bungieOAuth2Client:
-            authorization-uri: https://www.bungie.net/en/oauth/authorize
-            token-uri: https://www.bungie.net/platform/app/oauth/token/
-        registration:
-          bungieOAuth2Client:
-            provider: bungieOAuth2Client
-            client-id: ${BUNGIE_CLIENT_ID}
-            client-secret: ${BUNGIE_CLIENT_SECRET}
-            authorization-grant-type: authorization_code
-            redirect-uri: https://d2discord.app/login/oauth2/code/bungieOAuth2Client
-          discordOAuth2Client:
-            provider: bungieOAuth2Client
-            client-secret: ${DISCORD_CLIENT_ID}
-            client-name: ${DISCORD_CLIENT_SECRET}
-            authorization-grant-type: authorization_code
-            redirect-uri: https://d2discord.app/login/oauth2/code/discordOAuth2Client
-
-server:
-  port: 443
-  ssl:
-    key-store: keystore.pfx
-    key-store-type: PKCS12
-    key-store-password: ${KEYSTORE_PASSWORD}
+      database: test
 
 bungie:
   api:
-    key: ${BUNGIE_API_KEY}
-    clientSecret: ${BUNGIE_CLIENT_SECRET}
-    clientId: ${BUNGIE_CLIENT_ID}
-    baseUrl: https://www.bungie.net/Platform
-    authorizationUrl: https://www.bungie.net/en/oauth/authorize
-    tokenUrl: https://www.bungie.net/platform/app/oauth/token/
-    callbackUrl: https://www.d2discord.app/bungie/callback
+    key: 511cd98d-2abb-4b14-9ee1-23ce4e1ba24d
+    clientSecret: 4289bd68-13e7-46d1-b7b6-9c0245abd745
+    clientId: 2a20e240-4f2f-4c2c-8674-ade6f045012f
+    baseUrl: http://localhost:8080/bungie
+    authorizationUrl: http://localhost:8080/en/oauth/authorize
+    tokenUrl: http://localhost:8080/platform/app/oauth/token/
+    callbackUrl: http://localhost:${server.port}/bungie/callback
     currentUserMembershipUrl: ${bungie.api.baseUrl}/User/GetMembershipsForCurrentUser/
     profileDataUrl: ${bungie.api.baseUrl}/Destiny2/{membershipType}/Profile/{destinyMembershipId}/
     manifestEntityDefinitionUrl: ${bungie.api.baseUrl}/Destiny2/Manifest/{entityType}/{hashIdentifier}/
@@ -56,13 +22,13 @@ bungie:
 discord:
   api:
     version: 10
-    baseUrl: https://discord.com/api/v${discord.api.version}
-    tokenUrl: https://discord.com/api/oauth2/token
-    callbackUrl: https://d2discord.app/discord/callback
-    authorizationUrl: https://discord.com/oauth2/authorize
-    botToken: ${DISCORD_BOT_TOKEN}
-    botPublicKey: ${DISCORD_BOT_PUBLIC_KEY}
+    baseUrl: http://localhost:8080/api/v${discord.api.version}
+    tokenUrl: http://localhost:8080/api/oauth2/token
+    callbackUrl: http://localhost:${server.port}/discord/callback
+    authorizationUrl: http://localhost:8080/oauth2/authorize
+    botToken: 6c377985-3f4c-496e-bf9f-7025d4bd4f96
+    botPublicKey: fe78bf42-a404-466c-ad99-cca53857cc28
     permissionsInteger: 137439217728
-    clientId: ${DISCORD_CLIENT_ID}
-    clientSecret: ${DISCORD_CLIENT_SECRET}
+    clientId: 5c417aab-ee4c-44c0-8029-043a5361460d
+    clientSecret: a3cd6133-be30-4c3b-ab1d-26a1f14215fc
     scopes: identify
