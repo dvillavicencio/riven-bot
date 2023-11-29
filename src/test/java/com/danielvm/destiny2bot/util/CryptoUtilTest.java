@@ -41,13 +41,15 @@ public class CryptoUtilTest {
   public void validateSignatureIsSuccessfulForInvalidSignatures() throws DecoderException {
     // given: a valid signature and the message
     var message = "This is some random message that should be encrypted";
+    var timestamp = "1000";
 
     byte[] messageBytes = message.getBytes(StandardCharsets.UTF_8);
     KeyPair nonMaliciousKeyPair = Crypto.seedSigningKeyPair(Hex.decodeHex(SEED.toCharArray()));
 
     KeyPair maliciousKeyPair = Crypto.seedSigningKeyPair(
         Hex.decodeHex(MALICIOUS_SEED.toCharArray()));
-    byte[] maliciousSignature = Crypto.sign(maliciousKeyPair.getPrivate(), messageBytes);
+    byte[] maliciousSignature = Crypto.sign(maliciousKeyPair.getPrivate(),
+        (timestamp + message).getBytes(StandardCharsets.UTF_8));
 
     String signature = Hex.encodeHexString(maliciousSignature);
     String publicKey = Hex.encodeHexString(nonMaliciousKeyPair.getPublic().getEncoded());
