@@ -11,7 +11,7 @@ import static org.mockito.Mockito.when;
 import com.danielvm.destiny2bot.client.DiscordClient;
 import com.danielvm.destiny2bot.config.BungieConfiguration;
 import com.danielvm.destiny2bot.config.DiscordConfiguration;
-import com.danielvm.destiny2bot.dto.discord.user.DiscordUserResponse;
+import com.danielvm.destiny2bot.dto.discord.DiscordUserResponse;
 import com.danielvm.destiny2bot.dto.oauth2.TokenResponse;
 import com.danielvm.destiny2bot.entity.UserDetails;
 import com.danielvm.destiny2bot.repository.UserDetailsRepository;

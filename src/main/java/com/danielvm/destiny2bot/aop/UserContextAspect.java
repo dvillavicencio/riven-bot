@@ -2,7 +2,7 @@ package com.danielvm.destiny2bot.aop;
 
 import com.danielvm.destiny2bot.context.UserIdentity;
 import com.danielvm.destiny2bot.context.UserIdentityContext;
-import com.danielvm.destiny2bot.dto.discord.interactions.Interaction;
+import com.danielvm.destiny2bot.dto.discord.Interaction;
 import com.danielvm.destiny2bot.enums.InteractionType;
 import com.danielvm.destiny2bot.exception.IdentityNotFoundException;
 import com.danielvm.destiny2bot.repository.UserDetailsRepository;
@@ -23,7 +23,7 @@ public class UserContextAspect {
     this.userDetailsRepository = userDetailsRepository;
   }
 
-  /**
+    /**
    * AOP advice to populate user identity with corresponding DiscordID  based on if the user
    * previously registered or not
    *

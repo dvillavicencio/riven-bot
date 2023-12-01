@@ -2,11 +2,12 @@ package com.danielvm.destiny2bot.client;
 
 import com.danielvm.destiny2bot.dto.destiny.GenericResponse;
 import com.danielvm.destiny2bot.dto.destiny.manifest.ResponseFields;
+import com.danielvm.destiny2bot.enums.EntityTypeEnum;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.Cacheable;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import reactor.core.publisher.Mono;
 
 @Service
 @RequiredArgsConstructor
@@ -23,10 +24,10 @@ public class BungieClientWrapper {
    * @param hashIdentifier The hash identifier
    * @return {@link GenericResponse} of {@link ResponseFields}
    */
-  @Cacheable(cacheNames = "entityServlet", cacheManager = "inMemoryCacheManager")
-  public ResponseEntity<GenericResponse<ResponseFields>> getManifestEntity(String entityType,
-      String hashIdentifier) {
-    return bungieClient.getManifestEntity(entityType, hashIdentifier);
+  @Cacheable(cacheNames = "entity", cacheManager = "inMemoryCacheManager")
+  public Mono<GenericResponse<ResponseFields>> getManifestEntityRx(
+      EntityTypeEnum entityType, String hashIdentifier) {
+    return bungieClient.getManifestEntityRx(entityType.getId(), hashIdentifier).cache();
   }
 
 }

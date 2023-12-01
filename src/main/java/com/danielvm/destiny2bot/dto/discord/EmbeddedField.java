@@ -1,4 +1,4 @@
-package com.danielvm.destiny2bot.dto.discord.interactions;
+package com.danielvm.destiny2bot.dto.discord;
 
 import lombok.Builder;
 import lombok.Data;

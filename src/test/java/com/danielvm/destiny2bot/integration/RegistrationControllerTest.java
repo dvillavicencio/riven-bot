@@ -14,7 +14,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.danielvm.destiny2bot.config.BungieConfiguration;
-import com.danielvm.destiny2bot.dto.discord.interactions.DiscordUser;
+import com.danielvm.destiny2bot.dto.discord.DiscordUser;
 import com.danielvm.destiny2bot.repository.UserDetailsRepository;
 import com.danielvm.destiny2bot.util.OAuth2Params;
 import com.danielvm.destiny2bot.util.OAuth2Util;

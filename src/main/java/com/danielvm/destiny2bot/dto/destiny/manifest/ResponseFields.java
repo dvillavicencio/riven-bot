@@ -1,8 +1,12 @@
 package com.danielvm.destiny2bot.dto.destiny.manifest;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Data
+@AllArgsConstructor
+@NoArgsConstructor
 public class ResponseFields {
 
   private DisplayProperties displayProperties;
@@ -16,4 +20,10 @@ public class ResponseFields {
   private Integer itemType;
 
   private Integer itemSubType;
+
+  private Integer directActivityModeType;
+
+  private String activityTypeHash;
+
+  private Long hash;
 }

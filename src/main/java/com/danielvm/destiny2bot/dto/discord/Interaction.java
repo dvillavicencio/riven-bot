@@ -1,4 +1,4 @@
-package com.danielvm.destiny2bot.dto.discord.interactions;
+package com.danielvm.destiny2bot.dto.discord;
 
 import com.fasterxml.jackson.annotation.JsonAlias;
 import java.io.Serial;
@@ -36,4 +36,9 @@ public class Interaction implements Serializable {
    * Member Data of the user that invoked the command
    */
   private Member member;
+
+  /**
+   * Continuation token received to respond to a deferred message
+   */
+  private String token;
 }
