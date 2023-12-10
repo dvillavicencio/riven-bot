@@ -5,6 +5,7 @@ import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.support.WebClientAdapter;
 import org.springframework.web.service.invoker.HttpServiceProxyFactory;
@@ -20,16 +21,6 @@ public class BungieConfiguration {
   private static final String API_KEY_HEADER_NAME = "x-api-key";
 
   /**
-   * Url for getting membership characters for current user
-   */
-  private String currentUserMembershipUrl;
-
-  /**
-   * Url for getting profile characters based on membershipId and membershipType
-   */
-  private String profileDataUrl;
-
-  /**
    * API key provided by Bungie when registering an application in their portal
    */
   private String key;
@@ -43,11 +34,6 @@ public class BungieConfiguration {
    * Bungie client secret
    */
   private String clientSecret;
-
-  /**
-   * Url for getting manifest definitions of things, based on hashes
-   */
-  private String manifestEntityDefinitionUrl;
 
   /**
    * Base url for Bungie Requests

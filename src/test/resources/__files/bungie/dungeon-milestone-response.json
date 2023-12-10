@@ -1,0 +1,93 @@
+{
+  "Response": {
+    "displayProperties": {
+      "description": "Weekly Dungeon Challenge.",
+      "name": "Spire of the Watcher",
+      "icon": "/common/destiny2_content/icons/DestinyMilestoneDefinition_7b2e832d6fa3513b3c3e55f69aaeee40.png",
+      "hasIcon": true
+    },
+    "milestoneType": 3,
+    "recruitable": false,
+    "friendlyName": "MILESTONE_WEEKLY_DUNGEON_POWDERKEG",
+    "showInExplorer": false,
+    "showInMilestones": true,
+    "explorePrioritizesActivityImage": false,
+    "hasPredictableDates": true,
+    "rewards": {
+      "326786556": {
+        "categoryHash": 326786556,
+        "categoryIdentifier": "ChallengeSourcedReward",
+        "displayProperties": {
+          "description": "",
+          "name": "Rewards",
+          "hasIcon": false
+        },
+        "rewardEntries": {
+          "326786556": {
+            "rewardEntryHash": 326786556,
+            "rewardEntryIdentifier": "ChallengeSourcedReward",
+            "items": [
+              {
+                "itemHash": 73143230,
+                "quantity": 1,
+                "hasConditionalVisibility": false
+              }
+            ],
+            "displayProperties": {
+              "description": "Complete this dungeon.",
+              "name": "Weekly Dungeon Challenge",
+              "hasIcon": false
+            },
+            "order": 0,
+            "earnedUnlockHash": 0,
+            "redeemedUnlockHash": 0
+          }
+        },
+        "order": 0
+      }
+    },
+    "isInGameMilestone": false,
+    "activities": [
+      {
+        "activityHash": 1262462921,
+        "challenges": [
+          {
+            "challengeObjectiveHash": 3211393925,
+            "completeUnlockHash": 0
+          }
+        ],
+        "activityGraphNodes": [
+          {
+            "activityGraphHash": 2244580325,
+            "activityGraphNodeHash": 1615213322
+          }
+        ]
+      },
+      {
+        "activityHash": 2296818662,
+        "challenges": [
+          {
+            "challengeObjectiveHash": 3211393925,
+            "completeUnlockHash": 0
+          }
+        ],
+        "activityGraphNodes": [
+          {
+            "activityGraphHash": 2244580325,
+            "activityGraphNodeHash": 1615213322
+          }
+        ]
+      }
+    ],
+    "defaultOrder": 33,
+    "hash": 526718853,
+    "index": 51,
+    "redacted": false,
+    "blacklisted": false
+  },
+  "ErrorCode": 1,
+  "ThrottleSeconds": 0,
+  "ErrorStatus": "Success",
+  "Message": "Ok",
+  "MessageData": {}
+}

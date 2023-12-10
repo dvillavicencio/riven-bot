@@ -3,9 +3,13 @@ package com.danielvm.destiny2bot.dto.discord;
 import com.fasterxml.jackson.annotation.JsonAlias;
 import java.io.Serial;
 import java.io.Serializable;
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Data
+@AllArgsConstructor
+@NoArgsConstructor
 public class Interaction implements Serializable {
 
   @Serial
@@ -37,8 +41,4 @@ public class Interaction implements Serializable {
    */
   private Member member;
 
-  /**
-   * Continuation token received to respond to a deferred message
-   */
-  private String token;
 }

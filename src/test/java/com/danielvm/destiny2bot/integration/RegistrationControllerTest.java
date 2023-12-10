@@ -99,7 +99,7 @@ public class RegistrationControllerTest extends BaseIntegrationTest {
 
     // and: the user is saved in the database
     var discordUserFile = new ClassPathResource("__files/discord/user-@me-response.json");
-    var discordUser = jsonMapper.readValue(discordUserFile.getFile(), DiscordUser.class);
+    var discordUser = objectMapper.readValue(discordUserFile.getFile(), DiscordUser.class);
 
     assertThat(userDetailsRepository.existsByDiscordId(discordUser.getId())).isTrue();
   }

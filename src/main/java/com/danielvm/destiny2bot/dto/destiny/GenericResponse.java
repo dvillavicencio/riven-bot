@@ -11,7 +11,11 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class GenericResponse<T> {
 
-    @JsonAlias("Response")
-    @Nullable
-    private T response;
+  /**
+   * Most of the responses from Bungie.net have a Json element named 'Response' with arbitrary info
+   * depending on the endpoint. This field is just a wrapper for it.
+   */
+  @JsonAlias("Response")
+  @Nullable
+  private T response;
 }
