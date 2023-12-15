@@ -14,7 +14,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.danielvm.destiny2bot.config.BungieConfiguration;
-import com.danielvm.destiny2bot.dto.discord.interactions.DiscordUser;
+import com.danielvm.destiny2bot.dto.discord.DiscordUser;
 import com.danielvm.destiny2bot.repository.UserDetailsRepository;
 import com.danielvm.destiny2bot.util.OAuth2Params;
 import com.danielvm.destiny2bot.util.OAuth2Util;
@@ -99,7 +99,7 @@ public class RegistrationControllerTest extends BaseIntegrationTest {
 
     // and: the user is saved in the database
     var discordUserFile = new ClassPathResource("__files/discord/user-@me-response.json");
-    var discordUser = jsonMapper.readValue(discordUserFile.getFile(), DiscordUser.class);
+    var discordUser = objectMapper.readValue(discordUserFile.getFile(), DiscordUser.class);
 
     assertThat(userDetailsRepository.existsByDiscordId(discordUser.getId())).isTrue();
   }

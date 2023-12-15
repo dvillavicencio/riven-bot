@@ -1,0 +1,63 @@
+{
+  "Response": {
+    "displayProperties": {
+      "description": "Defeat the Sanctified Mind.",
+      "name": "Garden of Salvation",
+      "icon": "/common/destiny2_content/icons/DestinyMilestoneDefinition_eb9f4e265e29cb5e50559b6bf814a9c9.png",
+      "hasIcon": true
+    },
+    "milestoneType": 3,
+    "recruitable": false,
+    "showInExplorer": false,
+    "showInMilestones": true,
+    "explorePrioritizesActivityImage": false,
+    "hasPredictableDates": true,
+    "quests": {},
+    "isInGameMilestone": false,
+    "activities": [
+      {
+        "activityHash": 1042180643,
+        "challenges": [
+          {
+            "challengeObjectiveHash": 2398860795,
+            "completeUnlockHash": 0
+          }
+        ],
+        "activityGraphNodes": [
+          {
+            "activityGraphHash": 677774031,
+            "activityGraphNodeHash": 3977287635
+          }
+        ],
+        "phases": [
+          {
+            "phaseHash": 2158557525,
+            "phaseCompleteUnlockHash": 0
+          },
+          {
+            "phaseHash": 3736477924,
+            "phaseCompleteUnlockHash": 0
+          },
+          {
+            "phaseHash": 1024471091,
+            "phaseCompleteUnlockHash": 0
+          },
+          {
+            "phaseHash": 523815399,
+            "phaseCompleteUnlockHash": 0
+          }
+        ]
+      }
+    ],
+    "defaultOrder": 9300,
+    "hash": 2712317338,
+    "index": 20,
+    "redacted": false,
+    "blacklisted": false
+  },
+  "ErrorCode": 1,
+  "ThrottleSeconds": 0,
+  "ErrorStatus": "Success",
+  "Message": "Ok",
+  "MessageData": {}
+}

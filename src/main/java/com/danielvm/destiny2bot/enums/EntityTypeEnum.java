@@ -7,7 +7,10 @@ public enum EntityTypeEnum {
   BUCKET_DEFINITION("DestinyInventoryItemDefinition"),
   STAT_DEFINITION("DestinyStatDefinition"),
   CLASS_DEFINITION("DestinyClassDefinition"),
-  ITEM_INVENTORY_DEFINITION("DestinyInventoryItemDefinition");
+  ITEM_INVENTORY_DEFINITION("DestinyInventoryItemDefinition"),
+  MILESTONE_DEFINITION("DestinyMilestoneDefinition"),
+  ACTIVITY_TYPE_DEFINITION("DestinyActivityTypeDefinition"),
+  ACTIVITY_DEFINITION("DestinyActivityDefinition");
 
   @Getter
   private final String id;

@@ -1,15 +1,15 @@
 package com.danielvm.destiny2bot.controller;
 
 import com.danielvm.destiny2bot.annotation.ValidSignature;
-import com.danielvm.destiny2bot.dto.discord.interactions.Interaction;
+import com.danielvm.destiny2bot.dto.discord.Interaction;
 import com.danielvm.destiny2bot.service.InteractionService;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.util.ContentCachingRequestWrapper;
+import reactor.core.publisher.Mono;
 
 @Slf4j
 @RestController
@@ -31,12 +31,11 @@ public class InteractionsController {
    * @return TBD
    */
   @PostMapping("/interactions")
-  public ResponseEntity<?> interactions(
+  public Mono<?> interactions(
       @RequestBody Interaction interaction,
       @ValidSignature ContentCachingRequestWrapper request) {
-    log.info("Interaction received [{}]", interaction);
-    var response = interactionService.handleInteraction(interaction);
-    log.info("Interaction completed [{}]", interaction);
-    return ResponseEntity.ok(response);
+    return interactionService.handleInteraction(interaction)
+        .doOnSubscribe(i -> log.info("Received interaction: [{}]", interaction))
+        .doOnSuccess(i -> log.info("Completed retrieving response for interaction: [{}]", i));
   }
 }

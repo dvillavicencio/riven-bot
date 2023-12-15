@@ -27,7 +27,7 @@ discord:
     callbackUrl: http://localhost:${server.port}/discord/callback
     authorizationUrl: http://localhost:8080/oauth2/authorize
     botToken: 6c377985-3f4c-496e-bf9f-7025d4bd4f96
-    botPublicKey: fe78bf42-a404-466c-ad99-cca53857cc28
+    botPublicKey: 2FBEEA2173DE6E247F869A34C532EF4CBC3119E872C9CDE9970BC184B5DBABAE
     permissionsInteger: 137439217728
     clientId: 5c417aab-ee4c-44c0-8029-043a5361460d
     clientSecret: a3cd6133-be30-4c3b-ab1d-26a1f14215fc

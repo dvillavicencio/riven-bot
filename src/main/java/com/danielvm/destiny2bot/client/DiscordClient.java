@@ -1,6 +1,6 @@
 package com.danielvm.destiny2bot.client;
 
-import com.danielvm.destiny2bot.dto.discord.user.DiscordUserResponse;
+import com.danielvm.destiny2bot.dto.discord.DiscordUserResponse;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestHeader;

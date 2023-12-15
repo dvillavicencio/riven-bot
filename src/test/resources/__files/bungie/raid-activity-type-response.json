@@ -1,0 +1,19 @@
+{
+  "Response": {
+    "displayProperties": {
+      "description": "Form a fireteam of six and brave the strange and powerful realms of our enemies.",
+      "name": "Raid",
+      "icon": "/common/destiny2_content/icons/bd7a1fc995f87be96698263bc16698e7.png",
+      "hasIcon": true
+    },
+    "hash": 2043403989,
+    "index": 8,
+    "redacted": false,
+    "blacklisted": false
+  },
+  "ErrorCode": 1,
+  "ThrottleSeconds": 0,
+  "ErrorStatus": "Success",
+  "Message": "Ok",
+  "MessageData": {}
+}
