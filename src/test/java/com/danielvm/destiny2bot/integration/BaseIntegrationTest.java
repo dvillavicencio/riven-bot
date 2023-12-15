@@ -22,7 +22,7 @@ import org.testcontainers.utility.DockerImageName;
 
 @ExtendWith(MockitoExtension.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-@AutoConfigureWireMock
+@AutoConfigureWireMock(files = "/build/resources/test/__files")
 @AutoConfigureMockMvc
 @Testcontainers
 public abstract class BaseIntegrationTest {

@@ -12,24 +12,18 @@ import com.danielvm.destiny2bot.dto.discord.Interaction;
 import com.danielvm.destiny2bot.dto.discord.InteractionData;
 import com.danielvm.destiny2bot.enums.EntityTypeEnum;
 import com.danielvm.destiny2bot.enums.InteractionType;
+import com.danielvm.destiny2bot.util.MessageUtil;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.StandardOpenOption;
 import java.security.KeyPair;
 import java.security.PublicKey;
-import java.time.DayOfWeek;
 import java.time.Instant;
-import java.time.LocalDate;
-import java.time.LocalTime;
-import java.time.ZoneId;
-import java.time.ZonedDateTime;
-import java.time.temporal.TemporalAdjusters;
 import org.apache.commons.codec.DecoderException;
 import org.apache.commons.codec.binary.Hex;
+import org.apache.commons.io.FileUtils;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -45,14 +39,6 @@ public class InteractionControllerTest extends BaseIntegrationTest {
 
   private static final String VALID_PRIVATE_KEY = "F0EA3A0516695324C03ED552CD5A08A58CA1248172E8816C3BF235E52E75A7BF";
   private static final String MALICIOUS_PRIVATE_KEY = "CE4517095255B0C92D586AF9EEC27B998D68775363F9FE74341483FB3A657CEC";
-  private static final LocalTime DESTINY_2_STANDARD_RESET_TIME = LocalTime.of(9, 0);
-  private static final ZoneId STANDARD_TIMEZONE = ZoneId.of("America/Los_Angeles");
-  private static final ZonedDateTime NEXT_TUESDAY = ZonedDateTime.of(
-          LocalDate.now(STANDARD_TIMEZONE), DESTINY_2_STANDARD_RESET_TIME, STANDARD_TIMEZONE)
-      .with(TemporalAdjusters.next(DayOfWeek.TUESDAY));
-  private static final ZonedDateTime PREVIOUS_TUESDAY = ZonedDateTime.of(
-          LocalDate.now(STANDARD_TIMEZONE), DESTINY_2_STANDARD_RESET_TIME, STANDARD_TIMEZONE)
-      .with(TemporalAdjusters.previous(DayOfWeek.TUESDAY));
 
   @Autowired
   BungieConfiguration bungieConfiguration;
@@ -69,22 +55,18 @@ public class InteractionControllerTest extends BaseIntegrationTest {
   @BeforeAll
   public static void before() throws IOException {
     // Get the classpath resource, and replace the appropriate placeholder dates
-    String milestoneResource = new ClassPathResource(
-        "__files/bungie/milestones-response.json").getPath();
-    Path milestoneResourcePath = Path.of(milestoneResource);
-    String jsonContent = Files.readString(milestoneResourcePath, StandardCharsets.UTF_8);
+    File milestoneResource = new File("src/test/resources/__files/bungie/milestone-response.json");
+    String fileContent = FileUtils.readFileToString(milestoneResource, StandardCharsets.UTF_8);
 
-    String newJson = jsonContent
-        .replace("{startDate}", PREVIOUS_TUESDAY.toString())
-        .replace("{endDate}", NEXT_TUESDAY.toString());
+    String newJson = fileContent
+        .replace("{startDate}", MessageUtil.PREVIOUS_TUESDAY.toString())
+        .replace("{endDate}", MessageUtil.NEXT_TUESDAY.toString());
 
-    try (OutputStream outputStream = Files.newOutputStream(milestoneResourcePath,
-        StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING)) {
+    try (OutputStream outputStream = FileUtils.newOutputStream(milestoneResource, false)) {
       outputStream.write(newJson.getBytes(StandardCharsets.UTF_8));
     } catch (IOException e) {
       throw new RuntimeException(e);
     }
-
   }
 
   private String createValidSignature(Interaction body, String timestamp)
@@ -183,8 +165,8 @@ public class InteractionControllerTest extends BaseIntegrationTest {
         .jsonPath("$.data.content").isEqualTo(
             """
                 This week's dungeon is: Spire of the Watcher.
-                You have until %s to complete it before the next raid comes along.
-                """.formatted());
+                You have until %s to complete it before the next dungeon in the rotation.
+                """.formatted(MessageUtil.FORMATTER.format(MessageUtil.NEXT_TUESDAY)));
   }
 
   @Test
@@ -254,8 +236,8 @@ public class InteractionControllerTest extends BaseIntegrationTest {
         .jsonPath("$.data.content").isEqualTo(
             """
                 This week's raid is: Garden of Salvation.
-                You have until Tuesday December 12 to complete it before the next raid comes along.
-                """);
+                You have until %s to complete it before the next raid comes along.
+                """.formatted(MessageUtil.FORMATTER.format(MessageUtil.NEXT_TUESDAY)));
   }
 
   @Test

@@ -13,6 +13,7 @@ import com.danielvm.destiny2bot.dto.discord.InteractionResponse;
 import com.danielvm.destiny2bot.dto.discord.InteractionResponseData;
 import com.danielvm.destiny2bot.enums.ActivityModeEnum;
 import com.danielvm.destiny2bot.enums.CommandEnum;
+import com.danielvm.destiny2bot.util.MessageUtil;
 import com.danielvm.destiny2bot.util.OAuth2Params;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
@@ -70,8 +71,7 @@ public class InteractionService {
             ).build());
         case WEEKLY_RAID -> weeklyActivitiesService.getWeeklyActivity(ActivityModeEnum.RAID)
             .map(wr -> {
-              var formatter = DateTimeFormatter.ofPattern("EEEE MMMM d");
-              var endDay = formatter.format(wr.getEndDate().toLocalDate());
+              var endDay = MessageUtil.FORMATTER.format(wr.getEndDate().toLocalDate());
               return InteractionResponse.builder()
                   .type(CHANNEL_MESSAGE_WITH_SOURCE.getType())
                   .data(InteractionResponseData.builder()

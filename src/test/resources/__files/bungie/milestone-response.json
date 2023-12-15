@@ -127,8 +127,8 @@
           }
         }
       ],
-      "startDate": "{startDate}",
-      "endDate": "{endDate}",
+      "startDate": "2023-12-12T09:00-08:00[America/Los_Angeles]",
+      "endDate": "2023-12-19T09:00-08:00[America/Los_Angeles]",
       "order": 9300
     },
     "541780856": {
@@ -205,8 +205,8 @@
           }
         }
       ],
-      "startDate": "{startDate}",
-      "endDate": "{endDate}",
+      "startDate": "2023-12-12T09:00-08:00[America/Los_Angeles]",
+      "endDate": "2023-12-19T09:00-08:00[America/Los_Angeles]",
       "order": 33
     }
   }
