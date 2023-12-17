@@ -1,6 +1,8 @@
 package com.danielvm.destiny2bot.util;
 
 import com.danielvm.destiny2bot.config.BungieConfiguration;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.util.UriComponentsBuilder;
@@ -70,6 +72,25 @@ public class OAuth2Util {
         .queryParam(OAuth2Params.RESPONSE_TYPE, OAuth2Params.CODE)
         .queryParam(OAuth2Params.CLIENT_ID, bungieConfiguration.getClientId())
         .build().toString();
+  }
+
+  /**
+   * Builds a registration link based on some parameters
+   *
+   * @param authUrl     The authorization URL parameter
+   * @param clientId    The clientId parameter
+   * @param callbackUrl The callback URL parameter
+   * @param scopes      The scopes parameter
+   * @return a String with the above parameters
+   */
+  public static String createRegistrationUrl(String authUrl, String clientId, String callbackUrl,
+      String scopes) {
+    return UriComponentsBuilder.fromHttpUrl(authUrl)
+        .queryParam(OAuth2Params.CLIENT_ID, clientId)
+        .queryParam(OAuth2Params.REDIRECT_URI,
+            URLEncoder.encode(callbackUrl, StandardCharsets.UTF_8))
+        .queryParam(OAuth2Params.RESPONSE_TYPE, OAuth2Params.CODE)
+        .queryParam(OAuth2Params.SCOPE, scopes).build().toString();
   }
 
 }

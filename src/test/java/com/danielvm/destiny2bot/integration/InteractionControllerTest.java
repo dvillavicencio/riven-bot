@@ -125,6 +125,15 @@ public class InteractionControllerTest extends BaseIntegrationTest {
             .withHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
             .withBodyFile("bungie/dungeon-activity-response.json")));
 
+    var masterDungeonHash = "2296818662";
+    stubFor(get(urlPathEqualTo(
+        "/bungie/Destiny2/Manifest/%s/%s/".formatted(activityDefinition, masterDungeonHash)))
+        .withHeader("x-api-key", equalTo(bungieConfiguration.getKey()))
+        .willReturn(aResponse()
+            .withStatus(200)
+            .withHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+            .withBodyFile("bungie/master-dungeon-activity-response.json")));
+
     var activityTypeDefinition = EntityTypeEnum.ACTIVITY_TYPE_DEFINITION.getId();
     var activityTypeHash = "608898761";
 
@@ -166,7 +175,7 @@ public class InteractionControllerTest extends BaseIntegrationTest {
             """
                 This week's dungeon is: Spire of the Watcher.
                 You have until %s to complete it before the next dungeon in the rotation.
-                """.formatted(MessageUtil.FORMATTER.format(MessageUtil.NEXT_TUESDAY)));
+                """.formatted(MessageUtil.formatDate(MessageUtil.NEXT_TUESDAY.toLocalDate())));
   }
 
   @Test
@@ -237,7 +246,7 @@ public class InteractionControllerTest extends BaseIntegrationTest {
             """
                 This week's raid is: Garden of Salvation.
                 You have until %s to complete it before the next raid comes along.
-                """.formatted(MessageUtil.FORMATTER.format(MessageUtil.NEXT_TUESDAY)));
+                """.formatted(MessageUtil.formatDate(MessageUtil.NEXT_TUESDAY.toLocalDate())));
   }
 
   @Test

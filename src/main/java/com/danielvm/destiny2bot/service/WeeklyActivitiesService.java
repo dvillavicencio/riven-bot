@@ -37,9 +37,9 @@ public class WeeklyActivitiesService {
   }
 
   /**
-   * Fetches a weekly activity
+   * Fetches a weekly activity based on the activity mode
    *
-   * @param activityMode The type of the weekly activity
+   * @param activityMode The type of the weekly activity (see {@link ActivityModeEnum})
    * @return {@link MilestoneResponse}
    */
   public Mono<WeeklyActivity> getWeeklyActivity(ActivityModeEnum activityMode) {
@@ -47,40 +47,43 @@ public class WeeklyActivitiesService {
         .map(GenericResponse::getResponse)
         .flatMapIterable(Map::values)
         .filter(this::hasWeeklyObjectives)
-        .filterWhen(m -> activityModeMatches(m, activityMode))
-        .flatMap(m -> bungieClientWrapper.getManifestEntityRx(
-                MILESTONE_DEFINITION, m.getMilestoneHash())
-            .map(me -> {
-              var displayProperties = me.getResponse().getDisplayProperties();
-              return WeeklyActivity.builder()
-                  .name(displayProperties.getName())
-                  .description(displayProperties.getDescription())
-                  .startDate(m.getStartDate())
-                  .endDate(m.getEndDate())
-                  .build();
-            }))
+        .filterWhen(milestoneEntry -> activityModeMatches(milestoneEntry, activityMode))
+        .flatMap(this::createWeeklyActivity)
         .next() // ideally there should only be one weekly activity
         .switchIfEmpty(Mono.error(
             new ResourceNotFoundException("No weekly activity found for activity type [%s]"
                 .formatted(activityMode))));
   }
 
-  private Mono<Boolean> activityModeMatches(MilestoneEntry e, ActivityModeEnum activityMode) {
-    if (Objects.isNull(e) || CollectionUtils.isEmpty(e.getActivities())) {
+  private Mono<WeeklyActivity> createWeeklyActivity(MilestoneEntry milestoneEntry) {
+    return bungieClientWrapper.getManifestEntityRx(MILESTONE_DEFINITION,
+            milestoneEntry.getMilestoneHash())
+        .map(milestoneEntity -> milestoneEntity.getResponse().getDisplayProperties())
+        .map(displayProperties ->
+            WeeklyActivity.builder()
+                .name(displayProperties.getName())
+                .description(displayProperties.getDescription())
+                .startDate(milestoneEntry.getStartDate())
+                .endDate(milestoneEntry.getEndDate())
+                .build());
+  }
+
+  private Mono<Boolean> activityModeMatches(MilestoneEntry entry, ActivityModeEnum activityMode) {
+    if (CollectionUtils.isEmpty(entry.getActivities())) {
       return Mono.just(false);
     }
-    return Flux.fromIterable(e.getActivities())
-        .flatMap(
-            a -> bungieClientWrapper.getManifestEntityRx(
-                ACTIVITY_DEFINITION, a.getActivityHash()))
-        .filter(ad -> Objects.nonNull(ad.getResponse().getActivityTypeHash()))
-        .flatMap(ad ->
-            bungieClientWrapper.getManifestEntityRx(
-                ACTIVITY_TYPE_DEFINITION, ad.getResponse().getActivityTypeHash()))
-        .filter(at -> Objects.nonNull(at.getResponse()) && Objects.nonNull(
-            at.getResponse().getDisplayProperties()))
-        .any(at -> at.getResponse().getDisplayProperties().getName()
-            .equalsIgnoreCase(activityMode.getLabel()));
+    return Flux.fromIterable(entry.getActivities())
+        .flatMap(activity -> bungieClientWrapper.getManifestEntityRx(
+            ACTIVITY_DEFINITION, activity.getActivityHash()))
+        .filter(activityDefinition -> Objects.nonNull(
+            activityDefinition.getResponse().getActivityTypeHash()))
+        .flatMap(activityDefinition -> bungieClientWrapper.getManifestEntityRx(
+            ACTIVITY_TYPE_DEFINITION, activityDefinition.getResponse().getActivityTypeHash()))
+        .filter(activityTypeDefinition -> Objects.nonNull(
+            activityTypeDefinition.getResponse()) && Objects.nonNull(
+            activityTypeDefinition.getResponse().getDisplayProperties()))
+        .any(activityTypeDefinition -> activityTypeDefinition.getResponse().getDisplayProperties()
+            .getName().equalsIgnoreCase(activityMode.getLabel()));
   }
 
   private boolean hasWeeklyObjectives(MilestoneEntry entry) {

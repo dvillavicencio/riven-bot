@@ -3,17 +3,19 @@ package com.danielvm.destiny2bot.service;
 import com.danielvm.destiny2bot.client.BungieClient;
 import com.danielvm.destiny2bot.dto.destiny.membership.MembershipResponse;
 import com.danielvm.destiny2bot.util.MembershipUtil;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 
 @Service
 @Slf4j
-@RequiredArgsConstructor
 public class MembershipService {
 
   private final BungieClient bungieClient;
+
+  public MembershipService(BungieClient bungieClient) {
+    this.bungieClient = bungieClient;
+  }
 
   /**
    * Get the current membership information for the currently logged-in user
