@@ -40,7 +40,9 @@ public class RegistrationController {
     userAuthorizationService.authenticateDiscordUser(authorizationCode, httpSession);
     return ResponseEntity.status(HttpStatus.FOUND)
         .header(HttpHeaders.LOCATION,
-            OAuth2Util.bungieAuthorizationUrl(bungieConfiguration))
+            OAuth2Util.bungieAuthorizationUrl(
+                bungieConfiguration.getAuthorizationUrl(),
+                bungieConfiguration.getClientId()))
         .build();
   }
 

@@ -1,12 +1,13 @@
 package com.danielvm.destiny2bot.util;
 
-import com.danielvm.destiny2bot.config.BungieConfiguration;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.util.UriComponentsBuilder;
 
+@Validated
 public class OAuth2Util {
 
   private static final String BEARER_TOKEN_FORMAT = "Bearer %s";
@@ -34,7 +35,10 @@ public class OAuth2Util {
    * @return {@link MultiValueMap} of OAuth2 attributes for Token exchange
    */
   public static MultiValueMap<String, String> buildTokenExchangeParameters(
-      String authorizationCode, String redirectUri, String clientSecret, String clientId) {
+      String authorizationCode,
+      String redirectUri,
+      String clientSecret,
+      String clientId) {
     MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
     map.add(OAuth2Params.CODE, authorizationCode);
     map.add(OAuth2Params.GRANT_TYPE, OAuth2Params.AUTHORIZATION_CODE);
@@ -67,15 +71,17 @@ public class OAuth2Util {
    *                            authorization URI
    * @return The authorization url with all required parameters
    */
-  public static String bungieAuthorizationUrl(BungieConfiguration bungieConfiguration) {
-    return UriComponentsBuilder.fromHttpUrl(bungieConfiguration.getAuthorizationUrl())
+  public static String bungieAuthorizationUrl(String authUrl, String clientId) {
+    return UriComponentsBuilder
+        .fromHttpUrl(authUrl)
         .queryParam(OAuth2Params.RESPONSE_TYPE, OAuth2Params.CODE)
-        .queryParam(OAuth2Params.CLIENT_ID, bungieConfiguration.getClientId())
+        .queryParam(OAuth2Params.CLIENT_ID, clientId)
         .build().toString();
   }
 
   /**
-   * Builds a registration link based on some parameters
+   * Returns a registration link based on some OAuth2 parameters. This URL can be used to register
+   * the bot to an end-user's Discord server
    *
    * @param authUrl     The authorization URL parameter
    * @param clientId    The clientId parameter
@@ -83,8 +89,8 @@ public class OAuth2Util {
    * @param scopes      The scopes parameter
    * @return a String with the above parameters
    */
-  public static String createRegistrationUrl(String authUrl, String clientId, String callbackUrl,
-      String scopes) {
+  public static String discordAuthorizationUrl(
+      String authUrl, String clientId, String callbackUrl, String scopes) {
     return UriComponentsBuilder.fromHttpUrl(authUrl)
         .queryParam(OAuth2Params.CLIENT_ID, clientId)
         .queryParam(OAuth2Params.REDIRECT_URI,

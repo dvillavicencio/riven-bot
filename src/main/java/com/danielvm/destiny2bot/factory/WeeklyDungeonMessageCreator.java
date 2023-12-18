@@ -11,7 +11,7 @@ import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
 
 @Component
-public class WeeklyDungeonMessage implements MessageResponseFactory {
+public class WeeklyDungeonMessageCreator implements MessageResponseFactory {
 
   public static final String MESSAGE_TEMPLATE = """
       This week's dungeon is: %s.
@@ -19,7 +19,7 @@ public class WeeklyDungeonMessage implements MessageResponseFactory {
       """;
   private final WeeklyActivitiesService weeklyActivitiesService;
 
-  public WeeklyDungeonMessage(WeeklyActivitiesService weeklyActivitiesService) {
+  public WeeklyDungeonMessageCreator(WeeklyActivitiesService weeklyActivitiesService) {
     this.weeklyActivitiesService = weeklyActivitiesService;
   }
 

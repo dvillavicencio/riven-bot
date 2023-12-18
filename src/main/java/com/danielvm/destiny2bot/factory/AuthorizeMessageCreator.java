@@ -12,17 +12,18 @@ import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
 
 @Component
-public class AuthorizeAccountMessage implements MessageResponseFactory {
+public class AuthorizeMessageCreator implements MessageResponseFactory {
 
-  public static final String MESSAGE_TITLE = "Link both accounts here";
+  public static final String MESSAGE_TITLE = "Link Bungie and Discord accounts here";
   public static final String MESSAGE_DESCRIPTION = """
       Riven can grant you wishes unique to your Bungie account.
       However, you need to link your Discord and Bungie account for that to happen.
-      This slash comma- I mean, this _wish_, allows her to do that.
+      This slash comma-
+      I mean, this _wish_, allows her to do that.
       """;
   private final DiscordConfiguration discordConfiguration;
 
-  public AuthorizeAccountMessage(DiscordConfiguration discordConfiguration) {
+  public AuthorizeMessageCreator(DiscordConfiguration discordConfiguration) {
     this.discordConfiguration = discordConfiguration;
   }
 
@@ -36,7 +37,7 @@ public class AuthorizeAccountMessage implements MessageResponseFactory {
     Embedded accountLinkEmbed = Embedded.builder()
         .title(MESSAGE_TITLE)
         .description(MESSAGE_DESCRIPTION)
-        .url(OAuth2Util.createRegistrationUrl(authUrl, clientId, callbackUrl, scopes))
+        .url(OAuth2Util.discordAuthorizationUrl(authUrl, clientId, callbackUrl, scopes))
         .build();
 
     return Mono.just(InteractionResponse.builder()

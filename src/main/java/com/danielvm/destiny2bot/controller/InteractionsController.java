@@ -2,6 +2,7 @@ package com.danielvm.destiny2bot.controller;
 
 import com.danielvm.destiny2bot.annotation.ValidSignature;
 import com.danielvm.destiny2bot.dto.discord.Interaction;
+import com.danielvm.destiny2bot.dto.discord.InteractionResponse;
 import com.danielvm.destiny2bot.service.InteractionService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.validation.annotation.Validated;
@@ -31,7 +32,7 @@ public class InteractionsController {
    * @return TBD
    */
   @PostMapping("/interactions")
-  public Mono<?> interactions(
+  public Mono<InteractionResponse> interactions(
       @RequestBody Interaction interaction,
       @ValidSignature ContentCachingRequestWrapper request) {
     return interactionService.handleInteraction(interaction)

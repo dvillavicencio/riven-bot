@@ -2,10 +2,10 @@ package com.danielvm.destiny2bot.service;
 
 import com.danielvm.destiny2bot.enums.CommandEnum;
 import com.danielvm.destiny2bot.exception.ResourceNotFoundException;
-import com.danielvm.destiny2bot.factory.AuthorizeAccountMessage;
+import com.danielvm.destiny2bot.factory.AuthorizeMessageCreator;
 import com.danielvm.destiny2bot.factory.MessageResponseFactory;
-import com.danielvm.destiny2bot.factory.WeeklyDungeonMessage;
-import com.danielvm.destiny2bot.factory.WeeklyRaidMessage;
+import com.danielvm.destiny2bot.factory.WeeklyDungeonMessageCreator;
+import com.danielvm.destiny2bot.factory.WeeklyRaidMessageCreator;
 import java.util.Map;
 import java.util.Objects;
 import org.springframework.stereotype.Component;
@@ -20,13 +20,13 @@ public class MessageRegistryService {
   private final Map<CommandEnum, MessageResponseFactory> MESSAGE_FACTORY;
 
   public MessageRegistryService(
-      WeeklyRaidMessage weeklyRaidMessage,
-      WeeklyDungeonMessage weeklyDungeonMessage,
-      AuthorizeAccountMessage authorizeAccountMessage) {
+      WeeklyRaidMessageCreator weeklyRaidMessageCreator,
+      WeeklyDungeonMessageCreator weeklyDungeonMessageCreator,
+      AuthorizeMessageCreator authorizeMessageCreator) {
     this.MESSAGE_FACTORY = Map.of(
-        CommandEnum.WEEKLY_RAID, weeklyRaidMessage,
-        CommandEnum.WEEKLY_DUNGEON, weeklyDungeonMessage,
-        CommandEnum.AUTHORIZE, authorizeAccountMessage);
+        CommandEnum.WEEKLY_RAID, weeklyRaidMessageCreator,
+        CommandEnum.WEEKLY_DUNGEON, weeklyDungeonMessageCreator,
+        CommandEnum.AUTHORIZE, authorizeMessageCreator);
   }
 
   /**

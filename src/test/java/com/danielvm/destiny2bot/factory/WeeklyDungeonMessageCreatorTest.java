@@ -21,13 +21,13 @@ import reactor.test.StepVerifier;
 import reactor.test.StepVerifier.FirstStep;
 
 @ExtendWith(MockitoExtension.class)
-public class WeeklyDungeonMessageTest {
+public class WeeklyDungeonMessageCreatorTest {
 
   @Mock
   WeeklyActivitiesService weeklyActivitiesService;
 
   @InjectMocks
-  WeeklyDungeonMessage sut;
+  WeeklyDungeonMessageCreator sut;
 
   @Test
   @DisplayName("Create message is successful")
@@ -41,7 +41,7 @@ public class WeeklyDungeonMessageTest {
     FirstStep<InteractionResponse> response = StepVerifier.create(sut.createResponse());
 
     // then: the message created is correct
-    String expectedMessage = WeeklyDungeonMessage.MESSAGE_TEMPLATE.formatted(
+    String expectedMessage = WeeklyDungeonMessageCreator.MESSAGE_TEMPLATE.formatted(
         weeklyActivity.getName(),
         MessageUtil.formatDate(weeklyActivity.getEndDate().toLocalDate()));
     response

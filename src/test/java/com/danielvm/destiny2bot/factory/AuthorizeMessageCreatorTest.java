@@ -18,13 +18,13 @@ import reactor.test.StepVerifier;
 import reactor.test.StepVerifier.FirstStep;
 
 @ExtendWith(MockitoExtension.class)
-public class AuthorizeAccountMessageTest {
+public class AuthorizeMessageCreatorTest {
 
   @Mock
   DiscordConfiguration discordConfiguration;
 
   @InjectMocks
-  AuthorizeAccountMessage sut;
+  AuthorizeMessageCreator sut;
 
   @Test
   @DisplayName("Create message is successful")
@@ -51,9 +51,9 @@ public class AuthorizeAccountMessageTest {
           assertThat(interactionResponse.getType()).isEqualTo(
               InteractionResponseEnum.CHANNEL_MESSAGE_WITH_SOURCE.getType());
           assertThat(embedded.getDescription()).isEqualTo(
-              AuthorizeAccountMessage.MESSAGE_DESCRIPTION);
-          assertThat(embedded.getTitle()).isEqualTo(AuthorizeAccountMessage.MESSAGE_TITLE);
-          assertThat(embedded.getUrl()).isEqualTo(OAuth2Util.createRegistrationUrl(
+              AuthorizeMessageCreator.MESSAGE_DESCRIPTION);
+          assertThat(embedded.getTitle()).isEqualTo(AuthorizeMessageCreator.MESSAGE_TITLE);
+          assertThat(embedded.getUrl()).isEqualTo(OAuth2Util.discordAuthorizationUrl(
               authUrl, clientId, callbackUrl, scopeString));
         }).verifyComplete();
   }

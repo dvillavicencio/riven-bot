@@ -29,13 +29,11 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
 public class RegistrationControllerTest extends BaseIntegrationTest {
 
+  static final String SESSION_COOKIE = "SESSION";
   @Autowired
   BungieConfiguration bungieConfiguration;
-
   @Autowired
   UserDetailsRepository userDetailsRepository;
-
-  static final String SESSION_COOKIE = "SESSION";
 
   @Test
   @DisplayName("should save Discord user to httpSession after OAuth2 authorization")
@@ -81,7 +79,8 @@ public class RegistrationControllerTest extends BaseIntegrationTest {
         .andExpect(status().is3xxRedirection())
         .andExpect(header().exists(HttpHeaders.LOCATION))
         .andExpect(header().string(HttpHeaders.LOCATION,
-            OAuth2Util.bungieAuthorizationUrl(bungieConfiguration)));
+            OAuth2Util.bungieAuthorizationUrl(bungieConfiguration.getAuthorizationUrl(),
+                bungieConfiguration.getClientId())));
 
     var sessionCookie = discordCallbackResponse.andReturn().getResponse().getCookie(SESSION_COOKIE);
 
@@ -230,7 +229,8 @@ public class RegistrationControllerTest extends BaseIntegrationTest {
         .andExpect(status().is3xxRedirection())
         .andExpect(header().exists(HttpHeaders.LOCATION))
         .andExpect(header().string(HttpHeaders.LOCATION,
-            OAuth2Util.bungieAuthorizationUrl(bungieConfiguration)));
+            OAuth2Util.bungieAuthorizationUrl(bungieConfiguration.getAuthorizationUrl(),
+                bungieConfiguration.getClientId())));
 
     var sessionCookie = discordCallbackResponse.andReturn().getResponse().getCookie(SESSION_COOKIE);
 
@@ -300,7 +300,8 @@ public class RegistrationControllerTest extends BaseIntegrationTest {
         .andExpect(status().is3xxRedirection())
         .andExpect(header().exists(HttpHeaders.LOCATION))
         .andExpect(header().string(HttpHeaders.LOCATION,
-            OAuth2Util.bungieAuthorizationUrl(bungieConfiguration)));
+            OAuth2Util.bungieAuthorizationUrl(bungieConfiguration.getAuthorizationUrl(),
+                bungieConfiguration.getClientId())));
 
     var sessionCookie = discordCallbackResponse.andReturn().getResponse().getCookie(SESSION_COOKIE);
 

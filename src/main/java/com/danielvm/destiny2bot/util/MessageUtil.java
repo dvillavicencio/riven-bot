@@ -22,7 +22,7 @@ public class MessageUtil {
 
   /**
    * Formatter used to format the date for a message Example: the LocalDate object with date
-   * 2023-01-01 would be formatted to "Sunday January 01"
+   * 2023-01-01 would be formatted to "Sunday 1st, January 2023"
    */
   private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern(
       "EEEE d'%s', MMMM yyyy");
@@ -31,7 +31,8 @@ public class MessageUtil {
   }
 
   /**
-   * Format the given local date using the class formatter
+   * Format the given local date using the class formatter, it also includes the correct suffix for
+   * a date
    *
    * @param localDate the date to be formatted
    * @return String of the formatted local date

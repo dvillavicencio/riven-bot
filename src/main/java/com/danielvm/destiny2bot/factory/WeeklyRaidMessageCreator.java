@@ -11,7 +11,7 @@ import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
 
 @Component
-public class WeeklyRaidMessage implements MessageResponseFactory {
+public class WeeklyRaidMessageCreator implements MessageResponseFactory {
 
   public static final String MESSAGE_TEMPLATE = """
       This week's raid is: %s.
@@ -20,7 +20,7 @@ public class WeeklyRaidMessage implements MessageResponseFactory {
 
   private final WeeklyActivitiesService weeklyActivitiesService;
 
-  public WeeklyRaidMessage(WeeklyActivitiesService weeklyActivitiesService) {
+  public WeeklyRaidMessageCreator(WeeklyActivitiesService weeklyActivitiesService) {
     this.weeklyActivitiesService = weeklyActivitiesService;
   }
 
