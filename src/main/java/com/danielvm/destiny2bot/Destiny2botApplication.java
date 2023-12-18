@@ -1,7 +1,7 @@
 package com.danielvm.destiny2bot;
 
 import com.danielvm.destiny2bot.exception.ExternalServiceException;
-import com.danielvm.destiny2bot.exception.InternalServiceException;
+import com.danielvm.destiny2bot.exception.InternalServerException;
 import com.danielvm.destiny2bot.filter.CachingRequestBodyFilter;
 import java.nio.charset.StandardCharsets;
 import org.springframework.boot.SpringApplication;
@@ -14,6 +14,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.EnableAspectJAutoProxy;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
+import org.springframework.validation.beanvalidation.MethodValidationPostProcessor;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 
@@ -61,7 +62,7 @@ public class Destiny2botApplication {
             HttpStatusCode::is4xxClientError,
             clientResponse -> clientResponse.createException()
                 .flatMap(ce -> Mono.error(
-                    new InternalServiceException(
+                    new InternalServerException(
                         ce.getResponseBodyAsString(StandardCharsets.UTF_8),
                         HttpStatus.BAD_REQUEST)
                 ))

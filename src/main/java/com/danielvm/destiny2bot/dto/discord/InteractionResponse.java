@@ -12,15 +12,23 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class InteractionResponse {
 
-    /**
-     * The type of the InteractionResponse
-     * <br>
-     * {@see {@link InteractionResponseEnum }}
-     */
-    private Integer type;
+  /**
+   * The type of the InteractionResponse
+   * <br>
+   * {@see {@link InteractionResponseEnum }}
+   */
+  private Integer type;
+  /**
+   * Data attached to the Interaction Response
+   */
+  private InteractionResponseData data;
 
-    /**
-     * Data attached to the Interaction Response
-     */
-    private InteractionResponseData data;
+  /**
+   * Creates the default response for a PING request
+   *
+   * @return InteractionResponse with null data and type 1
+   */
+  public static InteractionResponse PING() {
+    return new InteractionResponse(1, null);
+  }
 }
