@@ -8,7 +8,8 @@ public enum CommandEnum {
 
   AUTHORIZE("authorize"),
   WEEKLY_DUNGEON("weekly_dungeon"),
-  WEEKLY_RAID("weekly_raid");
+  WEEKLY_RAID("weekly_raid"),
+  RAID_STATS("raid_stats");
 
   @Getter
   private final String commandName;
@@ -28,7 +29,8 @@ public enum CommandEnum {
         .filter(e -> e.getCommandName().equalsIgnoreCase(commandName))
         .findFirst()
         .orElseThrow(() -> new ResourceNotFoundException(
-            "Command with name [%s] was not found")); // this should never happen
+            "Command with name [%s] was not found".formatted(
+                commandName))); // this should never happen
   }
 
 }

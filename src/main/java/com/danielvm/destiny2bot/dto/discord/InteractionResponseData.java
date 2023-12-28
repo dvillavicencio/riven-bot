@@ -17,4 +17,9 @@ public class InteractionResponseData {
    * List of embeds{@link }
    */
   private List<Embedded> embeds;
+
+  /**
+   * List of choices for autocomplete interactions
+   */
+  private List<Choice> choices;
 }

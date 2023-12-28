@@ -8,22 +8,29 @@ import static com.github.tomakehurst.wiremock.client.WireMock.urlPathEqualTo;
 
 import com.danielvm.destiny2bot.config.BungieConfiguration;
 import com.danielvm.destiny2bot.config.DiscordConfiguration;
+import com.danielvm.destiny2bot.dto.destiny.GenericResponse;
+import com.danielvm.destiny2bot.dto.destiny.milestone.MilestoneEntry;
 import com.danielvm.destiny2bot.dto.discord.Interaction;
 import com.danielvm.destiny2bot.dto.discord.InteractionData;
 import com.danielvm.destiny2bot.enums.EntityTypeEnum;
 import com.danielvm.destiny2bot.enums.InteractionType;
 import com.danielvm.destiny2bot.util.MessageUtil;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.json.JsonMapper;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import java.io.File;
 import java.io.IOException;
-import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 import java.security.KeyPair;
 import java.security.PublicKey;
 import java.time.Instant;
+import java.util.Map;
+import java.util.Objects;
 import org.apache.commons.codec.DecoderException;
 import org.apache.commons.codec.binary.Hex;
-import org.apache.commons.io.FileUtils;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -40,6 +47,13 @@ public class InteractionControllerTest extends BaseIntegrationTest {
   private static final String VALID_PRIVATE_KEY = "F0EA3A0516695324C03ED552CD5A08A58CA1248172E8816C3BF235E52E75A7BF";
   private static final String MALICIOUS_PRIVATE_KEY = "CE4517095255B0C92D586AF9EEC27B998D68775363F9FE74341483FB3A657CEC";
 
+  // Static mapper to be used on the @BeforeAll static method
+  private static final ObjectMapper OBJECT_MAPPER = new JsonMapper.Builder(new JsonMapper())
+      .configure(DeserializationFeature.FAIL_ON_IGNORED_PROPERTIES, false)
+      .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
+      .build()
+      .registerModule(new JavaTimeModule());
+
   @Autowired
   BungieConfiguration bungieConfiguration;
   @Autowired
@@ -54,19 +68,31 @@ public class InteractionControllerTest extends BaseIntegrationTest {
    */
   @BeforeAll
   public static void before() throws IOException {
-    // Get the classpath resource, and replace the appropriate placeholder dates
-    File milestoneResource = new File("src/test/resources/__files/bungie/milestone-response.json");
-    String fileContent = FileUtils.readFileToString(milestoneResource, StandardCharsets.UTF_8);
+    File milestoneFile = new File("src/test/resources/__files/bungie/milestone-response.json");
+    TypeReference<GenericResponse<Map<String, MilestoneEntry>>> typeReference = new TypeReference<>() {
+    };
+    var milestoneResponse = OBJECT_MAPPER.readValue(milestoneFile, typeReference);
 
-    String newJson = fileContent
-        .replace("{startDate}", MessageUtil.PREVIOUS_TUESDAY.toString())
-        .replace("{endDate}", MessageUtil.NEXT_TUESDAY.toString());
+    replaceDates(milestoneResponse, "526718853");
+    replaceDates(milestoneResponse, "2712317338");
 
-    try (OutputStream outputStream = FileUtils.newOutputStream(milestoneResource, false)) {
-      outputStream.write(newJson.getBytes(StandardCharsets.UTF_8));
-    } catch (IOException e) {
-      throw new RuntimeException(e);
-    }
+    OBJECT_MAPPER.writeValue(milestoneFile, milestoneResponse);
+  }
+
+  private static void replaceDates(GenericResponse<Map<String, MilestoneEntry>> response,
+      String hash) {
+    response.getResponse().entrySet().stream()
+        .filter(entry -> Objects.equals(entry.getKey(), hash))
+        .forEach(entry -> {
+          var startDate = entry.getValue().getStartDate();
+          var endDate = entry.getValue().getEndDate();
+          if (Objects.nonNull(startDate)) {
+            entry.getValue().setStartDate(MessageUtil.PREVIOUS_TUESDAY);
+          }
+          if (Objects.nonNull(endDate)) {
+            entry.getValue().setEndDate(MessageUtil.NEXT_TUESDAY);
+          }
+        });
   }
 
   private String createValidSignature(Interaction body, String timestamp)
