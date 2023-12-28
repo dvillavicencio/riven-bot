@@ -1,7 +1,7 @@
 # Riven of a Thousand Servers for Discord
 > Source code for Riven of a Thousand Servers Discord Bot
 
-This repository has all the source code that makes Riven of a Thousand Severs work. Destiny 2 is a very famous game created and developed by Bungie game studios. The idea is to have a Discord bot that contains very useful utilities for players like myself like retrieving weekly-rotation information for in-game activities, player-specific raid/dungeon/nightfall statistics, and Vendor information using _Discord messages only_. Ther most important reason for this project though, is to help melearn and understand deeply modern JVM-based technologies as well as their benefits and trade-offs.
+This repository has all the source code that makes Riven of a Thousand Severs work. Destiny 2 is a very famous game created and developed by Bungie game studios. The idea is to have a Discord bot that contains very useful utilities for players like myself like retrieving weekly-rotation information for in-game activities, player-specific raid/dungeon/nightfall statistics, and Vendor information using _Discord messages only_. The most important reason for this project though, is to help me learn and understand deeply modern JVM-based technologies as well as their benefits and trade-offs.
 
 ## Stack
   - [Spring Boot](https://spring.io/projects/spring-boot) - Official documentation for Spring Boot
