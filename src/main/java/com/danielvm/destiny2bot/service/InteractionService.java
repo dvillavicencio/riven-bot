@@ -19,13 +19,13 @@ import reactor.core.publisher.Mono;
 public class InteractionService {
 
   private final MessageRegistryService messageRegistryService;
-  private final AutocompleteMessageService autocompleteMessageService;
+  private final AutocompleteRegistryService autocompleteRegistryService;
 
   public InteractionService(
-      AutocompleteMessageService autocompleteMessageService,
+      AutocompleteRegistryService autocompleteRegistryService,
       MessageRegistryService messageRegistryService) {
     this.messageRegistryService = messageRegistryService;
-    this.autocompleteMessageService = autocompleteMessageService;
+    this.autocompleteRegistryService = autocompleteRegistryService;
   }
 
   /**
@@ -48,7 +48,7 @@ public class InteractionService {
                       new Choice("Titan Level 1800", "Titan Level 1800"))).build()));
     } else if (isApplicationCommand) {
       var slashCommand = CommandEnum.findByName(interaction.getData().getName());
-      return messageRegistryService.getFactory(slashCommand).createResponse();
+      return messageRegistryService.getMessageCreator(slashCommand).createResponse();
     } else {
       return Mono.just(InteractionResponse.PING());
     }

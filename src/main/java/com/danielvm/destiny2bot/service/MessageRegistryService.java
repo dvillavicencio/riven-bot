@@ -36,7 +36,7 @@ public class MessageRegistryService {
    * @return an implementation of {@link MessageResponseFactory}
    * @throws ResourceNotFoundException If no creator is found for the given command
    */
-  public MessageResponseFactory getFactory(CommandEnum command) {
+  public MessageResponseFactory getMessageCreator(CommandEnum command) {
     MessageResponseFactory creator = MESSAGE_FACTORY.get(command);
     if (Objects.isNull(creator)) {
       throw new ResourceNotFoundException(

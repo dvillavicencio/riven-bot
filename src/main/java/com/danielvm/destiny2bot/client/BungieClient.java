@@ -1,6 +1,7 @@
 package com.danielvm.destiny2bot.client;
 
 import com.danielvm.destiny2bot.dto.destiny.GenericResponse;
+import com.danielvm.destiny2bot.dto.destiny.characters.CharactersResponse;
 import com.danielvm.destiny2bot.dto.destiny.manifest.ResponseFields;
 import com.danielvm.destiny2bot.dto.destiny.membership.MembershipResponse;
 import com.danielvm.destiny2bot.dto.destiny.milestone.MilestoneEntry;
@@ -60,5 +61,18 @@ public interface BungieClient {
    */
   @GetExchange("/Destiny2/Milestones/")
   Mono<GenericResponse<Map<String, MilestoneEntry>>> getPublicMilestonesRx();
+
+  /**
+   * Get a user characters
+   *
+   * @param membershipType      the membership type of the user
+   * @param destinyMembershipId the destiny membership id of the user
+   * @return {@link Mono} containing {@link CharactersResponse}
+   */
+  @GetExchange("Destiny2/{membershipType}/Profile/{destinyMembershipId}/?components?=200")
+  Mono<GenericResponse<CharactersResponse>> getUserCharacters(
+      @PathVariable Integer membershipType,
+      @PathVariable String destinyMembershipId
+  );
 
 }
