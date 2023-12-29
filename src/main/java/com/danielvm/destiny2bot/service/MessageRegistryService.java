@@ -17,13 +17,13 @@ import org.springframework.stereotype.Component;
 @Component
 public class MessageRegistryService {
 
-  private final Map<CommandEnum, MessageResponseFactory> MESSAGE_FACTORY;
+  private final Map<CommandEnum, MessageResponseFactory> messageFactory;
 
   public MessageRegistryService(
       WeeklyRaidMessageCreator weeklyRaidMessageCreator,
       WeeklyDungeonMessageCreator weeklyDungeonMessageCreator,
       AuthorizeMessageCreator authorizeMessageCreator) {
-    this.MESSAGE_FACTORY = Map.of(
+    this.messageFactory = Map.of(
         CommandEnum.WEEKLY_RAID, weeklyRaidMessageCreator,
         CommandEnum.WEEKLY_DUNGEON, weeklyDungeonMessageCreator,
         CommandEnum.AUTHORIZE, authorizeMessageCreator);
@@ -37,7 +37,7 @@ public class MessageRegistryService {
    * @throws ResourceNotFoundException If no creator is found for the given command
    */
   public MessageResponseFactory getMessageCreator(CommandEnum command) {
-    MessageResponseFactory creator = MESSAGE_FACTORY.get(command);
+    MessageResponseFactory creator = messageFactory.get(command);
     if (Objects.isNull(creator)) {
       throw new ResourceNotFoundException(
           "No message creator found for command [%s]".formatted(command));

@@ -5,6 +5,7 @@ import lombok.Builder;
 import lombok.Data;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.data.mongodb.core.mapping.ExplicitEncrypted;
 
 @Data
 @Builder
@@ -12,13 +13,18 @@ import org.springframework.data.mongodb.core.mapping.Document;
 public class UserDetails {
 
   @Id
+  @ExplicitEncrypted
   private String discordId;
+
 
   private String discordUsername;
 
+  @ExplicitEncrypted
   private String accessToken;
 
+  @ExplicitEncrypted
   private String refreshToken;
 
+  @ExplicitEncrypted
   private Instant expiration;
 }

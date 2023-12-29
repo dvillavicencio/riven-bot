@@ -29,6 +29,16 @@ public interface BungieClient {
       @RequestHeader(name = HttpHeaders.AUTHORIZATION) String bearerToken);
 
   /**
+   * Gets the membership info for the current user in a reactive way
+   *
+   * @param bearerToken The user's bearer token
+   * @return {@link MembershipResponse}
+   */
+  @GetExchange("/User/GetMembershipsForCurrentUser/")
+  Mono<MembershipResponse> getMembershipInfoForCurrentUser(
+      @RequestHeader(name = HttpHeaders.AUTHORIZATION) String bearerToken);
+
+  /**
    * Ges a manifest entity from the Manifest API
    *
    * @param entityType     The entity type (see

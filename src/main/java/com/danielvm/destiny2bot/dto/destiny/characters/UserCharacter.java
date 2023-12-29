@@ -13,8 +13,8 @@ public class UserCharacter {
   private Integer membershipType;
   private String CharacterId;
   private Integer light;
-  private Long raceHash;
-  private Long genderHash;
-  private Long classHash;
+  private Integer raceType;
+  private Integer genderType;
+  private Integer classType;
 
 }
