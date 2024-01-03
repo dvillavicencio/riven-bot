@@ -27,7 +27,6 @@ import org.springframework.test.web.reactive.server.WebTestClient.ResponseSpec;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import reactor.test.StepVerifier;
 
-// TODO: Fix tests in this test suite
 public class RegistrationControllerTest extends BaseIntegrationTest {
 
   static final String SESSION_COOKIE = "SESSION";
