@@ -1,6 +1,6 @@
 package com.danielvm.destiny2bot.controller;
 
-import com.danielvm.destiny2bot.service.UserAuthorizationService;
+import com.danielvm.destiny2bot.service.UserRegistrationService;
 import com.danielvm.destiny2bot.util.OAuth2Params;
 import jakarta.servlet.http.HttpSession;
 import lombok.extern.slf4j.Slf4j;
@@ -14,11 +14,11 @@ import reactor.core.publisher.Mono;
 @RestController
 public class RegistrationController {
 
-  private final UserAuthorizationService userAuthorizationService;
+  private final UserRegistrationService userRegistrationService;
 
   public RegistrationController(
-      UserAuthorizationService userAuthorizationService) {
-    this.userAuthorizationService = userAuthorizationService;
+      UserRegistrationService userRegistrationService) {
+    this.userRegistrationService = userRegistrationService;
   }
 
   /**
@@ -31,7 +31,7 @@ public class RegistrationController {
   public Mono<ResponseEntity<Object>> handleCallBackFromDiscord(
       @RequestParam(OAuth2Params.CODE) String authorizationCode,
       HttpSession httpSession) {
-    return userAuthorizationService
+    return userRegistrationService
         .authenticateDiscordUser(authorizationCode, httpSession);
   }
 
@@ -45,7 +45,7 @@ public class RegistrationController {
   public Mono<ResponseEntity<Object>> handleCallBackFromBungie(
       @RequestParam(OAuth2Params.CODE) String authorizationCode,
       HttpSession httpSession) {
-    return userAuthorizationService
+    return userRegistrationService
         .linkDiscordUserToBungieAccount(authorizationCode, httpSession);
   }
 

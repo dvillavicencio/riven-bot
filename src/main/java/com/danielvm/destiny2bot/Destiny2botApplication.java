@@ -62,11 +62,10 @@ public class Destiny2botApplication {
         .defaultStatusHandler(
             HttpStatusCode::is5xxServerError,
             clientResponse -> clientResponse.createException()
-                .flatMap(ce -> Mono.error(
-                    new ExternalServiceException(
-                        ce.getResponseBodyAsString(StandardCharsets.UTF_8),
-                        HttpStatus.INTERNAL_SERVER_ERROR,
-                        ce.getCause()))
+                .flatMap(ce -> Mono.error(new ExternalServiceException(
+                    ce.getResponseBodyAsString(StandardCharsets.UTF_8),
+                    HttpStatus.INTERNAL_SERVER_ERROR,
+                    ce.getCause()))
                 )
         )
         .defaultStatusHandler(

@@ -14,7 +14,6 @@ import com.danielvm.destiny2bot.dao.UserDetailsReactiveDao;
 import com.danielvm.destiny2bot.dto.discord.DiscordUserResponse;
 import com.danielvm.destiny2bot.dto.oauth2.TokenResponse;
 import com.danielvm.destiny2bot.entity.UserDetails;
-import com.danielvm.destiny2bot.repository.UserDetailsRepository;
 import com.danielvm.destiny2bot.util.OAuth2Util;
 import java.util.Locale;
 import java.util.Objects;
@@ -42,7 +41,7 @@ import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
 @ExtendWith(MockitoExtension.class)
-public class UserAuthorizationServiceTest {
+public class UserRegistrationServiceTest {
 
   private static final TokenResponse GENERIC_TOKEN_RESPONSE = new TokenResponse(
       "MTQ0NjJkZmQ5OTM2NDE1ZTZjNGZmZjI3",
@@ -68,7 +67,7 @@ public class UserAuthorizationServiceTest {
   @Mock
   private WebClient webClientMock;
   @InjectMocks
-  private UserAuthorizationService sut;
+  private UserRegistrationService sut;
 
   static Stream<Arguments> discordUsersWithMissingAttributes() {
     return Stream.of(

@@ -21,12 +21,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
-import org.springframework.web.reactive.function.client.WebClient.Builder;
 import reactor.core.publisher.Mono;
 
 @Service
 @Slf4j
-public class UserAuthorizationService {
+public class UserRegistrationService {
 
   private static final String DISCORD_USER_ID_KEY = "discordUserId";
   private static final String DISCORD_USER_ALIAS_KEY = "discordUserAlias";
@@ -38,12 +37,12 @@ public class UserAuthorizationService {
   private final WebClient.Builder defaultWebClientBuilder;
 
 
-  public UserAuthorizationService(
+  public UserRegistrationService(
       DiscordConfiguration discordConfiguration,
       BungieConfiguration bungieConfiguration,
       DiscordClient discordClient,
       UserDetailsReactiveDao userDetailsReactiveDao,
-      Builder defaultWebClientBuilder) {
+      WebClient.Builder defaultWebClientBuilder) {
     this.discordConfiguration = discordConfiguration;
     this.bungieConfiguration = bungieConfiguration;
     this.discordClient = discordClient;
@@ -76,12 +75,13 @@ public class UserAuthorizationService {
           session.setAttribute(DISCORD_USER_ALIAS_KEY, user.getUsername());
           session.setAttribute(DISCORD_USER_ID_KEY, user.getId());
         })
-        .then(Mono.just(
-            ResponseEntity.status(HttpStatus.FOUND) // on success relocate to Bungie Auth URL
-                .header(HttpHeaders.LOCATION,
-                    OAuth2Util.bungieAuthorizationUrl(bungieConfiguration.getAuthorizationUrl(),
-                        bungieConfiguration.getClientId()))
-                .build()));
+        .then(Mono.just(ResponseEntity
+            .status(HttpStatus.FOUND) // on success relocate to Bungie Auth URL
+            .header(HttpHeaders.LOCATION, OAuth2Util.bungieAuthorizationUrl(
+                bungieConfiguration.getAuthorizationUrl(),
+                bungieConfiguration.getClientId()))
+            .build())
+        );
   }
 
   /**
@@ -128,12 +128,6 @@ public class UserAuthorizationService {
         .body(BodyInserters.fromFormData(map))
         .retrieve()
         .bodyToMono(TokenResponse.class)
-        .onErrorResume(err -> {
-          String errorMessage = "An error has occurred when retrieving access token for a user";
-          return Mono.error(
-              new InternalServerException(
-                  errorMessage, HttpStatus.INTERNAL_SERVER_ERROR, err.getCause()));
-        })
         .flatMap(token -> {
           if (Objects.isNull(token.getAccessToken()) || Objects.isNull(token.getRefreshToken())
               || Objects.isNull(token.getExpiresIn())) {
