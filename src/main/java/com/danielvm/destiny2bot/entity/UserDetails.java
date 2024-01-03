@@ -1,30 +1,25 @@
 package com.danielvm.destiny2bot.entity;
 
+import java.io.Serial;
+import java.io.Serializable;
 import java.time.Instant;
 import lombok.Builder;
 import lombok.Data;
-import org.springframework.data.annotation.Id;
-import org.springframework.data.mongodb.core.mapping.Document;
-import org.springframework.data.mongodb.core.mapping.ExplicitEncrypted;
 
 @Data
 @Builder
-@Document
-public class UserDetails {
+public class UserDetails implements Serializable {
 
-  @Id
-  @ExplicitEncrypted
+  @Serial
+  private static final long serialVersionUID = 6161559188488304844L;
+
   private String discordId;
-
 
   private String discordUsername;
 
-  @ExplicitEncrypted
   private String accessToken;
 
-  @ExplicitEncrypted
   private String refreshToken;
 
-  @ExplicitEncrypted
   private Instant expiration;
 }

@@ -1,6 +1,5 @@
 package com.danielvm.destiny2bot.dto.discord;
 
-import com.danielvm.destiny2bot.enums.InteractionResponseEnum;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -15,7 +14,7 @@ public class InteractionResponse {
   /**
    * The type of the InteractionResponse
    * <br>
-   * {@see {@link InteractionResponseEnum }}
+   * {@see {@link com.danielvm.destiny2bot.enums.InteractionResponse }}
    */
   private Integer type;
   /**

@@ -12,7 +12,7 @@ import com.danielvm.destiny2bot.dto.destiny.GenericResponse;
 import com.danielvm.destiny2bot.dto.destiny.milestone.MilestoneEntry;
 import com.danielvm.destiny2bot.dto.discord.Interaction;
 import com.danielvm.destiny2bot.dto.discord.InteractionData;
-import com.danielvm.destiny2bot.enums.EntityTypeEnum;
+import com.danielvm.destiny2bot.enums.ManifestEntity;
 import com.danielvm.destiny2bot.enums.InteractionType;
 import com.danielvm.destiny2bot.util.MessageUtil;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -140,7 +140,7 @@ public class InteractionControllerTest extends BaseIntegrationTest {
             .withHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
             .withBodyFile("bungie/milestone-response.json")));
 
-    var activityDefinition = EntityTypeEnum.ACTIVITY_DEFINITION.getId();
+    var activityDefinition = ManifestEntity.ACTIVITY_DEFINITION.getId();
     var activityHash = "1262462921";
 
     stubFor(get(urlPathEqualTo(
@@ -160,7 +160,7 @@ public class InteractionControllerTest extends BaseIntegrationTest {
             .withHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
             .withBodyFile("bungie/master-dungeon-activity-response.json")));
 
-    var activityTypeDefinition = EntityTypeEnum.ACTIVITY_TYPE_DEFINITION.getId();
+    var activityTypeDefinition = ManifestEntity.ACTIVITY_TYPE_DEFINITION.getId();
     var activityTypeHash = "608898761";
 
     stubFor(get(urlPathEqualTo(
@@ -171,7 +171,7 @@ public class InteractionControllerTest extends BaseIntegrationTest {
             .withHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
             .withBodyFile("bungie/dungeon-activity-type-response.json")));
 
-    var milestoneDefinition = EntityTypeEnum.MILESTONE_DEFINITION.getId();
+    var milestoneDefinition = ManifestEntity.MILESTONE_DEFINITION.getId();
     var milestoneHash = "526718853";
 
     stubFor(get(urlPathEqualTo(
@@ -220,7 +220,7 @@ public class InteractionControllerTest extends BaseIntegrationTest {
             .withHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
             .withBodyFile("bungie/milestone-response.json")));
 
-    var activityDefinition = EntityTypeEnum.ACTIVITY_DEFINITION.getId();
+    var activityDefinition = ManifestEntity.ACTIVITY_DEFINITION.getId();
     var activityHash = "1042180643";
 
     stubFor(get(urlPathEqualTo(
@@ -231,7 +231,7 @@ public class InteractionControllerTest extends BaseIntegrationTest {
             .withHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
             .withBodyFile("bungie/raid-activity-response.json")));
 
-    var activityTypeDefinition = EntityTypeEnum.ACTIVITY_TYPE_DEFINITION.getId();
+    var activityTypeDefinition = ManifestEntity.ACTIVITY_TYPE_DEFINITION.getId();
     var activityTypeHash = "2043403989";
 
     stubFor(get(urlPathEqualTo(
@@ -242,7 +242,7 @@ public class InteractionControllerTest extends BaseIntegrationTest {
             .withHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
             .withBodyFile("bungie/raid-activity-type-response.json")));
 
-    var milestoneDefinition = EntityTypeEnum.MILESTONE_DEFINITION.getId();
+    var milestoneDefinition = ManifestEntity.MILESTONE_DEFINITION.getId();
     var milestoneHash = "2712317338";
 
     stubFor(get(urlPathEqualTo(

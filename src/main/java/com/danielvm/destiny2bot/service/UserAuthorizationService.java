@@ -1,23 +1,23 @@
 package com.danielvm.destiny2bot.service;
 
-import static java.util.Objects.isNull;
-
 import com.danielvm.destiny2bot.client.DiscordClient;
 import com.danielvm.destiny2bot.config.BungieConfiguration;
 import com.danielvm.destiny2bot.config.DiscordConfiguration;
+import com.danielvm.destiny2bot.config.OAuth2Configuration;
+import com.danielvm.destiny2bot.dao.UserDetailsReactiveDao;
 import com.danielvm.destiny2bot.dto.oauth2.TokenResponse;
 import com.danielvm.destiny2bot.entity.UserDetails;
-import com.danielvm.destiny2bot.repository.UserDetailsRepository;
+import com.danielvm.destiny2bot.exception.InternalServerException;
 import com.danielvm.destiny2bot.util.OAuth2Util;
 import jakarta.servlet.http.HttpSession;
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Objects;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import org.springframework.util.Assert;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -34,7 +34,7 @@ public class UserAuthorizationService {
   private final DiscordConfiguration discordConfiguration;
   private final BungieConfiguration bungieConfiguration;
   private final DiscordClient discordClient;
-  private final UserDetailsRepository userDetailsRepository;
+  private final UserDetailsReactiveDao userDetailsReactiveDao;
   private final WebClient.Builder defaultWebClientBuilder;
 
 
@@ -42,12 +42,12 @@ public class UserAuthorizationService {
       DiscordConfiguration discordConfiguration,
       BungieConfiguration bungieConfiguration,
       DiscordClient discordClient,
-      UserDetailsRepository userDetailsRepository,
+      UserDetailsReactiveDao userDetailsReactiveDao,
       Builder defaultWebClientBuilder) {
     this.discordConfiguration = discordConfiguration;
     this.bungieConfiguration = bungieConfiguration;
     this.discordClient = discordClient;
-    this.userDetailsRepository = userDetailsRepository;
+    this.userDetailsReactiveDao = userDetailsReactiveDao;
     this.defaultWebClientBuilder = defaultWebClientBuilder;
   }
 
@@ -56,26 +56,32 @@ public class UserAuthorizationService {
    *
    * @param authorizationCode The authorization code from Discord
    * @param session           The HttpSession the user is linked to
+   * @return ResponseEntity with redirection to begin Bungie OAuth2 flow
    */
-  public void authenticateDiscordUser(String authorizationCode, HttpSession session) {
-    TokenResponse tokenResponse = getTokenResponse(authorizationCode,
-        discordConfiguration.getCallbackUrl(), discordConfiguration.getClientSecret(),
-        discordConfiguration.getClientId(), discordConfiguration.getTokenUrl());
-
-    Assert.notNull(tokenResponse.getAccessToken(), "The access_token received is null");
-
-    var user = discordClient.getUser(
-        OAuth2Util.formatBearerToken(tokenResponse.getAccessToken())).getBody();
-
-    if (isNull(user) || isNull(user.getId()) || isNull(
-        user.getUsername())) {
-      log.error("The user object [{}] is null or has null required attributes", user);
-      throw new IllegalStateException(
-          "Some required arguments for registration are null for the current user");
-    }
-
-    session.setAttribute(DISCORD_USER_ID_KEY, user.getId());
-    session.setAttribute(DISCORD_USER_ALIAS_KEY, user.getUsername());
+  public Mono<ResponseEntity<Object>> authenticateDiscordUser(String authorizationCode,
+      HttpSession session) {
+    return getTokenResponse(authorizationCode, discordConfiguration)
+        .flatMap(token -> discordClient.getUser(
+            OAuth2Util.formatBearerToken(token.getAccessToken())))
+        .switchIfEmpty(
+            Mono.error(new IllegalStateException("The user response from Discord is empty")))
+        .flatMap(token -> {
+          if (Objects.isNull(token.getId()) || Objects.isNull(token.getUsername())) {
+            var errorMessage = "Some required arguments for registration are null for the current user";
+            return Mono.error(new IllegalStateException(errorMessage));
+          }
+          return Mono.just(token);
+        })
+        .doOnSuccess(user -> {
+          session.setAttribute(DISCORD_USER_ALIAS_KEY, user.getUsername());
+          session.setAttribute(DISCORD_USER_ID_KEY, user.getId());
+        })
+        .then(Mono.just(
+            ResponseEntity.status(HttpStatus.FOUND) // on success relocate to Bungie Auth URL
+                .header(HttpHeaders.LOCATION,
+                    OAuth2Util.bungieAuthorizationUrl(bungieConfiguration.getAuthorizationUrl(),
+                        bungieConfiguration.getClientId()))
+                .build()));
   }
 
   /**
@@ -83,49 +89,59 @@ public class UserAuthorizationService {
    *
    * @param authorizationCode The authorization code from Bungie
    * @param httpSession       The HttpSession the user is linked to
+   * @return ResponseEntity with no content when the user is persisted successfully
    */
-  public void linkDiscordUserToBungieAccount(String authorizationCode, HttpSession httpSession) {
-    var tokenResponse = getTokenResponse(authorizationCode, bungieConfiguration.getCallbackUrl(),
-        bungieConfiguration.getClientSecret(), bungieConfiguration.getClientId(),
-        bungieConfiguration.getTokenUrl());
-
-    List<Object> unvalidatedFields = new ArrayList<>();
-    unvalidatedFields.add(tokenResponse.getAccessToken());
-    unvalidatedFields.add(tokenResponse.getRefreshToken());
-    unvalidatedFields.add(tokenResponse.getExpiresIn());
-
-    Assert.noNullElements(unvalidatedFields,
-        "Some required fields from Bungie's access_token are null, unable to register current user");
-
-    UserDetails userDetails = UserDetails.builder()
-        .discordUsername((String) httpSession.getAttribute(DISCORD_USER_ALIAS_KEY))
-        .discordId((String) httpSession.getAttribute(DISCORD_USER_ID_KEY))
-        .accessToken(tokenResponse.getAccessToken())
-        .refreshToken(tokenResponse.getRefreshToken())
-        .expiration(Instant.now().plusSeconds(tokenResponse.getExpiresIn()))
-        .build();
-    userDetailsRepository.save(userDetails);
-    httpSession.invalidate();
+  public Mono<ResponseEntity<Object>> linkDiscordUserToBungieAccount(String authorizationCode,
+      HttpSession httpSession) {
+    return getTokenResponse(authorizationCode, bungieConfiguration)
+        .flatMap(token -> {
+          UserDetails userDetails = UserDetails.builder()
+              .discordUsername((String) httpSession.getAttribute(DISCORD_USER_ALIAS_KEY))
+              .discordId((String) httpSession.getAttribute(DISCORD_USER_ID_KEY))
+              .accessToken(token.getAccessToken())
+              .refreshToken(token.getRefreshToken())
+              .expiration(Instant.now().plusSeconds(token.getExpiresIn()))
+              .build();
+          httpSession.invalidate();
+          return userDetailsReactiveDao.save(userDetails);
+        })
+        .flatMap(result -> result ? Mono.empty() : Mono.error(
+            new InternalServerException("Something went wrong when persisting a user into Redis",
+                HttpStatus.INTERNAL_SERVER_ERROR)))
+        .then(Mono.just(ResponseEntity.noContent().build()));
   }
 
-  private TokenResponse getTokenResponse(
-      String authorizationCode, String callbackUrl, String clientSecret, String clientId,
-      String tokenUrl) {
+  private Mono<TokenResponse> getTokenResponse(String authorizationCode,
+      OAuth2Configuration oAuth2Configuration) {
     MultiValueMap<String, String> map =
-        OAuth2Util.buildTokenExchangeParameters(authorizationCode, callbackUrl, clientSecret,
-            clientId);
+        OAuth2Util.buildTokenExchangeParameters(authorizationCode,
+            oAuth2Configuration.getCallbackUrl(), oAuth2Configuration.getClientSecret(),
+            oAuth2Configuration.getClientId());
 
     var tokenClient = defaultWebClientBuilder
-        .baseUrl(tokenUrl)
+        .baseUrl(oAuth2Configuration.getTokenUrl())
         .defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_FORM_URLENCODED_VALUE)
         .defaultHeader(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
         .build();
 
-    return tokenClient.post().body(BodyInserters.fromFormData(map))
+    return tokenClient.post()
+        .body(BodyInserters.fromFormData(map))
         .retrieve()
         .bodyToMono(TokenResponse.class)
-        .switchIfEmpty(Mono.just(new TokenResponse())) // fallback to empty token response
-        .block();
+        .onErrorResume(err -> {
+          String errorMessage = "An error has occurred when retrieving access token for a user";
+          return Mono.error(
+              new InternalServerException(
+                  errorMessage, HttpStatus.INTERNAL_SERVER_ERROR, err.getCause()));
+        })
+        .flatMap(token -> {
+          if (Objects.isNull(token.getAccessToken()) || Objects.isNull(token.getRefreshToken())
+              || Objects.isNull(token.getExpiresIn())) {
+            String errorMessage = "The access token, the refresh token or the expiration are null for user";
+            return Mono.error(new IllegalStateException(errorMessage));
+          }
+          return Mono.just(token);
+        });
   }
 
 }

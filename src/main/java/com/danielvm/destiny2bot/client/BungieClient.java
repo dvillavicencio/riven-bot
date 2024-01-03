@@ -5,6 +5,7 @@ import com.danielvm.destiny2bot.dto.destiny.characters.CharactersResponse;
 import com.danielvm.destiny2bot.dto.destiny.manifest.ResponseFields;
 import com.danielvm.destiny2bot.dto.destiny.membership.MembershipResponse;
 import com.danielvm.destiny2bot.dto.destiny.milestone.MilestoneEntry;
+import com.danielvm.destiny2bot.enums.ManifestEntity;
 import java.util.Map;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
@@ -42,7 +43,7 @@ public interface BungieClient {
    * Ges a manifest entity from the Manifest API
    *
    * @param entityType     The entity type (see
-   *                       {@link com.danielvm.destiny2bot.enums.EntityTypeEnum})
+   *                       {@link ManifestEntity})
    * @param hashIdentifier The entity hash identifier
    * @return {@link GenericResponse} of {@link ResponseFields}
    */
@@ -55,7 +56,7 @@ public interface BungieClient {
    * Ges a manifest entity from the Manifest API asynchronously
    *
    * @param entityType     The entity type (see
-   *                       {@link com.danielvm.destiny2bot.enums.EntityTypeEnum})
+   *                       {@link ManifestEntity})
    * @param hashIdentifier The entity hash identifier
    * @return {@link Mono} of {@link ResponseFields}
    */

@@ -22,11 +22,12 @@ public class UserCharacterMessageCreator implements AuthorizedMessageFactory {
   @Override
   public Mono<InteractionResponse> createResponse(Interaction interaction) {
     return destinyCharacterService.getCharactersForUser(interaction)
-        .map(character -> new Choice(CHOICE_FORMAT.formatted(character.getCharacterClass(),
-            character.getCharacterRace(), character.getLightLevel()),
+        .map(character -> new Choice(CHOICE_FORMAT.formatted(
+            character.getCharacterClass(), character.getCharacterRace(), character.getLightLevel()),
             character.getCharacterId()))
         .collectList()
         .map(choices -> new InteractionResponse(8, InteractionResponseData.builder()
-            .choices(choices).build()));
+            .choices(choices).build()))
+        .switchIfEmpty(Mono.empty());
   }
 }

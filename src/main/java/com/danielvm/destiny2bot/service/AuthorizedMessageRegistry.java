@@ -10,11 +10,11 @@ import java.util.Objects;
 import org.springframework.stereotype.Service;
 
 @Service
-public class AuthorizedMessageRegistryService {
+public class AuthorizedMessageRegistry {
 
   private final Map<CommandEnum, AuthorizedMessageFactory> autocompleteMessageFactory;
 
-  public AuthorizedMessageRegistryService(
+  public AuthorizedMessageRegistry(
       UserCharacterMessageCreator userCharacterMessageCreator) {
     this.autocompleteMessageFactory = Map.of(
         CommandEnum.RAID_STATS, userCharacterMessageCreator
@@ -28,7 +28,7 @@ public class AuthorizedMessageRegistryService {
    * @return an implementation of {@link MessageResponseFactory}
    * @throws ResourceNotFoundException If no creator is found for the given command
    */
-  public AuthorizedMessageFactory getMessageCreator(CommandEnum command) {
+  public AuthorizedMessageFactory messageCreator(CommandEnum command) {
     AuthorizedMessageFactory creator = autocompleteMessageFactory.get(command);
     if (Objects.isNull(creator)) {
       throw new ResourceNotFoundException(
