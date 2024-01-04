@@ -45,5 +45,4 @@ public class UserDetailsReactiveDao {
   public Mono<Boolean> existsByDiscordId(String discordId) {
     return reactiveRedisTemplate.opsForValue().get(discordId).hasElement();
   }
-
 }

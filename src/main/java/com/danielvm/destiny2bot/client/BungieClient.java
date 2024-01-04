@@ -42,8 +42,7 @@ public interface BungieClient {
   /**
    * Ges a manifest entity from the Manifest API
    *
-   * @param entityType     The entity type (see
-   *                       {@link ManifestEntity})
+   * @param entityType     The entity type (see {@link ManifestEntity})
    * @param hashIdentifier The entity hash identifier
    * @return {@link GenericResponse} of {@link ResponseFields}
    */
@@ -55,8 +54,7 @@ public interface BungieClient {
   /**
    * Ges a manifest entity from the Manifest API asynchronously
    *
-   * @param entityType     The entity type (see
-   *                       {@link ManifestEntity})
+   * @param entityType     The entity type (see {@link ManifestEntity})
    * @param hashIdentifier The entity hash identifier
    * @return {@link Mono} of {@link ResponseFields}
    */
@@ -80,7 +78,7 @@ public interface BungieClient {
    * @param destinyMembershipId the destiny membership id of the user
    * @return {@link Mono} containing {@link CharactersResponse}
    */
-  @GetExchange("Destiny2/{membershipType}/Profile/{destinyMembershipId}/?components?=200")
+  @GetExchange("/Destiny2/{membershipType}/Profile/{destinyMembershipId}/?components=200")
   Mono<GenericResponse<CharactersResponse>> getUserCharacters(
       @PathVariable Integer membershipType,
       @PathVariable String destinyMembershipId

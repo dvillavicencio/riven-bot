@@ -42,6 +42,7 @@ import org.springframework.http.MediaType;
 import org.springframework.web.reactive.function.BodyInserters;
 import software.pando.crypto.nacl.Crypto;
 
+// TODO: Write integration tests for autocomplete features
 public class InteractionControllerTest extends BaseIntegrationTest {
 
   private static final String VALID_PRIVATE_KEY = "F0EA3A0516695324C03ED552CD5A08A58CA1248172E8816C3BF235E52E75A7BF";

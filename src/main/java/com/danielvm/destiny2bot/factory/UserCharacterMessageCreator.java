@@ -5,13 +5,14 @@ import com.danielvm.destiny2bot.dto.discord.Interaction;
 import com.danielvm.destiny2bot.dto.discord.InteractionResponse;
 import com.danielvm.destiny2bot.dto.discord.InteractionResponseData;
 import com.danielvm.destiny2bot.service.DestinyCharacterService;
+import java.util.Collections;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
 
 @Component
 public class UserCharacterMessageCreator implements AuthorizedMessageFactory {
 
-  private static final String CHOICE_FORMAT = "%s %s %s";
+  private static final String CHOICE_FORMAT = "[%s] %s - %s";
   private final DestinyCharacterService destinyCharacterService;
 
   public UserCharacterMessageCreator(
@@ -21,13 +22,19 @@ public class UserCharacterMessageCreator implements AuthorizedMessageFactory {
 
   @Override
   public Mono<InteractionResponse> createResponse(Interaction interaction) {
-    return destinyCharacterService.getCharactersForUser(interaction)
+    String userId = interaction.getMember().getUser().getId();
+    return destinyCharacterService.getCharactersForUser(userId)
         .map(character -> new Choice(CHOICE_FORMAT.formatted(
-            character.getCharacterClass(), character.getCharacterRace(), character.getLightLevel()),
+            character.getLightLevel(), character.getCharacterRace(), character.getCharacterClass()),
             character.getCharacterId()))
         .collectList()
-        .map(choices -> new InteractionResponse(8, InteractionResponseData.builder()
-            .choices(choices).build()))
-        .switchIfEmpty(Mono.empty());
+        .map(choices -> {
+          if (choices.size() > 1) {
+            choices.add(new Choice("All", "Gets stats for all characters"));
+          }
+          return new InteractionResponse(8, InteractionResponseData.builder()
+              .choices(choices)
+              .build());
+        });
   }
 }

@@ -3,7 +3,6 @@ package com.danielvm.destiny2bot.service;
 import com.danielvm.destiny2bot.client.BungieClient;
 import com.danielvm.destiny2bot.dao.UserDetailsReactiveDao;
 import com.danielvm.destiny2bot.dto.DestinyCharacter;
-import com.danielvm.destiny2bot.dto.discord.Interaction;
 import com.danielvm.destiny2bot.enums.DestinyClass;
 import com.danielvm.destiny2bot.enums.DestinyRace;
 import com.danielvm.destiny2bot.util.MembershipUtil;
@@ -33,30 +32,28 @@ public class DestinyCharacterService {
   /**
    * Retrieves all the characters for a Destiny user
    *
-   * @param interaction The Discord interaction
+   * @param userId the user's discordId to retrieve the access token
    * @return Flux of {@link DestinyCharacter}s
    */
-  public Flux<DestinyCharacter> getCharactersForUser(Interaction interaction) {
-    return Mono.just(interaction.getMember().getUser().getId())
-        .filterWhen(userDetailsReactiveDao::existsByDiscordId)
+  public Flux<DestinyCharacter> getCharactersForUser(String userId) {
+    return Mono.just(userId)
+        .filterWhen(userDetailsReactiveDao::existsByDiscordId) // TODO: Get rid of this and check for authorization more seamlessly
         .flatMap(userDetailsReactiveDao::getByDiscordId)
-        .flatMap(userDetails -> {
-          String bearerToken = OAuth2Util.formatBearerToken(userDetails.getAccessToken());
-          return bungieMembershipService.getUserMembershipInformation(bearerToken);
-        })
+        .map(userDetails -> OAuth2Util.formatBearerToken(userDetails.getAccessToken()))
+        .flatMap(bungieMembershipService::getUserMembershipInformation)
         .flatMap(membershipResponse -> {
           String membershipId = MembershipUtil.extractMembershipId(membershipResponse);
           Integer membershipType = MembershipUtil.extractMembershipType(membershipResponse);
           return bungieClient.getUserCharacters(membershipType, membershipId);
         })
         .flatMapIterable(characters ->
-            characters.getResponse().getCharacters().getData().getCharacterMap().entrySet())
+            characters.getResponse().getCharacters().getData().entrySet())
         .map(entry -> {
           String characterId = entry.getKey();
-          String characterClass = DestinyClass.findByCode(entry.getValue().getClassType())
-              .getName();
+          String characterClass = DestinyClass.findByCode(entry.getValue().getClassType()).getName();
           String characterRace = DestinyRace.findByCode(entry.getValue().getRaceType()).getName();
           Integer lightLevel = entry.getValue().getLight();
+
           return new DestinyCharacter(characterId, characterClass, lightLevel, characterRace);
         });
   }
