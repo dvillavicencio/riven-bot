@@ -33,8 +33,7 @@ public enum CommandEnum {
         .filter(e -> e.getCommandName().equalsIgnoreCase(commandName))
         .findFirst()
         .orElseThrow(() -> new ResourceNotFoundException(
-            "Command with name [%s] was not found".formatted(
-                commandName))); // this should never happen
+            "Command with name [%s] was not found".formatted(commandName)));
   }
 
 }

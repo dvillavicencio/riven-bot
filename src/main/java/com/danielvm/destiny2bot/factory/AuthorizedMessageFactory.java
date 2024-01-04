@@ -1,6 +1,5 @@
 package com.danielvm.destiny2bot.factory;
 
-import com.danielvm.destiny2bot.dto.discord.Interaction;
 import com.danielvm.destiny2bot.dto.discord.InteractionResponse;
 import reactor.core.publisher.Mono;
 
@@ -14,8 +13,8 @@ public interface AuthorizedMessageFactory {
   /**
    * Create a message response using contextual interaction data as necessary
    *
-   * @param interaction the context of the interaction
+   * @param userId the DiscordId of the user to verify for authorization
    * @return {@link InteractionResponse}
    */
-  Mono<InteractionResponse> createResponse(Interaction interaction);
+  Mono<InteractionResponse> createResponse(String userId);
 }

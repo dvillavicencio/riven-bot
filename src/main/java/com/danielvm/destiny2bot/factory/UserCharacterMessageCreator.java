@@ -21,8 +21,7 @@ public class UserCharacterMessageCreator implements AuthorizedMessageFactory {
   }
 
   @Override
-  public Mono<InteractionResponse> createResponse(Interaction interaction) {
-    String userId = interaction.getMember().getUser().getId();
+  public Mono<InteractionResponse> createResponse(String userId) {
     return destinyCharacterService.getCharactersForUser(userId)
         .map(character -> new Choice(CHOICE_FORMAT.formatted(
             character.getLightLevel(), character.getCharacterRace(), character.getCharacterClass()),
