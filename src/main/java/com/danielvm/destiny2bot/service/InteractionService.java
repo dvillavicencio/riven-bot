@@ -26,7 +26,7 @@ public class InteractionService {
   /**
    * Handles the incoming interactions from Discord using each slash-command's appropriate
    * message-creator using {@link MessageRegistry} or {@link AuthorizedMessageRegistry} depending on
-   * if the given slash command need the user to be authorized
+   * if the given slash command needs the user to be authorized
    *
    * @param interaction The received interaction from the Discord chat
    * @return {@link InteractionResponse}
