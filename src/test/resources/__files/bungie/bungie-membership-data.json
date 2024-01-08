@@ -1,0 +1,26 @@
+{
+  "Response": {
+    "destinyMemberships": [
+      {
+        "LastSeenDisplayName": "deahtstroke",
+        "LastSeenDisplayNameType": 3,
+        "iconPath": "/img/theme/bungienet/icons/steamLogo.png",
+        "crossSaveOverride": 0,
+        "applicableMembershipTypes": [
+          3
+        ],
+        "isPublic": true,
+        "membershipType": 3,
+        "membershipId": "0884665266181166124",
+        "displayName": "deahtstroke",
+        "bungieGlobalDisplayName": "deahtstroke",
+        "bungieGlobalDisplayNameCode": 7867
+      }
+    ]
+  },
+  "ErrorCode": 1,
+  "ThrottleSeconds": 0,
+  "ErrorStatus": "Success",
+  "Message": "Ok",
+  "MessageData": {}
+}

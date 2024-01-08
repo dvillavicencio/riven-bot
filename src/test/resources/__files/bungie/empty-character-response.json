@@ -1,0 +1,14 @@
+{
+  "Response": {
+    "responseMintedTimestamp": "2024-01-08T10:04:46.816Z",
+    "secondaryComponentsMintedTimestamp": "0001-01-01T00:00:00Z",
+    "characters": {
+      "data": {}
+    },
+    "ErrorCode": 1,
+    "ThrottleSeconds": 0,
+    "ErrorStatus": "Success",
+    "Message": "Ok",
+    "MessageData": {}
+  }
+}

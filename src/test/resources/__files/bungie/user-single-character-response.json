@@ -1,0 +1,65 @@
+{
+  "Response": {
+    "responseMintedTimestamp": "2024-01-08T10:04:46.816Z",
+    "secondaryComponentsMintedTimestamp": "0001-01-01T00:00:00Z",
+    "characters": {
+      "data": {
+        "2305843009409260500": {
+          "membershipId": "4611686018468622561",
+          "membershipType": 3,
+          "characterId": "2305843009409260500",
+          "dateLastPlayed": "2023-12-16T05:01:12Z",
+          "minutesPlayedThisSession": "6",
+          "minutesPlayedTotal": "70180",
+          "light": 1810,
+          "stats": {
+            "1935470627": 1810,
+            "2996146975": 46,
+            "392767087": 120,
+            "1943323491": 34,
+            "1735777505": 81,
+            "144602215": 42,
+            "4244567218": 40
+          },
+          "raceHash": 898834093,
+          "genderHash": 3111576190,
+          "classHash": 3655393761,
+          "raceType": 2,
+          "classType": 0,
+          "genderType": 0,
+          "emblemPath": "/common/destiny2_content/icons/7fb53db4f4074e73b790c9277d75a75c.jpg",
+          "emblemBackgroundPath": "/common/destiny2_content/icons/6da65dd82b872253a3e345127bde7349.jpg",
+          "emblemHash": 54004488,
+          "emblemColor": {
+            "red": 0,
+            "green": 0,
+            "blue": 0,
+            "alpha": 255
+          },
+          "levelProgression": {
+            "progressionHash": 1716568313,
+            "dailyProgress": 0,
+            "dailyLimit": 0,
+            "weeklyProgress": 0,
+            "weeklyLimit": 0,
+            "currentProgress": 0,
+            "level": 50,
+            "levelCap": 50,
+            "stepIndex": 50,
+            "progressToNextLevel": 0,
+            "nextLevelAt": 0
+          },
+          "baseCharacterLevel": 50,
+          "percentToNextLevel": 0.0,
+          "titleRecordHash": 1384029371
+        }
+      },
+      "privacy": 1
+    }
+  },
+  "ErrorCode": 1,
+  "ThrottleSeconds": 0,
+  "ErrorStatus": "Success",
+  "Message": "Ok",
+  "MessageData": {}
+}
