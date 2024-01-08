@@ -15,10 +15,8 @@ import org.springframework.test.context.DynamicPropertySource;
 import org.springframework.test.web.reactive.server.WebTestClient;
 import org.springframework.test.web.servlet.MockMvc;
 import org.testcontainers.containers.GenericContainer;
-import org.testcontainers.containers.MongoDBContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
-import org.testcontainers.utility.DockerImageName;
 
 @ExtendWith(MockitoExtension.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
@@ -27,9 +25,6 @@ import org.testcontainers.utility.DockerImageName;
 @Testcontainers
 public abstract class BaseIntegrationTest {
 
-  @Container
-  static final MongoDBContainer MONGO_DB_CONTAINER = new MongoDBContainer(
-      DockerImageName.parse("mongo"));
   @Container
   static final GenericContainer<?> REDIS_CONTAINER = new GenericContainer<>("redis:5.0.3-alpine")
       .withExposedPorts(6379);
@@ -49,10 +44,7 @@ public abstract class BaseIntegrationTest {
    * @param registry {@link DynamicPropertyRegistry}
    */
   @DynamicPropertySource
-  public static void setupMe(DynamicPropertyRegistry registry) {
-    registry.add("spring.data.mongodb.port", MONGO_DB_CONTAINER::getFirstMappedPort);
-    registry.add("spring.data.mongodb.host", MONGO_DB_CONTAINER::getHost);
-
+  public static void setup(DynamicPropertyRegistry registry) {
     registry.add("spring.data.redis.port", REDIS_CONTAINER::getFirstMappedPort);
     registry.add("spring.data.redis.host", REDIS_CONTAINER::getHost);
   }

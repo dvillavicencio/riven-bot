@@ -1,8 +1,7 @@
 spring:
-  threads:
-    virtual:
-      enabled: true
   data:
+    redis:
+      port: 6379
     mongodb:
       database: test
 
@@ -32,3 +31,6 @@ discord:
     clientId: 5c417aab-ee4c-44c0-8029-043a5361460d
     clientSecret: a3cd6133-be30-4c3b-ab1d-26a1f14215fc
     scopes: identify
+
+wiremock:
+  reset-mappings-after-each-test: true
