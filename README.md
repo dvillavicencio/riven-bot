@@ -17,7 +17,7 @@ This repository has all the source code that makes Riven of a Thousand Severs wo
 
 Any information regarding versions you can find it in the `build.gradle` file
 
-_Bot invite link_: (To be added in the future, current version 1.0.0 isn't stable)
+_Bot invite link_: (To be added in the future, current version 0.1.0-alpha isn't stable enough for use)
 
 ## Contributing
 This is meant to be a personal-project, therefore any issues or suggestions are appreciated but the development of the bot is under my responsibility and of selected trusted individuals. If you have an awesome idea for this bot, you can open an issue so we can discuss further.
