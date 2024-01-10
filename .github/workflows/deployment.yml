@@ -110,15 +110,5 @@ jobs:
             sudo docker login -u ${{ secrets.DOCKERHUB_USERNAME }} -p ${{ secrets.DOCKERHUB_TOKEN }}
             sudo docker pull ${{ env.DOCKER_IMAGE_NAME }} # Pull latest Destiny2Bot image
             
-            echo "DISCORD_BOT_TOKEN=${{ secrets.DISCORD_BOT_TOKEN }}" > .env
-            echo "BUNGIE_API_KEY=${{ secrets.BUNGIE_API_KEY }}" >> .env
-            echo "BUNGIE_CLIENT_ID=${{ secrets.BUNGIE_CLIENT_ID }}" >> .env
-            echo "BUNGIE_CLIENT_SECRET=${{ secrets.BUNGIE_CLIENT_SECRET }}" >> .env
-            echo "KEYSTORE_PASSWORD=${{ secrets.KEYSTORE_PASSWORD }}" >> .env
-            echo "DISCORD_BOT_PUBLIC_KEY=${{ secrets.DISCORD_BOT_PUBLIC_KEY }}" >> .env
-            echo "DISCORD_CLIENT_ID=${{ secrets.DISCORD_CLIENT_ID }}" >> .env
-            echo "DISCORD_CLIENT_SECRET=${{ secrets.DISCORD_CLIENT_SECRET }}" >> .env
-            echo "IMAGE_NAME=${{ env.DOCKER_IMAGE_NAME }}" >> .env
-            
             # Start up the docker compose app
             sudo docker compose up -d
