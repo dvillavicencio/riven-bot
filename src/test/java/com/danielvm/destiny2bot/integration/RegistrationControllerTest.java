@@ -37,7 +37,7 @@ public class RegistrationControllerTest extends BaseIntegrationTest {
   UserDetailsReactiveDao userDetailsReactiveDao;
 
   @Test
-  @DisplayName("should save Discord user to httpSession after OAuth2 authorization")
+  @DisplayName("User authorization works successfully after OAuth2 authentication")
   public void discordUserRegistration() throws Exception {
 
     // given: a login attempt from Discord user is received
