@@ -15,7 +15,7 @@ public class InteractionResponse {
   /**
    * The type of the InteractionResponse
    * <br>
-   * {@see {@link com.danielvm.destiny2bot.enums.InteractionResponse }}
+   * {@link com.danielvm.destiny2bot.enums.InteractionResponse}
    */
   private Integer type;
   /**

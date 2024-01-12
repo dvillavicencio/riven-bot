@@ -1,5 +1,6 @@
 package com.danielvm.destiny2bot.dto.discord;
 
+import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -23,5 +24,10 @@ public class InteractionData {
    * The type of the invoked command
    */
   private Integer type;
+
+  /**
+   * List of options sent with the interaction
+   */
+  private List<Option> options;
 
 }

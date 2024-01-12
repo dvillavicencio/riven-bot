@@ -5,14 +5,22 @@ import reactor.core.publisher.Mono;
 
 /**
  * Implementation of this interface are responsible for creating the human-readable message that
- * will be sent through Discord to respond to a particular slash-command
+ * will be sent through Discord to respond to a particular slash-command with no authentication
+ * required
  */
-public interface MessageResponseFactory {
+public interface MessageResponse {
 
   /**
    * Creates an Interaction Response for a slash-command
    *
    * @return {@link InteractionResponse}
    */
-  Mono<InteractionResponse> createResponse();
+  Mono<InteractionResponse> commandResponse();
+
+  /**
+   * Create an interaction Response for an autocomplete request
+   *
+   * @return {@link InteractionResponse}
+   */
+  Mono<InteractionResponse> autocompleteResponse();
 }

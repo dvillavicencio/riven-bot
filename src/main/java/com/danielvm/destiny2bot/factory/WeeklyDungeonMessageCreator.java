@@ -5,13 +5,14 @@ import static com.danielvm.destiny2bot.enums.InteractionResponse.CHANNEL_MESSAGE
 import com.danielvm.destiny2bot.dto.discord.InteractionResponse;
 import com.danielvm.destiny2bot.dto.discord.InteractionResponseData;
 import com.danielvm.destiny2bot.enums.ActivityMode;
+import com.danielvm.destiny2bot.exception.ResourceNotFoundException;
 import com.danielvm.destiny2bot.service.WeeklyActivitiesService;
 import com.danielvm.destiny2bot.util.MessageUtil;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
 
 @Component
-public class WeeklyDungeonMessageCreator implements MessageResponseFactory {
+public class WeeklyDungeonMessageCreator implements MessageResponse {
 
   public static final String MESSAGE_TEMPLATE = """
       This week's dungeon is: %s.
@@ -24,7 +25,7 @@ public class WeeklyDungeonMessageCreator implements MessageResponseFactory {
   }
 
   @Override
-  public Mono<InteractionResponse> createResponse() {
+  public Mono<InteractionResponse> commandResponse() {
     return weeklyActivitiesService.getWeeklyActivity(ActivityMode.DUNGEON)
         .map(wd -> {
           var endDay = MessageUtil.formatDate(wd.getEndDate().toLocalDate());
@@ -35,5 +36,11 @@ public class WeeklyDungeonMessageCreator implements MessageResponseFactory {
                   .build())
               .build();
         });
+  }
+
+  @Override
+  public Mono<InteractionResponse> autocompleteResponse() {
+    return Mono.error(
+        new ResourceNotFoundException("No autocomplete response matched for the given command"));
   }
 }

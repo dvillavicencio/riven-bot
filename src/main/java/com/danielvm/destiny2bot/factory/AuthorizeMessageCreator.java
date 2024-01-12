@@ -3,24 +3,25 @@ package com.danielvm.destiny2bot.factory;
 import static com.danielvm.destiny2bot.enums.InteractionResponse.CHANNEL_MESSAGE_WITH_SOURCE;
 
 import com.danielvm.destiny2bot.config.DiscordConfiguration;
+import com.danielvm.destiny2bot.dto.discord.Component;
 import com.danielvm.destiny2bot.dto.discord.Embedded;
 import com.danielvm.destiny2bot.dto.discord.InteractionResponse;
 import com.danielvm.destiny2bot.dto.discord.InteractionResponseData;
 import com.danielvm.destiny2bot.util.OAuth2Util;
 import java.util.List;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 
-@Component
-public class AuthorizeMessageCreator implements MessageResponseFactory {
+@Service
+public class AuthorizeMessageCreator implements MessageResponse {
 
-  public static final String MESSAGE_TITLE = "Link Bungie and Discord accounts here";
+  public static final String MESSAGE_TITLE = "**Link Bungie and Discord accounts here**";
   public static final String MESSAGE_DESCRIPTION = """
-      Riven can grant you wishes unique to your Bungie account.
-      However, you need to link your Discord and Bungie account for that to happen.
-      This slash comma-
-      I mean, this _wish_, allows her to do that.
+      Riven can grant you wishes unique to you and your Destiny 2 characters.
+            
+      However, in order for her to do that you must authorize her to read a sub-set of your Destiny 2 data beforehand.
       """;
+  private static final Integer EPHEMERAL_BYTE = 1000000;
   private final DiscordConfiguration discordConfiguration;
 
   public AuthorizeMessageCreator(DiscordConfiguration discordConfiguration) {
@@ -28,7 +29,7 @@ public class AuthorizeMessageCreator implements MessageResponseFactory {
   }
 
   @Override
-  public Mono<InteractionResponse> createResponse() {
+  public Mono<InteractionResponse> commandResponse() {
     String authUrl = discordConfiguration.getAuthorizationUrl();
     String clientId = discordConfiguration.getClientId();
     String callbackUrl = discordConfiguration.getCallbackUrl();
@@ -37,14 +38,38 @@ public class AuthorizeMessageCreator implements MessageResponseFactory {
     Embedded accountLinkEmbed = Embedded.builder()
         .title(MESSAGE_TITLE)
         .description(MESSAGE_DESCRIPTION)
-        .url(OAuth2Util.discordAuthorizationUrl(authUrl, clientId, callbackUrl, scopes))
         .build();
 
     return Mono.just(InteractionResponse.builder()
         .type(CHANNEL_MESSAGE_WITH_SOURCE.getType())
         .data(InteractionResponseData.builder()
             .embeds(List.of(accountLinkEmbed))
-            .build()
-        ).build());
+            .flags(EPHEMERAL_BYTE)
+            .components(
+                List.of(Component.builder()
+                    .type(1)
+                    .components(List.of(
+                        Component.builder() // 'Authorize' link button
+                            .type(2)
+                            .style(5)
+                            .url(OAuth2Util.discordAuthorizationUrl(authUrl, clientId,
+                                callbackUrl, scopes))
+                            .label("Authorize")
+                            .build(),
+                        Component.builder() // 'Why?' button
+                            .customId("why_authorize_button")
+                            .label("Why?")
+                            .type(2)
+                            .style(1)
+                            .build())
+                    )
+                    .build()))
+            .build())
+        .build());
+  }
+
+  @Override
+  public Mono<InteractionResponse> autocompleteResponse() {
+    return null;
   }
 }

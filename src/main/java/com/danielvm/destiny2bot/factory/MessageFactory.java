@@ -1,11 +1,7 @@
-package com.danielvm.destiny2bot.service;
+package com.danielvm.destiny2bot.factory;
 
 import com.danielvm.destiny2bot.enums.CommandEnum;
 import com.danielvm.destiny2bot.exception.ResourceNotFoundException;
-import com.danielvm.destiny2bot.factory.AuthorizeMessageCreator;
-import com.danielvm.destiny2bot.factory.MessageResponseFactory;
-import com.danielvm.destiny2bot.factory.WeeklyDungeonMessageCreator;
-import com.danielvm.destiny2bot.factory.WeeklyRaidMessageCreator;
 import java.util.Map;
 import java.util.Objects;
 import org.springframework.stereotype.Component;
@@ -15,11 +11,11 @@ import org.springframework.stereotype.Component;
  * their corresponding message creation services.
  */
 @Component
-public class MessageRegistry {
+public class MessageFactory {
 
-  private final Map<CommandEnum, MessageResponseFactory> messageFactory;
+  private final Map<CommandEnum, MessageResponse> messageFactory;
 
-  public MessageRegistry(
+  public MessageFactory(
       WeeklyRaidMessageCreator weeklyRaidMessageCreator,
       WeeklyDungeonMessageCreator weeklyDungeonMessageCreator,
       AuthorizeMessageCreator authorizeMessageCreator) {
@@ -33,11 +29,11 @@ public class MessageRegistry {
    * Return the corresponding message-creator associated with a Command in {@link CommandEnum}
    *
    * @param command The command to get the factory for
-   * @return an implementation of {@link MessageResponseFactory}
+   * @return an implementation of {@link MessageResponse}
    * @throws ResourceNotFoundException If no creator is found for the given command
    */
-  public MessageResponseFactory messageCreator(CommandEnum command) {
-    MessageResponseFactory creator = messageFactory.get(command);
+  public MessageResponse messageCreator(CommandEnum command) {
+    MessageResponse creator = messageFactory.get(command);
     if (Objects.isNull(creator)) {
       throw new ResourceNotFoundException(
           "No message creator found for command [%s]".formatted(command));

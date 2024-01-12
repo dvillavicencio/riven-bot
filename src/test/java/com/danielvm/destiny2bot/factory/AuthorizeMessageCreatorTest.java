@@ -41,7 +41,7 @@ public class AuthorizeMessageCreatorTest {
     String scopeString = String.join(",", scopes);
 
     // when: create message is called
-    FirstStep<com.danielvm.destiny2bot.dto.discord.InteractionResponse> response = StepVerifier.create(sut.createResponse());
+    FirstStep<com.danielvm.destiny2bot.dto.discord.InteractionResponse> response = StepVerifier.create(sut.commandResponse());
 
     // then: the message created is correct
     response

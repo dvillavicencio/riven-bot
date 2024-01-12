@@ -14,6 +14,8 @@ import com.danielvm.destiny2bot.dto.discord.InteractionResponse;
 import com.danielvm.destiny2bot.dto.discord.InteractionResponseData;
 import com.danielvm.destiny2bot.dto.discord.Member;
 import com.danielvm.destiny2bot.enums.CommandEnum;
+import com.danielvm.destiny2bot.factory.AuthorizedMessageFactory;
+import com.danielvm.destiny2bot.factory.MessageFactory;
 import com.danielvm.destiny2bot.factory.UserCharacterMessageCreator;
 import com.danielvm.destiny2bot.factory.WeeklyDungeonMessageCreator;
 import com.danielvm.destiny2bot.util.MessageUtil;
@@ -33,7 +35,7 @@ import reactor.test.StepVerifier.FirstStep;
 public class InteractionServiceTest {
 
   @Mock
-  AuthorizedMessageRegistry authorizedMessageRegistry;
+  AuthorizedMessageFactory authorizedMessageFactory;
 
   @Mock
   UserCharacterMessageCreator userCharacterMessageCreator;
@@ -42,7 +44,7 @@ public class InteractionServiceTest {
   WeeklyDungeonMessageCreator weeklyDungeonMessageCreator;
 
   @Mock
-  MessageRegistry messageRegistry;
+  MessageFactory messageFactory;
 
   @InjectMocks
   private InteractionService interactionService;
@@ -84,10 +86,10 @@ public class InteractionServiceTest {
             .build())
         .build();
 
-    when(messageRegistry.messageCreator(CommandEnum.WEEKLY_DUNGEON))
+    when(messageFactory.messageCreator(CommandEnum.WEEKLY_DUNGEON))
         .thenReturn(weeklyDungeonMessageCreator);
 
-    when(weeklyDungeonMessageCreator.createResponse())
+    when(weeklyDungeonMessageCreator.commandResponse())
         .thenReturn(Mono.just(message));
 
     // when: the interaction is received
@@ -126,10 +128,10 @@ public class InteractionServiceTest {
             .build())
         .build();
 
-    when(authorizedMessageRegistry.messageCreator(CommandEnum.RAID_STATS))
+    when(authorizedMessageFactory.messageCreator(CommandEnum.RAID_STATS))
         .thenReturn(userCharacterMessageCreator);
 
-    when(userCharacterMessageCreator.createResponse(userId))
+    when(userCharacterMessageCreator.commandResponse(userId))
         .thenReturn(Mono.just(message));
 
     // when: the interaction is received

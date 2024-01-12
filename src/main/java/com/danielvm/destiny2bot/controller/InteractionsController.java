@@ -4,6 +4,8 @@ import com.danielvm.destiny2bot.annotation.ValidSignature;
 import com.danielvm.destiny2bot.dto.discord.Interaction;
 import com.danielvm.destiny2bot.dto.discord.InteractionResponse;
 import com.danielvm.destiny2bot.service.InteractionService;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -18,10 +20,12 @@ import reactor.core.publisher.Mono;
 public class InteractionsController {
 
   private final InteractionService interactionService;
+  private final ObjectMapper objectMapper;
 
   public InteractionsController(
-      InteractionService interactionService) {
+      InteractionService interactionService, ObjectMapper objectMapper) {
     this.interactionService = interactionService;
+    this.objectMapper = objectMapper;
   }
 
   /**
@@ -37,6 +41,12 @@ public class InteractionsController {
       @ValidSignature ContentCachingRequestWrapper request) {
     return interactionService.handleInteraction(interaction)
         .doOnSubscribe(i -> log.info("Received interaction: [{}]", interaction))
-        .doOnSuccess(i -> log.info("Completed retrieving response for interaction: [{}]", i));
+        .doOnSuccess(i -> {
+          try {
+            log.info("Completed retrieving response for interaction: [{}]", objectMapper.writeValueAsString(i));
+          } catch (JsonProcessingException e) {
+            throw new RuntimeException(e);
+          }
+        });
   }
 }

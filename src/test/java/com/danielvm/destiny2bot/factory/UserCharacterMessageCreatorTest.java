@@ -43,7 +43,7 @@ public class UserCharacterMessageCreatorTest {
         Flux.fromIterable(characters));
 
     // when: createMessage is called
-    FirstStep<InteractionResponse> response = StepVerifier.create(sut.createResponse(userId));
+    FirstStep<InteractionResponse> response = StepVerifier.create(sut.commandResponse(userId));
 
     // then: the created Discord interaction has correct fields and the 'all' choice is added
     List<Choice> expectedChoices = characters.stream()
@@ -77,7 +77,7 @@ public class UserCharacterMessageCreatorTest {
         Flux.fromIterable(characters));
 
     // when: createMessage is called
-    FirstStep<InteractionResponse> response = StepVerifier.create(sut.createResponse(userId));
+    FirstStep<InteractionResponse> response = StepVerifier.create(sut.commandResponse(userId));
 
     // then: the created Discord interaction has correct fields but no 'all' choice is added
     List<Choice> expectedChoices = characters.stream()
