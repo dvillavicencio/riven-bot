@@ -10,11 +10,10 @@ import com.danielvm.destiny2bot.dto.discord.InteractionResponse;
 import com.danielvm.destiny2bot.dto.discord.InteractionResponseData;
 import com.danielvm.destiny2bot.util.OAuth2Util;
 import java.util.List;
-import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 
-@Service
-public class AuthorizeMessageCreator implements MessageResponse {
+@org.springframework.stereotype.Component
+public class AuthorizeMessageCreator implements MessageSourceCreator {
 
   public static final String MESSAGE_TITLE = "**Link Bungie and Discord accounts here**";
   public static final String MESSAGE_DESCRIPTION = """
@@ -30,7 +29,7 @@ public class AuthorizeMessageCreator implements MessageResponse {
   }
 
   @Override
-  public Mono<InteractionResponse> commandResponse(Interaction interaction) {
+  public Mono<InteractionResponse> createResponse(Interaction interaction) {
     String authUrl = discordConfiguration.getAuthorizationUrl();
     String clientId = discordConfiguration.getClientId();
     String callbackUrl = discordConfiguration.getCallbackUrl();
@@ -67,10 +66,5 @@ public class AuthorizeMessageCreator implements MessageResponse {
                     .build()))
             .build())
         .build());
-  }
-
-  @Override
-  public Mono<InteractionResponse> autocompleteResponse(Interaction interaction) {
-    return null;
   }
 }

@@ -21,6 +21,8 @@ public class MessageFactoryTest {
   private WeeklyDungeonMessageCreator weeklyDungeonMessageCreator;
   @Mock
   private AuthorizeMessageCreator authorizeMessageCreator;
+  @Mock
+  private RaidDiagramMessageCreator raidDiagramMessageCreator;
   @InjectMocks
   private MessageFactory sut;
 
@@ -31,10 +33,12 @@ public class MessageFactoryTest {
     SlashCommand command = SlashCommand.AUTHORIZE;
 
     // when: messageCreator is called
-    MessageResponse creator = sut.messageCreator(command);
+    MessageSourceCreator creator = sut.messageCreator(command);
 
     // then: the correct message creator is returned
-    assertThat(creator).isInstanceOf(AuthorizeMessageCreator.class);
+    assertThat(creator)
+        .isInstanceOf(AuthorizeMessageCreator.class)
+        .isEqualTo(authorizeMessageCreator);
   }
 
   @Test
@@ -44,10 +48,12 @@ public class MessageFactoryTest {
     SlashCommand command = SlashCommand.WEEKLY_DUNGEON;
 
     // when: messageCreator is called
-    MessageResponse creator = sut.messageCreator(command);
+    MessageSourceCreator creator = sut.messageCreator(command);
 
     // then: the correct message creator is returned
-    assertThat(creator).isInstanceOf(WeeklyDungeonMessageCreator.class);
+    assertThat(creator)
+        .isInstanceOf(WeeklyDungeonMessageCreator.class)
+        .isEqualTo(weeklyDungeonMessageCreator);
   }
 
   @Test
@@ -57,10 +63,12 @@ public class MessageFactoryTest {
     SlashCommand command = SlashCommand.WEEKLY_RAID;
 
     // when: messageCreator is called
-    MessageResponse creator = sut.messageCreator(command);
+    MessageSourceCreator creator = sut.messageCreator(command);
 
     // then: the correct message creator is returned
-    assertThat(creator).isInstanceOf(WeeklyRaidMessageCreator.class);
+    assertThat(creator)
+        .isInstanceOf(WeeklyRaidMessageCreator.class)
+        .isEqualTo(weeklyRaidMessageCreator);
   }
 
   @Test

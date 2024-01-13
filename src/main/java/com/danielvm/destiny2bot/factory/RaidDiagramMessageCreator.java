@@ -1,4 +1,4 @@
-package com.danielvm.destiny2bot.service;
+package com.danielvm.destiny2bot.factory;
 
 import com.danielvm.destiny2bot.dto.discord.Component;
 import com.danielvm.destiny2bot.dto.discord.Interaction;
@@ -11,16 +11,17 @@ import com.danielvm.destiny2bot.exception.ResourceNotFoundException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 
-@Service
-@Slf4j
-public class RaidDiagramService implements MessageService {
+@org.springframework.stereotype.Component
+public class RaidDiagramMessageCreator implements MessageSourceCreator, AutocompleteSourceCreator {
 
   @Override
   public Mono<InteractionResponse> createResponse(Interaction interaction) {
+    return null;
+  }
+
+  public Mono<InteractionResponse> autocompleteResponse(Interaction interaction) {
     Option raidOption = interaction.getData().getOptions().stream()
         .filter(opt -> Objects.equals(opt.getName(), "raid"))
         .findFirst()

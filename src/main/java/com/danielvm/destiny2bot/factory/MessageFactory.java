@@ -13,27 +13,29 @@ import org.springframework.stereotype.Component;
 @Component
 public class MessageFactory {
 
-  private final Map<SlashCommand, MessageResponse> messageFactory;
+  private final Map<SlashCommand, MessageSourceCreator> messageFactory;
 
   public MessageFactory(
+      RaidDiagramMessageCreator raidDiagramMessageCreator,
       WeeklyRaidMessageCreator weeklyRaidMessageCreator,
       WeeklyDungeonMessageCreator weeklyDungeonMessageCreator,
       AuthorizeMessageCreator authorizeMessageCreator) {
     this.messageFactory = Map.of(
         SlashCommand.WEEKLY_RAID, weeklyRaidMessageCreator,
         SlashCommand.WEEKLY_DUNGEON, weeklyDungeonMessageCreator,
-        SlashCommand.AUTHORIZE, authorizeMessageCreator);
+        SlashCommand.AUTHORIZE, authorizeMessageCreator,
+        SlashCommand.RAID_MAP, raidDiagramMessageCreator);
   }
 
   /**
-   * Return the corresponding message-creator associated with a Command in {@link SlashCommand}
+   * Return the corresponding message-creator associated with a slash-command
    *
-   * @param command The command to get the factory for
-   * @return an implementation of {@link MessageResponse}
+   * @param command The {@link SlashCommand} to get the factory for
+   * @return an implementation of {@link MessageSourceCreator}
    * @throws ResourceNotFoundException If no creator is found for the given command
    */
-  public MessageResponse messageCreator(SlashCommand command) {
-    MessageResponse creator = messageFactory.get(command);
+  public MessageSourceCreator messageCreator(SlashCommand command) {
+    MessageSourceCreator creator = messageFactory.get(command);
     if (Objects.isNull(creator)) {
       throw new ResourceNotFoundException(
           "No message creator found for command [%s]".formatted(command));

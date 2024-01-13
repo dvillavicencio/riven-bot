@@ -23,13 +23,13 @@ import reactor.test.StepVerifier;
 import reactor.test.StepVerifier.FirstStep;
 
 @ExtendWith(MockitoExtension.class)
-public class UserCharacterMessageCreatorTest {
+public class RaidStatsMessageCreatorTest {
 
   @Mock
   DestinyCharacterService destinyCharacterService;
 
   @InjectMocks
-  UserCharacterMessageCreator sut;
+  RaidStatsMessageCreator sut;
 
   @Test
   @DisplayName("Create message is successful for users with more than one character")
@@ -48,7 +48,7 @@ public class UserCharacterMessageCreatorTest {
         Flux.fromIterable(characters));
 
     // when: createMessage is called
-    FirstStep<InteractionResponse> response = StepVerifier.create(sut.commandResponse(interaction));
+    FirstStep<InteractionResponse> response = StepVerifier.create(sut.createResponse(interaction));
 
     // then: the created Discord interaction has correct fields and the 'all' choice is added
     List<Choice> expectedChoices = characters.stream()
@@ -84,7 +84,7 @@ public class UserCharacterMessageCreatorTest {
         Flux.fromIterable(characters));
 
     // when: createMessage is called
-    FirstStep<InteractionResponse> response = StepVerifier.create(sut.commandResponse(interaction));
+    FirstStep<InteractionResponse> response = StepVerifier.create(sut.createResponse(interaction));
 
     // then: the created Discord interaction has correct fields but no 'all' choice is added
     List<Choice> expectedChoices = characters.stream()

@@ -38,7 +38,7 @@ public class WeeklyRaidMessageCreatorTest {
 
     // when: create message is called
     FirstStep<com.danielvm.destiny2bot.dto.discord.InteractionResponse> response = StepVerifier.create(
-        sut.commandResponse(null));
+        sut.createResponse(null));
 
     // then: the message created is correct
     String expectedMessage = WeeklyRaidMessageCreator.MESSAGE_TEMPLATE.formatted(

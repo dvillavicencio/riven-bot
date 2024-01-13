@@ -15,7 +15,7 @@ import com.danielvm.destiny2bot.dto.discord.InteractionResponseData;
 import com.danielvm.destiny2bot.dto.discord.Member;
 import com.danielvm.destiny2bot.enums.SlashCommand;
 import com.danielvm.destiny2bot.factory.MessageFactory;
-import com.danielvm.destiny2bot.factory.UserCharacterMessageCreator;
+import com.danielvm.destiny2bot.factory.RaidStatsMessageCreator;
 import com.danielvm.destiny2bot.factory.WeeklyDungeonMessageCreator;
 import com.danielvm.destiny2bot.util.MessageUtil;
 import java.time.LocalDate;
@@ -35,7 +35,7 @@ public class InteractionServiceTest {
 
 
   @Mock
-  UserCharacterMessageCreator userCharacterMessageCreator;
+  RaidStatsMessageCreator raidStatsMessageCreator;
 
   @Mock
   WeeklyDungeonMessageCreator weeklyDungeonMessageCreator;
@@ -86,7 +86,7 @@ public class InteractionServiceTest {
     when(messageFactory.messageCreator(SlashCommand.WEEKLY_DUNGEON))
         .thenReturn(weeklyDungeonMessageCreator);
 
-    when(weeklyDungeonMessageCreator.commandResponse(interaction))
+    when(weeklyDungeonMessageCreator.createResponse(interaction))
         .thenReturn(Mono.just(message));
 
     // when: the interaction is received
@@ -126,9 +126,9 @@ public class InteractionServiceTest {
         .build();
 
     when(messageFactory.messageCreator(SlashCommand.RAID_STATS))
-        .thenReturn(userCharacterMessageCreator);
+        .thenReturn(raidStatsMessageCreator);
 
-    when(userCharacterMessageCreator.commandResponse(interaction))
+    when(raidStatsMessageCreator.createResponse(interaction))
         .thenReturn(Mono.just(message));
 
     // when: the interaction is received
