@@ -1,7 +1,7 @@
 package com.danielvm.destiny2bot.service;
 
-import static com.danielvm.destiny2bot.enums.InteractionResponse.APPLICATION_COMMAND_AUTOCOMPLETE_RESULT;
-import static com.danielvm.destiny2bot.enums.InteractionResponse.CHANNEL_MESSAGE_WITH_SOURCE;
+import static com.danielvm.destiny2bot.enums.InteractionResponseType.APPLICATION_COMMAND_AUTOCOMPLETE_RESULT;
+import static com.danielvm.destiny2bot.enums.InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE;
 import static com.danielvm.destiny2bot.factory.WeeklyDungeonMessageCreator.MESSAGE_TEMPLATE;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
@@ -13,8 +13,7 @@ import com.danielvm.destiny2bot.dto.discord.InteractionData;
 import com.danielvm.destiny2bot.dto.discord.InteractionResponse;
 import com.danielvm.destiny2bot.dto.discord.InteractionResponseData;
 import com.danielvm.destiny2bot.dto.discord.Member;
-import com.danielvm.destiny2bot.enums.CommandEnum;
-import com.danielvm.destiny2bot.factory.AuthorizedMessageFactory;
+import com.danielvm.destiny2bot.enums.SlashCommand;
 import com.danielvm.destiny2bot.factory.MessageFactory;
 import com.danielvm.destiny2bot.factory.UserCharacterMessageCreator;
 import com.danielvm.destiny2bot.factory.WeeklyDungeonMessageCreator;
@@ -34,8 +33,6 @@ import reactor.test.StepVerifier.FirstStep;
 @ExtendWith(MockitoExtension.class)
 public class InteractionServiceTest {
 
-  @Mock
-  AuthorizedMessageFactory authorizedMessageFactory;
 
   @Mock
   UserCharacterMessageCreator userCharacterMessageCreator;
@@ -72,7 +69,7 @@ public class InteractionServiceTest {
     // given: interaction data from an application command (slash command)
     Interaction interaction = new Interaction(
         null, "myApplicationId", 2,
-        new InteractionData("someId", "weekly_dungeon", 1),
+        new InteractionData("someId", "weekly_dungeon", 1, null),
         new Member(new DiscordUser("someId", "myUsername")));
 
     String endDate = MessageUtil.formatDate(LocalDate.now());
@@ -86,10 +83,10 @@ public class InteractionServiceTest {
             .build())
         .build();
 
-    when(messageFactory.messageCreator(CommandEnum.WEEKLY_DUNGEON))
+    when(messageFactory.messageCreator(SlashCommand.WEEKLY_DUNGEON))
         .thenReturn(weeklyDungeonMessageCreator);
 
-    when(weeklyDungeonMessageCreator.commandResponse())
+    when(weeklyDungeonMessageCreator.commandResponse(interaction))
         .thenReturn(Mono.just(message));
 
     // when: the interaction is received
@@ -112,7 +109,7 @@ public class InteractionServiceTest {
     String userId = "userId";
     Interaction interaction = new Interaction(
         null, "myApplicationId", 4,
-        new InteractionData("someId", "raid_stats", 1),
+        new InteractionData("someId", "raid_stats", 1, null),
         new Member(new DiscordUser(userId, "myUsername")));
 
     List<Choice> choices = List.of(
@@ -128,10 +125,10 @@ public class InteractionServiceTest {
             .build())
         .build();
 
-    when(authorizedMessageFactory.messageCreator(CommandEnum.RAID_STATS))
+    when(messageFactory.messageCreator(SlashCommand.RAID_STATS))
         .thenReturn(userCharacterMessageCreator);
 
-    when(userCharacterMessageCreator.commandResponse(userId))
+    when(userCharacterMessageCreator.commandResponse(interaction))
         .thenReturn(Mono.just(message));
 
     // when: the interaction is received

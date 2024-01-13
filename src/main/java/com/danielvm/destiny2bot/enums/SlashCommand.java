@@ -4,7 +4,7 @@ import com.danielvm.destiny2bot.exception.ResourceNotFoundException;
 import java.util.stream.Stream;
 import lombok.Getter;
 
-public enum CommandEnum {
+public enum SlashCommand {
 
   AUTHORIZE("authorize", false),
   WEEKLY_DUNGEON("weekly_dungeon", false),
@@ -18,7 +18,7 @@ public enum CommandEnum {
   @Getter
   private final boolean authorized;
 
-  CommandEnum(String commandName, boolean authorized) {
+  SlashCommand(String commandName, boolean authorized) {
     this.commandName = commandName;
     this.authorized = authorized;
   }
@@ -27,10 +27,10 @@ public enum CommandEnum {
    * Find a value of this enum by the Command name
    *
    * @param commandName The name of this command
-   * @return {@link CommandEnum}
+   * @return {@link SlashCommand}
    */
-  public static CommandEnum findByName(String commandName) {
-    return Stream.of(CommandEnum.values())
+  public static SlashCommand findByName(String commandName) {
+    return Stream.of(SlashCommand.values())
         .filter(e -> e.getCommandName().equalsIgnoreCase(commandName))
         .findFirst()
         .orElseThrow(() -> new ResourceNotFoundException(

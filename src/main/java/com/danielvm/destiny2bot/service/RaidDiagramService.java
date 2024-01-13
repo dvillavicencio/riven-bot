@@ -42,7 +42,7 @@ public class RaidDiagramService implements MessageService {
         .collectList()
         .map(selectOptions -> new InteractionResponse(4,
             InteractionResponseData.builder()
-                .content("The following are the encounters for " + raidOption.getName())
+                .content("The following are the encounters for " + raid.getLabel())
                 .components(List.of(
                     Component.builder()
                         .type(1)

@@ -2,7 +2,7 @@ package com.danielvm.destiny2bot.enums;
 
 import lombok.Getter;
 
-public enum InteractionResponse {
+public enum InteractionResponseType {
 
     PONG(1),
     CHANNEL_MESSAGE_WITH_SOURCE(4),
@@ -16,7 +16,7 @@ public enum InteractionResponse {
     @Getter
     private final Integer type;
 
-    InteractionResponse(Integer type) {
+    InteractionResponseType(Integer type) {
         this.type = type;
     }
 }

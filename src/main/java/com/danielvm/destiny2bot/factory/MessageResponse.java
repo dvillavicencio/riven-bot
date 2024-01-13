@@ -1,5 +1,6 @@
 package com.danielvm.destiny2bot.factory;
 
+import com.danielvm.destiny2bot.dto.discord.Interaction;
 import com.danielvm.destiny2bot.dto.discord.InteractionResponse;
 import reactor.core.publisher.Mono;
 
@@ -15,12 +16,12 @@ public interface MessageResponse {
    *
    * @return {@link InteractionResponse}
    */
-  Mono<InteractionResponse> commandResponse();
+  Mono<InteractionResponse> commandResponse(Interaction interaction);
 
   /**
    * Create an interaction Response for an autocomplete request
    *
    * @return {@link InteractionResponse}
    */
-  Mono<InteractionResponse> autocompleteResponse();
+  Mono<InteractionResponse> autocompleteResponse(Interaction interaction);
 }

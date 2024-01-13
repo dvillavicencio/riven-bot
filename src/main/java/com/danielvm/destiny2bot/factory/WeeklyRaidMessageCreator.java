@@ -1,7 +1,8 @@
 package com.danielvm.destiny2bot.factory;
 
-import static com.danielvm.destiny2bot.enums.InteractionResponse.CHANNEL_MESSAGE_WITH_SOURCE;
+import static com.danielvm.destiny2bot.enums.InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE;
 
+import com.danielvm.destiny2bot.dto.discord.Interaction;
 import com.danielvm.destiny2bot.dto.discord.InteractionResponse;
 import com.danielvm.destiny2bot.dto.discord.InteractionResponseData;
 import com.danielvm.destiny2bot.enums.ActivityMode;
@@ -26,7 +27,7 @@ public class WeeklyRaidMessageCreator implements MessageResponse {
   }
 
   @Override
-  public Mono<InteractionResponse> commandResponse() {
+  public Mono<InteractionResponse> commandResponse(Interaction interaction) {
     return weeklyActivitiesService.getWeeklyActivity(ActivityMode.RAID)
         .map(activity -> {
           var endDay = MessageUtil.formatDate(activity.getEndDate().toLocalDate());
@@ -39,7 +40,7 @@ public class WeeklyRaidMessageCreator implements MessageResponse {
   }
 
   @Override
-  public Mono<InteractionResponse> autocompleteResponse() {
+  public Mono<InteractionResponse> autocompleteResponse(Interaction interaction) {
     return Mono.error(
         new ResourceNotFoundException("No autocomplete response matched for the given command"));
   }

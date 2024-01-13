@@ -1,6 +1,7 @@
 package com.danielvm.destiny2bot.factory;
 
 import com.danielvm.destiny2bot.dto.discord.Choice;
+import com.danielvm.destiny2bot.dto.discord.Interaction;
 import com.danielvm.destiny2bot.dto.discord.InteractionResponse;
 import com.danielvm.destiny2bot.dto.discord.InteractionResponseData;
 import com.danielvm.destiny2bot.service.DestinyCharacterService;
@@ -8,7 +9,7 @@ import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
 
 @Component
-public class UserCharacterMessageCreator implements AuthorizedMessage {
+public class UserCharacterMessageCreator implements MessageResponse {
 
   private static final String CHOICE_FORMAT = "[%s] %s - %s";
   private final DestinyCharacterService destinyCharacterService;
@@ -19,12 +20,13 @@ public class UserCharacterMessageCreator implements AuthorizedMessage {
   }
 
   @Override
-  public Mono<InteractionResponse> commandResponse(String userId) {
+  public Mono<InteractionResponse> commandResponse(Interaction interaction) {
     return null;
   }
 
   @Override
-  public Mono<InteractionResponse> autocompleteResponse(String userId) {
+  public Mono<InteractionResponse> autocompleteResponse(Interaction interaction) {
+    String userId = interaction.getMember().getUser().getId();
     return destinyCharacterService.getCharactersForUser(userId)
         .map(character -> new Choice(CHOICE_FORMAT.formatted(
             character.getLightLevel(), character.getCharacterRace(), character.getCharacterClass()),

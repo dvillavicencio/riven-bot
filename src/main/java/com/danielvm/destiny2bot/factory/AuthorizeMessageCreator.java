@@ -1,10 +1,11 @@
 package com.danielvm.destiny2bot.factory;
 
-import static com.danielvm.destiny2bot.enums.InteractionResponse.CHANNEL_MESSAGE_WITH_SOURCE;
+import static com.danielvm.destiny2bot.enums.InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE;
 
 import com.danielvm.destiny2bot.config.DiscordConfiguration;
 import com.danielvm.destiny2bot.dto.discord.Component;
 import com.danielvm.destiny2bot.dto.discord.Embedded;
+import com.danielvm.destiny2bot.dto.discord.Interaction;
 import com.danielvm.destiny2bot.dto.discord.InteractionResponse;
 import com.danielvm.destiny2bot.dto.discord.InteractionResponseData;
 import com.danielvm.destiny2bot.util.OAuth2Util;
@@ -17,7 +18,7 @@ public class AuthorizeMessageCreator implements MessageResponse {
 
   public static final String MESSAGE_TITLE = "**Link Bungie and Discord accounts here**";
   public static final String MESSAGE_DESCRIPTION = """
-      Riven can grant you wishes unique to you and your Destiny 2 characters.
+      Riven can grant you wishes unique to your Destiny 2 characters.
             
       However, in order for her to do that you must authorize her to read a sub-set of your Destiny 2 data beforehand.
       """;
@@ -29,7 +30,7 @@ public class AuthorizeMessageCreator implements MessageResponse {
   }
 
   @Override
-  public Mono<InteractionResponse> commandResponse() {
+  public Mono<InteractionResponse> commandResponse(Interaction interaction) {
     String authUrl = discordConfiguration.getAuthorizationUrl();
     String clientId = discordConfiguration.getClientId();
     String callbackUrl = discordConfiguration.getCallbackUrl();
@@ -69,7 +70,7 @@ public class AuthorizeMessageCreator implements MessageResponse {
   }
 
   @Override
-  public Mono<InteractionResponse> autocompleteResponse() {
+  public Mono<InteractionResponse> autocompleteResponse(Interaction interaction) {
     return null;
   }
 }
