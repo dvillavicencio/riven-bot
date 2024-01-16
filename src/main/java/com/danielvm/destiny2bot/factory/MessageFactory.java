@@ -13,7 +13,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class MessageFactory {
 
-  private final Map<SlashCommand, MessageSourceCreator> messageFactory;
+  private final Map<SlashCommand, CommandResponseCreator> messageFactory;
 
   public MessageFactory(
       RaidDiagramMessageCreator raidDiagramMessageCreator,
@@ -31,11 +31,11 @@ public class MessageFactory {
    * Return the corresponding message-creator associated with a slash-command
    *
    * @param command The {@link SlashCommand} to get the factory for
-   * @return an implementation of {@link MessageSourceCreator}
+   * @return an implementation of {@link CommandResponseCreator}
    * @throws ResourceNotFoundException If no creator is found for the given command
    */
-  public MessageSourceCreator messageCreator(SlashCommand command) {
-    MessageSourceCreator creator = messageFactory.get(command);
+  public CommandResponseCreator messageCreator(SlashCommand command) {
+    CommandResponseCreator creator = messageFactory.get(command);
     if (Objects.isNull(creator)) {
       throw new ResourceNotFoundException(
           "No message creator found for command [%s]".formatted(command));

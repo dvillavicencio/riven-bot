@@ -12,7 +12,7 @@ import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
 
 @Component
-public class WeeklyDungeonMessageCreator implements MessageSourceCreator {
+public class WeeklyDungeonMessageCreator implements CommandResponseCreator {
 
   public static final String MESSAGE_TEMPLATE = """
       This week's dungeon is: %s.

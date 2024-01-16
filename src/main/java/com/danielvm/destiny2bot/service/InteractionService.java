@@ -43,7 +43,7 @@ public class InteractionService {
         SlashCommand command = SlashCommand.findByName(interaction.getData().getName());
         yield messageFactory.messageCreator(command).createResponse(interaction);
       }
-      case PING -> InteractionResponse.PING();
+      case PING -> Mono.just(InteractionResponse.PING());
     };
   }
 

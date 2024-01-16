@@ -14,7 +14,8 @@ import java.util.Objects;
 import reactor.core.publisher.Mono;
 
 @org.springframework.stereotype.Component
-public class RaidDiagramMessageCreator implements MessageSourceCreator, AutocompleteSourceCreator {
+public class RaidDiagramMessageCreator implements CommandResponseCreator,
+    AutocompleteResponseSourceCreator {
 
   @Override
   public Mono<InteractionResponse> createResponse(Interaction interaction) {

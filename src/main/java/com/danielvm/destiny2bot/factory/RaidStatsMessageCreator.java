@@ -10,7 +10,8 @@ import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
 
 @Component
-public class RaidStatsMessageCreator implements MessageSourceCreator, AutocompleteSourceCreator {
+public class RaidStatsMessageCreator implements CommandResponseCreator,
+    AutocompleteResponseSourceCreator {
 
   private static final String CHOICE_FORMAT = "[%s] %s - %s";
   private final DestinyCharacterService destinyCharacterService;
@@ -26,8 +27,8 @@ public class RaidStatsMessageCreator implements MessageSourceCreator, Autocomple
   }
 
   @Override
-  public Mono<InteractionResponse> autocompleteResponse(
-      @Authorized Interaction interaction) {
+  @Authorized
+  public Mono<InteractionResponse> autocompleteResponse(Interaction interaction) {
     String userId = interaction.getMember().getUser().getId();
     return destinyCharacterService.getCharactersForUser(userId)
         .map(character -> new Choice(CHOICE_FORMAT.formatted(

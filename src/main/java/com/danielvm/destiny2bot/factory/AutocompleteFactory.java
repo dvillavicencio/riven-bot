@@ -9,7 +9,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class AutocompleteFactory {
 
-  private final Map<SlashCommand, AutocompleteSourceCreator> autocompleteFactory;
+  private final Map<SlashCommand, AutocompleteResponseSourceCreator> autocompleteFactory;
 
   public AutocompleteFactory(
       RaidDiagramMessageCreator raidDiagramMessageCreator,
@@ -23,11 +23,11 @@ public class AutocompleteFactory {
    * Return the corresponding autocomplete-creator associated with a slash-command
    *
    * @param command The {@link SlashCommand} to get the factory for
-   * @return an implementation of {@link AutocompleteSourceCreator}
+   * @return an implementation of {@link AutocompleteResponseSourceCreator}
    * @throws ResourceNotFoundException If no creator is found for the given command
    */
-  public AutocompleteSourceCreator messageCreator(SlashCommand command) {
-    AutocompleteSourceCreator creator = autocompleteFactory.get(command);
+  public AutocompleteResponseSourceCreator messageCreator(SlashCommand command) {
+    AutocompleteResponseSourceCreator creator = autocompleteFactory.get(command);
     if (Objects.isNull(creator)) {
       throw new ResourceNotFoundException(
           "No message creator found for command [%s]".formatted(command));

@@ -8,8 +8,7 @@ import reactor.core.publisher.Mono;
  * Implementation of this interface are responsible for creating the autocomplete responses that are
  * generally used before sending a slash-command to the Discord bot
  */
-@FunctionalInterface
-public interface AutocompleteSourceCreator {
+public interface AutocompleteResponseSourceCreator {
 
   /**
    * Create an interaction Response for an autocomplete request
@@ -18,5 +17,4 @@ public interface AutocompleteSourceCreator {
    * @return {@link InteractionResponse}
    */
   Mono<InteractionResponse> autocompleteResponse(Interaction interaction);
-
 }

@@ -13,7 +13,7 @@ import java.util.List;
 import reactor.core.publisher.Mono;
 
 @org.springframework.stereotype.Component
-public class AuthorizeMessageCreator implements MessageSourceCreator {
+public class AuthorizeMessageCreator implements CommandResponseCreator {
 
   public static final String MESSAGE_TITLE = "**Link Bungie and Discord accounts here**";
   public static final String MESSAGE_DESCRIPTION = """

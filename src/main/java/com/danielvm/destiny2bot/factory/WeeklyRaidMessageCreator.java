@@ -12,7 +12,7 @@ import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
 
 @Component
-public class WeeklyRaidMessageCreator implements MessageSourceCreator {
+public class WeeklyRaidMessageCreator implements CommandResponseCreator {
 
   public static final String MESSAGE_TEMPLATE = """
       This week's raid is: %s.

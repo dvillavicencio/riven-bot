@@ -33,7 +33,7 @@ public class MessageFactoryTest {
     SlashCommand command = SlashCommand.AUTHORIZE;
 
     // when: messageCreator is called
-    MessageSourceCreator creator = sut.messageCreator(command);
+    CommandResponseCreator creator = sut.messageCreator(command);
 
     // then: the correct message creator is returned
     assertThat(creator)
@@ -48,7 +48,7 @@ public class MessageFactoryTest {
     SlashCommand command = SlashCommand.WEEKLY_DUNGEON;
 
     // when: messageCreator is called
-    MessageSourceCreator creator = sut.messageCreator(command);
+    CommandResponseCreator creator = sut.messageCreator(command);
 
     // then: the correct message creator is returned
     assertThat(creator)
@@ -63,7 +63,7 @@ public class MessageFactoryTest {
     SlashCommand command = SlashCommand.WEEKLY_RAID;
 
     // when: messageCreator is called
-    MessageSourceCreator creator = sut.messageCreator(command);
+    CommandResponseCreator creator = sut.messageCreator(command);
 
     // then: the correct message creator is returned
     assertThat(creator)
