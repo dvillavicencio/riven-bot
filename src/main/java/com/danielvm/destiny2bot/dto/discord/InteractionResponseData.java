@@ -22,4 +22,14 @@ public class InteractionResponseData {
    * List of choices for autocomplete interactions
    */
   private List<Choice> choices;
+
+  /**
+   * List of components in the message
+   */
+  private List<Component> components;
+
+  /**
+   * Whether this message should be secret or not (disappears after a time)
+   */
+  private Integer flags;
 }

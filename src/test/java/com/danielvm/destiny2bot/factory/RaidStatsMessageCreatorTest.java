@@ -4,7 +4,10 @@ import static org.mockito.Mockito.when;
 
 import com.danielvm.destiny2bot.dto.DestinyCharacter;
 import com.danielvm.destiny2bot.dto.discord.Choice;
+import com.danielvm.destiny2bot.dto.discord.DiscordUser;
+import com.danielvm.destiny2bot.dto.discord.Interaction;
 import com.danielvm.destiny2bot.dto.discord.InteractionResponse;
+import com.danielvm.destiny2bot.dto.discord.Member;
 import com.danielvm.destiny2bot.service.DestinyCharacterService;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -20,30 +23,33 @@ import reactor.test.StepVerifier;
 import reactor.test.StepVerifier.FirstStep;
 
 @ExtendWith(MockitoExtension.class)
-public class UserCharacterMessageCreatorTest {
+public class RaidStatsMessageCreatorTest {
 
   @Mock
   DestinyCharacterService destinyCharacterService;
 
   @InjectMocks
-  UserCharacterMessageCreator sut;
+  RaidStatsMessageCreator sut;
 
   @Test
   @DisplayName("Create message is successful for users with more than one character")
   public void createMessageIsSuccessful() {
     // given: data from character service and userId
     String userId = "someUserId";
+    DiscordUser user = new DiscordUser(userId, "deahtstroke");
+    Interaction interaction = new Interaction(null, null, null, null, new Member(user));
     List<DestinyCharacter> characters = List.of(
         new DestinyCharacter("1", "Titan", 1890, "Human"),
         new DestinyCharacter("2", "Warlock", 1890, "Awoken"),
         new DestinyCharacter("3", "Hunter", 1890, "Exo")
     );
 
-    when(destinyCharacterService.getCharactersForUser(userId)).thenReturn(
-        Flux.fromIterable(characters));
+    when(destinyCharacterService.getCharactersForUser(userId))
+        .thenReturn(Flux.fromIterable(characters));
 
     // when: createMessage is called
-    FirstStep<InteractionResponse> response = StepVerifier.create(sut.createResponse(userId));
+    FirstStep<InteractionResponse> response = StepVerifier
+        .create(sut.autocompleteResponse(interaction));
 
     // then: the created Discord interaction has correct fields and the 'all' choice is added
     List<Choice> expectedChoices = characters.stream()
@@ -54,11 +60,11 @@ public class UserCharacterMessageCreatorTest {
     expectedChoices.add(new Choice("All", "Gets stats for all characters"));
 
     response
-        .assertNext(interaction -> {
-          Assertions.assertThat(interaction.getType()).isEqualTo(8);
-          Assertions.assertThat(interaction.getData()).isNotNull();
-          Assertions.assertThat(interaction.getData().getChoices().size()).isEqualTo(4);
-          Assertions.assertThat(interaction.getData().getChoices())
+        .assertNext(interactionResponse -> {
+          Assertions.assertThat(interactionResponse.getType()).isEqualTo(8);
+          Assertions.assertThat(interactionResponse.getData()).isNotNull();
+          Assertions.assertThat(interactionResponse.getData().getChoices().size()).isEqualTo(4);
+          Assertions.assertThat(interactionResponse.getData().getChoices())
               .containsExactlyElementsOf(expectedChoices);
         })
         .verifyComplete();
@@ -69,6 +75,8 @@ public class UserCharacterMessageCreatorTest {
   public void createMessageForPlayersWithOneCharacter() {
     // given: data from character service and userId
     String userId = "someUserId";
+    DiscordUser user = new DiscordUser(userId, "deahtstroke");
+    Interaction interaction = new Interaction(null, null, null, null, new Member(user));
     List<DestinyCharacter> characters = List.of(
         new DestinyCharacter("1", "Titan", 1890, "Human")
     );
@@ -77,7 +85,8 @@ public class UserCharacterMessageCreatorTest {
         Flux.fromIterable(characters));
 
     // when: createMessage is called
-    FirstStep<InteractionResponse> response = StepVerifier.create(sut.createResponse(userId));
+    FirstStep<InteractionResponse> response = StepVerifier
+        .create(sut.autocompleteResponse(interaction));
 
     // then: the created Discord interaction has correct fields but no 'all' choice is added
     List<Choice> expectedChoices = characters.stream()
@@ -86,11 +95,11 @@ public class UserCharacterMessageCreatorTest {
         .collect(Collectors.toList());
 
     response
-        .assertNext(interaction -> {
-          Assertions.assertThat(interaction.getType()).isEqualTo(8);
-          Assertions.assertThat(interaction.getData()).isNotNull();
-          Assertions.assertThat(interaction.getData().getChoices().size()).isEqualTo(1);
-          Assertions.assertThat(interaction.getData().getChoices())
+        .assertNext(interactionResponse -> {
+          Assertions.assertThat(interactionResponse.getType()).isEqualTo(8);
+          Assertions.assertThat(interactionResponse.getData()).isNotNull();
+          Assertions.assertThat(interactionResponse.getData().getChoices().size()).isEqualTo(1);
+          Assertions.assertThat(interactionResponse.getData().getChoices())
               .containsExactlyElementsOf(expectedChoices);
         })
         .verifyComplete();

@@ -1,13 +1,9 @@
-package com.danielvm.destiny2bot.service;
+package com.danielvm.destiny2bot.factory;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.danielvm.destiny2bot.enums.CommandEnum;
+import com.danielvm.destiny2bot.enums.SlashCommand;
 import com.danielvm.destiny2bot.exception.ResourceNotFoundException;
-import com.danielvm.destiny2bot.factory.AuthorizeMessageCreator;
-import com.danielvm.destiny2bot.factory.MessageResponseFactory;
-import com.danielvm.destiny2bot.factory.WeeklyDungeonMessageCreator;
-import com.danielvm.destiny2bot.factory.WeeklyRaidMessageCreator;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -17,7 +13,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith(MockitoExtension.class)
-public class MessageRegistryTest {
+public class MessageFactoryTest {
 
   @Mock
   private WeeklyRaidMessageCreator weeklyRaidMessageCreator;
@@ -25,53 +21,61 @@ public class MessageRegistryTest {
   private WeeklyDungeonMessageCreator weeklyDungeonMessageCreator;
   @Mock
   private AuthorizeMessageCreator authorizeMessageCreator;
+  @Mock
+  private RaidDiagramMessageCreator raidDiagramMessageCreator;
   @InjectMocks
-  private MessageRegistry sut;
+  private MessageFactory sut;
 
   @Test
   @DisplayName("Getting message creator for authorize command works successfully")
   public void messageCreatorWorksForAuthorize() {
     // given: a valid command
-    CommandEnum command = CommandEnum.AUTHORIZE;
+    SlashCommand command = SlashCommand.AUTHORIZE;
 
     // when: messageCreator is called
-    MessageResponseFactory creator = sut.messageCreator(command);
+    CommandResponseCreator creator = sut.messageCreator(command);
 
     // then: the correct message creator is returned
-    assertThat(creator).isInstanceOf(AuthorizeMessageCreator.class);
+    assertThat(creator)
+        .isInstanceOf(AuthorizeMessageCreator.class)
+        .isEqualTo(authorizeMessageCreator);
   }
 
   @Test
   @DisplayName("Getting message creator for weekly dungeon command works successfully")
   public void messageCreatorWorksForWeeklyDungeon() {
     // given: a valid command
-    CommandEnum command = CommandEnum.WEEKLY_DUNGEON;
+    SlashCommand command = SlashCommand.WEEKLY_DUNGEON;
 
     // when: messageCreator is called
-    MessageResponseFactory creator = sut.messageCreator(command);
+    CommandResponseCreator creator = sut.messageCreator(command);
 
     // then: the correct message creator is returned
-    assertThat(creator).isInstanceOf(WeeklyDungeonMessageCreator.class);
+    assertThat(creator)
+        .isInstanceOf(WeeklyDungeonMessageCreator.class)
+        .isEqualTo(weeklyDungeonMessageCreator);
   }
 
   @Test
   @DisplayName("Getting message creator for weekly raid command works successfully")
   public void messageCreatorWorksForWeeklyRaid() {
     // given: a valid command
-    CommandEnum command = CommandEnum.WEEKLY_RAID;
+    SlashCommand command = SlashCommand.WEEKLY_RAID;
 
     // when: messageCreator is called
-    MessageResponseFactory creator = sut.messageCreator(command);
+    CommandResponseCreator creator = sut.messageCreator(command);
 
     // then: the correct message creator is returned
-    assertThat(creator).isInstanceOf(WeeklyRaidMessageCreator.class);
+    assertThat(creator)
+        .isInstanceOf(WeeklyRaidMessageCreator.class)
+        .isEqualTo(weeklyRaidMessageCreator);
   }
 
   @Test
   @DisplayName("Getting message creator fails for authorized and invalid commands")
   public void messageCreatorFails() {
     // given: an authorized command
-    CommandEnum command = CommandEnum.RAID_STATS;
+    SlashCommand command = SlashCommand.RAID_STATS;
 
     // when: messageCreator is called an exception is thrown
     Assertions.assertThrows(ResourceNotFoundException.class,

@@ -138,7 +138,7 @@ public class InteractionControllerTest extends BaseIntegrationTest {
   @DisplayName("get weekly dungeon works successfully")
   public void getWeeklyDungeonWorksSuccessfully() throws JsonProcessingException, DecoderException {
     // given: a weekly_dungeon interaction with a valid signature
-    InteractionData weeklyDungeonData = new InteractionData(2, "weekly_dungeon", 1);
+    InteractionData weeklyDungeonData = new InteractionData(2, "weekly_dungeon", 1, null);
     Interaction body = new Interaction(1, "theApplicationId", 2, weeklyDungeonData, null);
     String timestamp = String.valueOf(Instant.now().getEpochSecond());
     String signature = createValidSignature(body, timestamp);
@@ -218,7 +218,7 @@ public class InteractionControllerTest extends BaseIntegrationTest {
   @DisplayName("get weekly raid works successfully")
   public void getWeeklyRaidWorksSuccessfully() throws JsonProcessingException, DecoderException {
     // given: a weekly_raid interaction with a valid signature
-    InteractionData weeklyRaidData = new InteractionData(2, "weekly_raid", 1);
+    InteractionData weeklyRaidData = new InteractionData(2, "weekly_raid", 1, null);
     Interaction body = new Interaction(1, "theApplicationId", 2, weeklyRaidData, null);
     String timestamp = String.valueOf(Instant.now().getEpochSecond());
     String signature = createValidSignature(body, timestamp);
@@ -289,7 +289,7 @@ public class InteractionControllerTest extends BaseIntegrationTest {
   @DisplayName("get weekly raid fails if no milestones are found")
   public void getWeeklyRaidsShouldThrowErrors() throws JsonProcessingException, DecoderException {
     // given: a weekly_raid interaction with a valid signature
-    InteractionData weeklyRaidData = new InteractionData(2, "weekly_raid", 1);
+    InteractionData weeklyRaidData = new InteractionData(2, "weekly_raid", 1, null);
     Interaction body = new Interaction(1, "theApplicationId", 2, weeklyRaidData, null);
     String timestamp = String.valueOf(Instant.now().getEpochSecond());
     String signature = createValidSignature(body, timestamp);
@@ -333,7 +333,7 @@ public class InteractionControllerTest extends BaseIntegrationTest {
   @DisplayName("Interactions fail if the signature is invalid")
   public void getWeeklyRaidInvalidSignature() throws JsonProcessingException, DecoderException {
     // given: an interaction with an invalid signature
-    InteractionData data = new InteractionData(2, "weekly_raid", 1);
+    InteractionData data = new InteractionData(2, "weekly_raid", 1, null);
     Interaction body = new Interaction(1, "theApplicationId", 2, data, null);
     String timestamp = String.valueOf(Instant.now().getEpochSecond());
     String signature = createInvalidSignature(body, timestamp);
@@ -416,7 +416,7 @@ public class InteractionControllerTest extends BaseIntegrationTest {
 
     DiscordUser user = new DiscordUser(discordId, username);
     Member memberInfo = new Member(user);
-    InteractionData data = new InteractionData("2", "raid_stats", 1);
+    InteractionData data = new InteractionData("2", "raid_stats", 1, null);
     Interaction body = new Interaction("1", "theApplicationId", 4, data, memberInfo);
 
     String timestamp = String.valueOf(Instant.now().getEpochSecond());
@@ -482,7 +482,7 @@ public class InteractionControllerTest extends BaseIntegrationTest {
 
     DiscordUser user = new DiscordUser(discordId, username);
     Member memberInfo = new Member(user);
-    InteractionData data = new InteractionData("2", "raid_stats", 1);
+    InteractionData data = new InteractionData("2", "raid_stats", 1, null);
     Interaction body = new Interaction("1", "theApplicationId", 4, data, memberInfo);
 
     String timestamp = String.valueOf(Instant.now().getEpochSecond());
@@ -542,7 +542,7 @@ public class InteractionControllerTest extends BaseIntegrationTest {
 
     DiscordUser user = new DiscordUser(discordId, username);
     Member memberInfo = new Member(user);
-    InteractionData data = new InteractionData("2", "raid_stats", 1);
+    InteractionData data = new InteractionData("2", "raid_stats", 1, null);
     Interaction body = new Interaction("1", "theApplicationId", 4, data, memberInfo);
 
     String timestamp = String.valueOf(Instant.now().getEpochSecond());
