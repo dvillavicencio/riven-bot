@@ -44,11 +44,12 @@ public class RaidStatsMessageCreatorTest {
         new DestinyCharacter("3", "Hunter", 1890, "Exo")
     );
 
-    when(destinyCharacterService.getCharactersForUser(userId)).thenReturn(
-        Flux.fromIterable(characters));
+    when(destinyCharacterService.getCharactersForUser(userId))
+        .thenReturn(Flux.fromIterable(characters));
 
     // when: createMessage is called
-    FirstStep<InteractionResponse> response = StepVerifier.create(sut.createResponse(interaction));
+    FirstStep<InteractionResponse> response = StepVerifier
+        .create(sut.autocompleteResponse(interaction));
 
     // then: the created Discord interaction has correct fields and the 'all' choice is added
     List<Choice> expectedChoices = characters.stream()
@@ -84,7 +85,8 @@ public class RaidStatsMessageCreatorTest {
         Flux.fromIterable(characters));
 
     // when: createMessage is called
-    FirstStep<InteractionResponse> response = StepVerifier.create(sut.createResponse(interaction));
+    FirstStep<InteractionResponse> response = StepVerifier
+        .create(sut.autocompleteResponse(interaction));
 
     // then: the created Discord interaction has correct fields but no 'all' choice is added
     List<Choice> expectedChoices = characters.stream()

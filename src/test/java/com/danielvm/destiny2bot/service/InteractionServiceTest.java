@@ -14,6 +14,7 @@ import com.danielvm.destiny2bot.dto.discord.InteractionResponse;
 import com.danielvm.destiny2bot.dto.discord.InteractionResponseData;
 import com.danielvm.destiny2bot.dto.discord.Member;
 import com.danielvm.destiny2bot.enums.SlashCommand;
+import com.danielvm.destiny2bot.factory.AutocompleteFactory;
 import com.danielvm.destiny2bot.factory.MessageFactory;
 import com.danielvm.destiny2bot.factory.RaidStatsMessageCreator;
 import com.danielvm.destiny2bot.factory.WeeklyDungeonMessageCreator;
@@ -42,6 +43,9 @@ public class InteractionServiceTest {
 
   @Mock
   MessageFactory messageFactory;
+
+  @Mock
+  AutocompleteFactory autocompleteFactory;
 
   @InjectMocks
   private InteractionService interactionService;
@@ -125,10 +129,10 @@ public class InteractionServiceTest {
             .build())
         .build();
 
-    when(messageFactory.messageCreator(SlashCommand.RAID_STATS))
+    when(autocompleteFactory.messageCreator(SlashCommand.RAID_STATS))
         .thenReturn(raidStatsMessageCreator);
 
-    when(raidStatsMessageCreator.createResponse(interaction))
+    when(raidStatsMessageCreator.autocompleteResponse(interaction))
         .thenReturn(Mono.just(message));
 
     // when: the interaction is received

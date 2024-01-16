@@ -1,6 +1,5 @@
 package com.danielvm.destiny2bot.factory;
 
-import com.danielvm.destiny2bot.annotation.Authorized;
 import com.danielvm.destiny2bot.dto.discord.Choice;
 import com.danielvm.destiny2bot.dto.discord.Interaction;
 import com.danielvm.destiny2bot.dto.discord.InteractionResponse;
@@ -27,7 +26,6 @@ public class RaidStatsMessageCreator implements CommandResponseCreator,
   }
 
   @Override
-  @Authorized
   public Mono<InteractionResponse> autocompleteResponse(Interaction interaction) {
     String userId = interaction.getMember().getUser().getId();
     return destinyCharacterService.getCharactersForUser(userId)
