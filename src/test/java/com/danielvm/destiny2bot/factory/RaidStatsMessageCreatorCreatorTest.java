@@ -8,6 +8,7 @@ import com.danielvm.destiny2bot.dto.discord.DiscordUser;
 import com.danielvm.destiny2bot.dto.discord.Interaction;
 import com.danielvm.destiny2bot.dto.discord.InteractionResponse;
 import com.danielvm.destiny2bot.dto.discord.Member;
+import com.danielvm.destiny2bot.factory.creator.RaidStatsMessageCreator;
 import com.danielvm.destiny2bot.service.DestinyCharacterService;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -23,7 +24,7 @@ import reactor.test.StepVerifier;
 import reactor.test.StepVerifier.FirstStep;
 
 @ExtendWith(MockitoExtension.class)
-public class RaidStatsMessageCreatorTest {
+public class RaidStatsMessageCreatorCreatorTest {
 
   @Mock
   DestinyCharacterService destinyCharacterService;
@@ -37,7 +38,7 @@ public class RaidStatsMessageCreatorTest {
     // given: data from character service and userId
     String userId = "someUserId";
     DiscordUser user = new DiscordUser(userId, "deahtstroke");
-    Interaction interaction = new Interaction(null, null, null, null, new Member(user));
+    Interaction interaction = Interaction.builder().member(new Member(user)).build();
     List<DestinyCharacter> characters = List.of(
         new DestinyCharacter("1", "Titan", 1890, "Human"),
         new DestinyCharacter("2", "Warlock", 1890, "Awoken"),
@@ -76,7 +77,7 @@ public class RaidStatsMessageCreatorTest {
     // given: data from character service and userId
     String userId = "someUserId";
     DiscordUser user = new DiscordUser(userId, "deahtstroke");
-    Interaction interaction = new Interaction(null, null, null, null, new Member(user));
+    Interaction interaction = Interaction.builder().member(new Member(user)).build();
     List<DestinyCharacter> characters = List.of(
         new DestinyCharacter("1", "Titan", 1890, "Human")
     );

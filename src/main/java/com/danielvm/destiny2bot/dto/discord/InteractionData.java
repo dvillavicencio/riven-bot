@@ -1,13 +1,16 @@
 package com.danielvm.destiny2bot.dto.discord;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.List;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
+@Builder
 public class InteractionData {
 
   /**
@@ -29,5 +32,24 @@ public class InteractionData {
    * List of options sent with the interaction
    */
   private List<Option> options;
+
+  /**
+   * Custom Id of a message component
+   */
+  @JsonProperty("custom_id")
+  private String customId;
+
+  /**
+   * The type of the component that was sent
+   */
+  @JsonProperty("component_type")
+  private Integer componentType;
+
+  private Object resolved;
+
+  /**
+   * List of resolved values for a select menu option by a user
+   */
+  private List<String> values;
 
 }

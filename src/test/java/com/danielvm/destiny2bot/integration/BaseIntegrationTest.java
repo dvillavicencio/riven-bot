@@ -28,12 +28,16 @@ public abstract class BaseIntegrationTest {
   @Container
   static final GenericContainer<?> REDIS_CONTAINER = new GenericContainer<>("redis:5.0.3-alpine")
       .withExposedPorts(6379);
+
   @LocalServerPort
   protected int localServerPort;
+
   @Autowired
   MockMvc mockMvc;
+
   @Autowired
   WebTestClient webTestClient;
+
   @Autowired
   ObjectMapper objectMapper;
 

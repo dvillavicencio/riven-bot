@@ -5,6 +5,7 @@ import static org.mockito.Mockito.when;
 import com.danielvm.destiny2bot.dto.WeeklyActivity;
 import com.danielvm.destiny2bot.enums.ActivityMode;
 import com.danielvm.destiny2bot.enums.InteractionResponseType;
+import com.danielvm.destiny2bot.factory.creator.WeeklyRaidMessageCreator;
 import com.danielvm.destiny2bot.service.WeeklyActivitiesService;
 import com.danielvm.destiny2bot.util.MessageUtil;
 import java.time.ZonedDateTime;

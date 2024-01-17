@@ -29,6 +29,11 @@ public class InteractionResponseData {
   private List<Component> components;
 
   /**
+   * List of partial attachments to send
+   */
+  private List<Attachment> attachments;
+
+  /**
    * Whether this message should be secret or not (disappears after a time)
    */
   private Integer flags;

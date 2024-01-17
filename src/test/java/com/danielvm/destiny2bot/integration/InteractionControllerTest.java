@@ -138,8 +138,12 @@ public class InteractionControllerTest extends BaseIntegrationTest {
   @DisplayName("get weekly dungeon works successfully")
   public void getWeeklyDungeonWorksSuccessfully() throws JsonProcessingException, DecoderException {
     // given: a weekly_dungeon interaction with a valid signature
-    InteractionData weeklyDungeonData = new InteractionData(2, "weekly_dungeon", 1, null);
-    Interaction body = new Interaction(1, "theApplicationId", 2, weeklyDungeonData, null);
+    InteractionData weeklyDungeonData = InteractionData.builder()
+        .id(2).name("weekly_dungeon").type(1)
+        .build();
+    Interaction body = Interaction.builder().id(1)
+        .applicationId("theApplicationId").data(weeklyDungeonData).type(2)
+        .build();
     String timestamp = String.valueOf(Instant.now().getEpochSecond());
     String signature = createValidSignature(body, timestamp);
 
@@ -218,8 +222,11 @@ public class InteractionControllerTest extends BaseIntegrationTest {
   @DisplayName("get weekly raid works successfully")
   public void getWeeklyRaidWorksSuccessfully() throws JsonProcessingException, DecoderException {
     // given: a weekly_raid interaction with a valid signature
-    InteractionData weeklyRaidData = new InteractionData(2, "weekly_raid", 1, null);
-    Interaction body = new Interaction(1, "theApplicationId", 2, weeklyRaidData, null);
+    InteractionData weeklyRaidData = InteractionData.builder()
+        .id(2).name("weekly_raid").type(1)
+        .build();
+    Interaction body = Interaction.builder().id(1).applicationId("theApplicationId").type(2)
+        .data(weeklyRaidData).build();
     String timestamp = String.valueOf(Instant.now().getEpochSecond());
     String signature = createValidSignature(body, timestamp);
 
@@ -289,8 +296,11 @@ public class InteractionControllerTest extends BaseIntegrationTest {
   @DisplayName("get weekly raid fails if no milestones are found")
   public void getWeeklyRaidsShouldThrowErrors() throws JsonProcessingException, DecoderException {
     // given: a weekly_raid interaction with a valid signature
-    InteractionData weeklyRaidData = new InteractionData(2, "weekly_raid", 1, null);
-    Interaction body = new Interaction(1, "theApplicationId", 2, weeklyRaidData, null);
+    InteractionData weeklyRaidData = InteractionData.builder()
+        .id(2).name("weekly_raid").type(1)
+        .build();
+    Interaction body = Interaction.builder().id(1).applicationId("theApplicationId").type(2)
+        .data(weeklyRaidData).build();
     String timestamp = String.valueOf(Instant.now().getEpochSecond());
     String signature = createValidSignature(body, timestamp);
 
@@ -333,8 +343,11 @@ public class InteractionControllerTest extends BaseIntegrationTest {
   @DisplayName("Interactions fail if the signature is invalid")
   public void getWeeklyRaidInvalidSignature() throws JsonProcessingException, DecoderException {
     // given: an interaction with an invalid signature
-    InteractionData data = new InteractionData(2, "weekly_raid", 1, null);
-    Interaction body = new Interaction(1, "theApplicationId", 2, data, null);
+    InteractionData data = InteractionData.builder()
+        .id(2).name("weekly_raid").type(1).build();
+    Interaction body = Interaction.builder()
+        .id(1).applicationId("theApplicationId").type(2).data(data)
+        .build();
     String timestamp = String.valueOf(Instant.now().getEpochSecond());
     String signature = createInvalidSignature(body, timestamp);
 
@@ -360,7 +373,8 @@ public class InteractionControllerTest extends BaseIntegrationTest {
   @DisplayName("PING interactions with valid signatures are ack'd correctly")
   public void pingRequestsAreAckdCorrectly() throws JsonProcessingException, DecoderException {
     // given: an interaction with an invalid signature
-    Interaction body = new Interaction(1, "theApplicationId", 1, null, null);
+    Interaction body = Interaction.builder().id(1).applicationId("theApplicationId").type(1)
+        .build();
     String timestamp = String.valueOf(Instant.now().getEpochSecond());
     String signature = createValidSignature(body, timestamp);
 
@@ -385,7 +399,8 @@ public class InteractionControllerTest extends BaseIntegrationTest {
   @DisplayName("PING interactions with invalid signatures are not ack'd")
   public void invalidPingRequestsAreNotAckd() throws JsonProcessingException, DecoderException {
     // given: an interaction with an invalid signature
-    Interaction body = new Interaction(1, "theApplicationId", 1, null, null);
+    Interaction body = Interaction.builder().id(1).applicationId("theApplicationId").type(1)
+        .build();
     String timestamp = String.valueOf(Instant.now().getEpochSecond());
     String signature = createInvalidSignature(body, timestamp);
 
@@ -416,9 +431,11 @@ public class InteractionControllerTest extends BaseIntegrationTest {
 
     DiscordUser user = new DiscordUser(discordId, username);
     Member memberInfo = new Member(user);
-    InteractionData data = new InteractionData("2", "raid_stats", 1, null);
-    Interaction body = new Interaction("1", "theApplicationId", 4, data, memberInfo);
-
+    InteractionData data = InteractionData.builder().id("2").name("raid_stats").type(1)
+        .build();
+    Interaction body = Interaction.builder()
+        .id("1").applicationId("theApplicationId").type(4).data(data).member(memberInfo)
+        .build();
     String timestamp = String.valueOf(Instant.now().getEpochSecond());
     String signature = createValidSignature(body, timestamp);
 
@@ -482,8 +499,12 @@ public class InteractionControllerTest extends BaseIntegrationTest {
 
     DiscordUser user = new DiscordUser(discordId, username);
     Member memberInfo = new Member(user);
-    InteractionData data = new InteractionData("2", "raid_stats", 1, null);
-    Interaction body = new Interaction("1", "theApplicationId", 4, data, memberInfo);
+    InteractionData data = InteractionData.builder()
+        .id("2").name("raid_stats").type(1)
+        .build();
+    Interaction body = Interaction.builder()
+        .id("1").applicationId("theApplicationId").type(4).data(data).member(memberInfo)
+        .build();
 
     String timestamp = String.valueOf(Instant.now().getEpochSecond());
     String signature = createValidSignature(body, timestamp);
@@ -542,8 +563,12 @@ public class InteractionControllerTest extends BaseIntegrationTest {
 
     DiscordUser user = new DiscordUser(discordId, username);
     Member memberInfo = new Member(user);
-    InteractionData data = new InteractionData("2", "raid_stats", 1, null);
-    Interaction body = new Interaction("1", "theApplicationId", 4, data, memberInfo);
+    InteractionData data = InteractionData.builder()
+        .id("1").name("raid_stats").type(1)
+        .build();
+    Interaction body = Interaction.builder()
+        .id("1").applicationId("theApplicationId").data(data).member(memberInfo).type(4)
+        .build();
 
     String timestamp = String.valueOf(Instant.now().getEpochSecond());
     String signature = createValidSignature(body, timestamp);

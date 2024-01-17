@@ -38,12 +38,14 @@ public class InteractionsController {
   @PostMapping("/interactions")
   public Mono<InteractionResponse> interactions(
       @RequestBody Interaction interaction,
-      @ValidSignature ContentCachingRequestWrapper request) {
+      @ValidSignature ContentCachingRequestWrapper request) throws JsonProcessingException {
+    log.info("Interaction received: [{}]", objectMapper.writeValueAsString(interaction));
     return interactionService.handleInteraction(interaction)
         .doOnSubscribe(i -> log.info("Received interaction: [{}]", interaction))
         .doOnSuccess(i -> {
           try {
-            log.info("Completed retrieving response for interaction: [{}]", objectMapper.writeValueAsString(i));
+            log.info("Completed retrieving response for interaction: [{}]",
+                objectMapper.writeValueAsString(i));
           } catch (JsonProcessingException e) {
             throw new RuntimeException(e);
           }

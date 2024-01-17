@@ -1,4 +1,4 @@
-package com.danielvm.destiny2bot.factory;
+package com.danielvm.destiny2bot.factory.creator;
 
 import com.danielvm.destiny2bot.dto.discord.Interaction;
 import com.danielvm.destiny2bot.dto.discord.InteractionResponse;
@@ -8,7 +8,7 @@ import reactor.core.publisher.Mono;
  * Implementation of this interface are responsible for creating the human-readable message that
  * will be sent through Discord to respond to a particular slash-command
  */
-public interface CommandResponseCreator {
+public interface ApplicationCommandSource {
 
   /**
    * Creates an Interaction Response for a slash-command

@@ -2,7 +2,7 @@ package com.danielvm.destiny2bot.service;
 
 import static com.danielvm.destiny2bot.enums.InteractionResponseType.APPLICATION_COMMAND_AUTOCOMPLETE_RESULT;
 import static com.danielvm.destiny2bot.enums.InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE;
-import static com.danielvm.destiny2bot.factory.WeeklyDungeonMessageCreator.MESSAGE_TEMPLATE;
+import static com.danielvm.destiny2bot.factory.creator.WeeklyDungeonMessageCreator.MESSAGE_TEMPLATE;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
@@ -14,10 +14,10 @@ import com.danielvm.destiny2bot.dto.discord.InteractionResponse;
 import com.danielvm.destiny2bot.dto.discord.InteractionResponseData;
 import com.danielvm.destiny2bot.dto.discord.Member;
 import com.danielvm.destiny2bot.enums.SlashCommand;
+import com.danielvm.destiny2bot.factory.ApplicationCommandFactory;
 import com.danielvm.destiny2bot.factory.AutocompleteFactory;
-import com.danielvm.destiny2bot.factory.MessageFactory;
-import com.danielvm.destiny2bot.factory.RaidStatsMessageCreator;
-import com.danielvm.destiny2bot.factory.WeeklyDungeonMessageCreator;
+import com.danielvm.destiny2bot.factory.creator.RaidStatsMessageCreator;
+import com.danielvm.destiny2bot.factory.creator.WeeklyDungeonMessageCreator;
 import com.danielvm.destiny2bot.util.MessageUtil;
 import java.time.LocalDate;
 import java.util.List;
@@ -42,7 +42,7 @@ public class InteractionServiceTest {
   WeeklyDungeonMessageCreator weeklyDungeonMessageCreator;
 
   @Mock
-  MessageFactory messageFactory;
+  ApplicationCommandFactory applicationCommandFactory;
 
   @Mock
   AutocompleteFactory autocompleteFactory;
@@ -54,8 +54,9 @@ public class InteractionServiceTest {
   @DisplayName("Create response is successful for PING interaction request")
   public void handleInteractionForPingRequest() {
     // given: interaction data
-    Interaction interaction = new Interaction(
-        null, "myApplicationId", 1, null, null);
+    Interaction interaction = Interaction.builder()
+        .applicationId("myApplicationId").type(1)
+        .build();
 
     // when: the interaction is received
     FirstStep<InteractionResponse> response = StepVerifier.create(
@@ -71,10 +72,12 @@ public class InteractionServiceTest {
   @DisplayName("Create response is successful for APPLICATION_COMMAND interaction request that doesn't require authorization")
   public void handleInteractionFor() {
     // given: interaction data from an application command (slash command)
-    Interaction interaction = new Interaction(
-        null, "myApplicationId", 2,
-        new InteractionData("someId", "weekly_dungeon", 1, null),
-        new Member(new DiscordUser("someId", "myUsername")));
+    InteractionData data = InteractionData.builder().id("someId").name("weekly_dungeon").type(1)
+        .build();
+    Member member = new Member(new DiscordUser("someId", "myUsername"));
+    Interaction interaction = Interaction.builder()
+        .applicationId("myApplicationId").type(2).member(member).data(data)
+        .build();
 
     String endDate = MessageUtil.formatDate(LocalDate.now());
     String dungeon = "Duality";
@@ -87,7 +90,7 @@ public class InteractionServiceTest {
             .build())
         .build();
 
-    when(messageFactory.messageCreator(SlashCommand.WEEKLY_DUNGEON))
+    when(applicationCommandFactory.messageCreator(SlashCommand.WEEKLY_DUNGEON))
         .thenReturn(weeklyDungeonMessageCreator);
 
     when(weeklyDungeonMessageCreator.createResponse(interaction))
@@ -111,10 +114,13 @@ public class InteractionServiceTest {
   public void handleInteractionForAuthorizedAutocomplete() {
     // given: interaction data from a slash-command autocomplete
     String userId = "userId";
-    Interaction interaction = new Interaction(
-        null, "myApplicationId", 4,
-        new InteractionData("someId", "raid_stats", 1, null),
-        new Member(new DiscordUser(userId, "myUsername")));
+    Member member = new Member(new DiscordUser(userId, "myUsername"));
+    InteractionData data = InteractionData.builder()
+        .id("someId").name("raid_stats").type(1)
+        .build();
+    Interaction interaction = Interaction.builder()
+        .applicationId("myApplicationId").type(4).data(data).member(member)
+        .build();
 
     List<Choice> choices = List.of(
         new Choice("Character 1", "1"),
