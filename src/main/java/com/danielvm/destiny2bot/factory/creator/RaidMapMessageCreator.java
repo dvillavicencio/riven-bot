@@ -3,7 +3,7 @@ package com.danielvm.destiny2bot.factory.creator;
 import com.danielvm.destiny2bot.dto.discord.Attachment;
 import com.danielvm.destiny2bot.dto.discord.Choice;
 import com.danielvm.destiny2bot.dto.discord.Embedded;
-import com.danielvm.destiny2bot.dto.discord.EmbeddedAuthor;
+import com.danielvm.destiny2bot.dto.discord.EmbeddedFooter;
 import com.danielvm.destiny2bot.dto.discord.EmbeddedImage;
 import com.danielvm.destiny2bot.dto.discord.Interaction;
 import com.danielvm.destiny2bot.dto.discord.InteractionResponse;
@@ -12,6 +12,7 @@ import com.danielvm.destiny2bot.enums.InteractionResponseType;
 import com.danielvm.destiny2bot.enums.Raid;
 import com.danielvm.destiny2bot.enums.RaidEncounter;
 import com.danielvm.destiny2bot.service.ImageAssetService;
+import com.danielvm.destiny2bot.util.InteractionUtil;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
@@ -59,18 +60,25 @@ public class RaidMapMessageCreator implements ApplicationCommandSource, Autocomp
               })
               .toList())
           .map(attachments -> {
+            String embedTitle = """
+                Encounter maps for %s
+                """.formatted(InteractionUtil.retrieveInteractionOption(interaction.getData()
+                .getOptions(), "encounter"));
             List<Embedded> embedds = attachments.stream()
                 .map(attachment -> Embedded.builder()
+                    .title(embedTitle)
+                    .url("https://www.deviantart.com/a-phantom-moon/")
+                    .description(
+                        "Here you'll find a useful entry of maps and infographics relating to the specified encounter you provided")
                     .type("image")
-                    .author(
-                        EmbeddedAuthor.builder()
-                            .name("Infographs powered by @a-phantom-moon")
-                            .url("https://www.deviantart.com/a-phantom-moon/")
-                            .build()
-                    )
                     .image(EmbeddedImage.builder()
                         .url("attachment://" + attachment.getFilename())
                         .build())
+                    .footer(
+                        EmbeddedFooter.builder()
+                            .text("Infographics powered by a-phantom-moon@deviantArt")
+                            .build()
+                    )
                     .build())
                 .toList();
             InteractionResponseData data = InteractionResponseData.builder()

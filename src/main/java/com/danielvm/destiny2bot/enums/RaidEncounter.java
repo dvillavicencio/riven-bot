@@ -26,15 +26,15 @@ public class RaidEncounter {
               new RaidEncounter("Zo’Aurc, Explicator of Planets", "zoaurc_explicator_of_planets"),
               new RaidEncounter("Nezarec, the Final God of Pain", "nezarec_the_final_god_of_pain")),
           Raid.LAST_WISH, List.of(
-              new RaidEncounter("Kalli", "kalli"),
-              new RaidEncounter("Shuro Chi", "shuro_chi"),
-              new RaidEncounter("Morgeth", "morgeth"),
+              new RaidEncounter("Kalli, the Corrupted", "kalli"),
+              new RaidEncounter("Shuro Chi, the Corrupted", "shuro_chi"),
+              new RaidEncounter("Morgeth, the Spirekeeper", "morgeth"),
               new RaidEncounter("Vault Security Mechanism", "vault_security_mechanism"),
               new RaidEncounter("Riven of a Thousand Voices", "riven_of_a_thousand_voices"),
               new RaidEncounter("Queenswalk", "queenswalk")),
           Raid.GARDEN_OF_SALVATION, List.of(
-              new RaidEncounter("Embrace (1st encounter)", "embrace"),
-              new RaidEncounter("Undergrowth (2nd encounter)", "undergrowth"),
+              new RaidEncounter("Embrace", "embrace"),
+              new RaidEncounter("Undergrowth", "undergrowth"),
               new RaidEncounter("Consecrated Mind, Sol Inherent", "consecrated_mind"),
               new RaidEncounter("Sanctified Mind, Sol Inherent", "sanctified_mind")
           ),
