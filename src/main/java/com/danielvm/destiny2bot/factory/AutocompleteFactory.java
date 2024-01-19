@@ -3,6 +3,7 @@ package com.danielvm.destiny2bot.factory;
 import com.danielvm.destiny2bot.enums.SlashCommand;
 import com.danielvm.destiny2bot.exception.ResourceNotFoundException;
 import com.danielvm.destiny2bot.factory.creator.AutocompleteSource;
+import com.danielvm.destiny2bot.factory.creator.RaidMapMessageCreator;
 import com.danielvm.destiny2bot.factory.creator.RaidStatsMessageCreator;
 import java.util.Map;
 import java.util.Objects;
@@ -14,9 +15,11 @@ public class AutocompleteFactory implements InteractionFactory<AutocompleteSourc
   private final Map<SlashCommand, AutocompleteSource> autocompleteFactory;
 
   public AutocompleteFactory(
-      RaidStatsMessageCreator raidStatsMessageCreator) {
+      RaidStatsMessageCreator raidStatsMessageCreator,
+      RaidMapMessageCreator raidMapMessageCreator) {
     this.autocompleteFactory = Map.of(
-        SlashCommand.RAID_STATS, raidStatsMessageCreator);
+        SlashCommand.RAID_STATS, raidStatsMessageCreator,
+        SlashCommand.RAID_MAP, raidMapMessageCreator);
   }
 
   @Override

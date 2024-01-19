@@ -18,7 +18,7 @@ public class Attachment {
   /**
    * Attachment Id
    */
-  private String id;
+  private Object id;
 
   /**
    * Name of the file

@@ -22,7 +22,7 @@ public class Embedded {
 
   private Integer color;
 
-  private Object footer;
+  private EmbeddedFooter footer;
 
   private EmbeddedImage image;
 
@@ -32,7 +32,7 @@ public class Embedded {
 
   private Object provider;
 
-  private Object author;
+  private EmbeddedAuthor author;
 
   private List<EmbeddedField> fields;
 }

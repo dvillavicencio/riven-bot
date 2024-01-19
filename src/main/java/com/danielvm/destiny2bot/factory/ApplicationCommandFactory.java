@@ -4,7 +4,7 @@ import com.danielvm.destiny2bot.enums.SlashCommand;
 import com.danielvm.destiny2bot.exception.ResourceNotFoundException;
 import com.danielvm.destiny2bot.factory.creator.ApplicationCommandSource;
 import com.danielvm.destiny2bot.factory.creator.AuthorizeMessageCreator;
-import com.danielvm.destiny2bot.factory.creator.RaidDiagramMessageCreator;
+import com.danielvm.destiny2bot.factory.creator.RaidMapMessageCreator;
 import com.danielvm.destiny2bot.factory.creator.WeeklyDungeonMessageCreator;
 import com.danielvm.destiny2bot.factory.creator.WeeklyRaidMessageCreator;
 import java.util.Map;
@@ -21,7 +21,7 @@ public class ApplicationCommandFactory implements InteractionFactory<Application
   private final Map<SlashCommand, ApplicationCommandSource> messageFactory;
 
   public ApplicationCommandFactory(
-      RaidDiagramMessageCreator raidDiagramMessageCreator,
+      RaidMapMessageCreator raidMapMessageCreator,
       WeeklyRaidMessageCreator weeklyRaidMessageCreator,
       WeeklyDungeonMessageCreator weeklyDungeonMessageCreator,
       AuthorizeMessageCreator authorizeMessageCreator) {
@@ -29,7 +29,7 @@ public class ApplicationCommandFactory implements InteractionFactory<Application
         SlashCommand.WEEKLY_RAID, weeklyRaidMessageCreator,
         SlashCommand.WEEKLY_DUNGEON, weeklyDungeonMessageCreator,
         SlashCommand.AUTHORIZE, authorizeMessageCreator,
-        SlashCommand.RAID_MAP, raidDiagramMessageCreator);
+        SlashCommand.RAID_MAP, raidMapMessageCreator);
   }
 
   @Override

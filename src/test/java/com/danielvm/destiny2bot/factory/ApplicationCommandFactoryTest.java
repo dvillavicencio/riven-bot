@@ -6,7 +6,7 @@ import com.danielvm.destiny2bot.enums.SlashCommand;
 import com.danielvm.destiny2bot.exception.ResourceNotFoundException;
 import com.danielvm.destiny2bot.factory.creator.ApplicationCommandSource;
 import com.danielvm.destiny2bot.factory.creator.AuthorizeMessageCreator;
-import com.danielvm.destiny2bot.factory.creator.RaidDiagramMessageCreator;
+import com.danielvm.destiny2bot.factory.creator.RaidMapMessageCreator;
 import com.danielvm.destiny2bot.factory.creator.WeeklyDungeonMessageCreator;
 import com.danielvm.destiny2bot.factory.creator.WeeklyRaidMessageCreator;
 import org.junit.jupiter.api.Assertions;
@@ -27,7 +27,7 @@ public class ApplicationCommandFactoryTest {
   @Mock
   private AuthorizeMessageCreator authorizeMessageCreator;
   @Mock
-  private RaidDiagramMessageCreator raidDiagramMessageCreator;
+  private RaidMapMessageCreator raidMapMessageCreator;
   @InjectMocks
   private ApplicationCommandFactory sut;
 

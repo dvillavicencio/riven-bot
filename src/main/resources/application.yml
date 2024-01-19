@@ -41,3 +41,12 @@ discord:
 application:
   callback:
     url: https://d2discord.app
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: httpexchanges
+  httpexchanges:
+    recording:
+      include: response_headers, request_headers

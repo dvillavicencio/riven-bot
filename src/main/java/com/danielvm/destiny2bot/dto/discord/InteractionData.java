@@ -45,8 +45,6 @@ public class InteractionData {
   @JsonProperty("component_type")
   private Integer componentType;
 
-  private Object resolved;
-
   /**
    * List of resolved values for a select menu option by a user
    */
