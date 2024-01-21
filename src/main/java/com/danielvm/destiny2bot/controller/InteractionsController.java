@@ -53,15 +53,17 @@ public class InteractionsController {
           boolean containsAttachments =
               interactionResponse.getType() != 1 && CollectionUtils.isNotEmpty(
                   interactionResponse.getData().getAttachments());
-          return containsAttachments ? multipartFormResponse(interaction, interactionResponse) :
+
+          return containsAttachments ?
+              multipartFormResponse(interaction, interactionResponse) :
               Mono.just(interactionResponse);
         })
         .doOnSubscribe(i -> log.info("Received interaction: [{}]", interaction))
         .doOnSuccess(i -> log.info("Completed retrieving response for interaction: [{}]", i));
   }
 
-  private Mono<ResponseEntity<MultiValueMap<String, HttpEntity<?>>>> multipartFormResponse(Interaction interaction,
-      InteractionResponse interactionResponse) {
+  private Mono<ResponseEntity<MultiValueMap<String, HttpEntity<?>>>> multipartFormResponse(
+      Interaction interaction, InteractionResponse interactionResponse) {
     try {
       return imageAssetService.retrieveEncounterImages(interaction)
           .map(assets -> {

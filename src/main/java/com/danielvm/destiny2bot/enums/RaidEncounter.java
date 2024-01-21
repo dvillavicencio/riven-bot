@@ -2,6 +2,7 @@ package com.danielvm.destiny2bot.enums;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -17,7 +18,7 @@ public class RaidEncounter {
    * value of each entry is a list that comprises the name of the encounter and the file directory
    * where the assets can be found under /resources/static/raids/{raidName}/{encounterName}/..
    */
-  private static final Map<Raid, List<RaidEncounter>> RAID_ENCOUNTERS =
+  private static final Map<Raid, List<RaidEncounter>> ENCOUNTERS_BY_RAID =
       Map.of(
           Raid.ROOT_OF_NIGHTMARES, List.of(
               new RaidEncounter("Cataclysm", "cataclysm"),
@@ -86,6 +87,20 @@ public class RaidEncounter {
    * @return Flux of {@link RaidEncounter}s
    */
   public static Flux<RaidEncounter> getRaidEncounters(Raid raid) {
-    return Flux.fromIterable(RAID_ENCOUNTERS.get(raid));
+    return Flux.fromIterable(ENCOUNTERS_BY_RAID.get(raid));
+  }
+
+  /**
+   * Get the human-readable encounter name based on a directory name
+   *
+   * @param raid      The Raid
+   * @param parameter The encounter directory parameter to find (snake-case)
+   * @return The encounter name
+   */
+  public static String findEncounter(Raid raid, String parameter) {
+    return ENCOUNTERS_BY_RAID.get(raid).stream()
+        .filter(encounter -> Objects.equals(encounter.getDirectoryName(), parameter))
+        .map(RaidEncounter::getEncounterName)
+        .findFirst().orElseThrow();
   }
 }

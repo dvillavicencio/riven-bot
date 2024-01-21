@@ -1,8 +1,13 @@
 package com.danielvm.destiny2bot.factory;
 
+import static com.danielvm.destiny2bot.enums.InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE;
 import static org.assertj.core.api.Assertions.assertThat;
 
+import com.danielvm.destiny2bot.TestUtils;
+import com.danielvm.destiny2bot.dto.discord.Attachment;
 import com.danielvm.destiny2bot.dto.discord.Choice;
+import com.danielvm.destiny2bot.dto.discord.Embedded;
+import com.danielvm.destiny2bot.dto.discord.EmbeddedImage;
 import com.danielvm.destiny2bot.dto.discord.Interaction;
 import com.danielvm.destiny2bot.dto.discord.InteractionData;
 import com.danielvm.destiny2bot.dto.discord.InteractionResponse;
@@ -13,17 +18,26 @@ import com.danielvm.destiny2bot.enums.InteractionType;
 import com.danielvm.destiny2bot.enums.Raid;
 import com.danielvm.destiny2bot.enums.RaidEncounter;
 import com.danielvm.destiny2bot.factory.creator.RaidMapMessageCreator;
-import java.util.Collections;
+import com.danielvm.destiny2bot.service.ImageAssetService;
+import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.core.io.Resource;
+import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
 @ExtendWith(MockitoExtension.class)
 public class RaidMapMessageCreatorTest {
+
+  @Mock
+  private ImageAssetService imageAssetService;
 
   @InjectMocks
   private RaidMapMessageCreator sut;
@@ -32,7 +46,7 @@ public class RaidMapMessageCreatorTest {
   @DisplayName("Creating autocomplete response works correctly")
   public void creatingAutocompleteResponseWorksCorrectly() {
     // given: an interaction with a 'raid' option value present
-    List<Option> options = List.of(new Option("raid", 3, "LAST_WISH", false));
+    List<Option> options = List.of(new Option("raid", 3, "last_wish", false));
     InteractionData data = InteractionData.builder()
         .id(1).name("raid_map").options(options).type(1)
         .build();
@@ -61,10 +75,12 @@ public class RaidMapMessageCreatorTest {
   }
 
   @Test
-  @DisplayName("Creating autocomplete response fails if no raid option is passed")
-  public void creatingAutocompleteResponseFailsForEmptyRaidOption() {
+  @DisplayName("Creating application command response works correctly")
+  public void creatingApplicationCommandResponseWorksCorrectly() throws IOException {
     // given: an interaction with a 'raid' option value present
-    List<Option> options = Collections.emptyList();
+    List<Option> options = List.of(
+        new Option("raid", 3, "last_wish", false),
+        new Option("encounter", 3, "kalli", false));
     InteractionData data = InteractionData.builder()
         .id(1).name("raid_map").options(options).type(1)
         .build();
@@ -72,17 +88,56 @@ public class RaidMapMessageCreatorTest {
         .id(1).data(data).type(InteractionType.APPLICATION_COMMAND_AUTOCOMPLETE.getType())
         .build();
 
-    // when: the autocomplete request is received
-    var response = StepVerifier.create(sut.autocompleteResponse(interaction));
+    Map<Long, Resource> resourcesMap = Map.of(
+        1L, TestUtils.createResourceWithName("kalli-action-phase.jpg"),
+        2L, TestUtils.createResourceWithName("kalli-dps-phase.jpg")
+    );
 
-    // then: the expected output should have an option to please fill in the 'raid' option first
+    String raidName = "Last Wish";
+    String raidEncounter = "Kalli, the Corrupted";
+    String embedTitle = "Encounter maps for: %s at %s".formatted(raidName, raidEncounter);
+
+    List<Embedded> expectedEmbeds = List.of(
+        Embedded.builder()
+            .title(embedTitle)
+            .url("https://www.youtube.com/watch?v=dQw4w9WgXcQ")
+            .image(EmbeddedImage.builder()
+                .url("attachment://kalli-action-phase.jpg")
+                .build())
+            .type("image").build(),
+        Embedded.builder()
+            .title(embedTitle)
+            .url("https://www.youtube.com/watch?v=dQw4w9WgXcQ")
+            .image(EmbeddedImage.builder()
+                .url("attachment://kalli-dps-phase.jpg")
+                .build())
+            .type("image").build()
+    );
+
+    List<Attachment> expectedAttachments = resourcesMap.entrySet().stream()
+        .map(entry -> {
+          try {
+            return Attachment.builder()
+                .id(entry.getKey())
+                .filename(entry.getValue().getFilename())
+                .size(Math.toIntExact(entry.getValue().contentLength()))
+                .build();
+          } catch (IOException e) {
+            throw new RuntimeException(e);
+          }
+        }).toList();
+
+    Mockito.when(imageAssetService.retrieveEncounterImages(interaction))
+        .thenReturn(Mono.just(resourcesMap));
+
+    // when: the autocomplete request is received
+    var response = StepVerifier.create(sut.createResponse(interaction));
+
+    // then: the choices presented are correct according to the Raid
     response.assertNext(output -> {
-      assertThat(output.getType())
-          .isEqualTo(InteractionResponseType.APPLICATION_COMMAND_AUTOCOMPLETE_RESULT.getType());
-      assertThat(output.getData().getChoices().get(0).getName())
-          .isEqualTo("Please specify a 'raid' option prior to selecting encounter");
-      assertThat(output.getData().getChoices().get(0).getValue())
-          .isEqualTo("No raid selected");
+      assertThat(output.getType()).isEqualTo(CHANNEL_MESSAGE_WITH_SOURCE.getType());
+      assertThat(output.getData().getEmbeds()).containsAll(expectedEmbeds);
+      assertThat(output.getData().getAttachments()).containsAll(expectedAttachments);
     }).verifyComplete();
   }
 

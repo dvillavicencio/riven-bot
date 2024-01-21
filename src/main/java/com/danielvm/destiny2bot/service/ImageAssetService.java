@@ -23,7 +23,13 @@ public class ImageAssetService {
 
   private static final String RAID_OPTION_NAME = "raid";
   private static final String ENCOUNTER_OPTION_NAME = "encounter";
-  private static final String ASSETS_BASE_PATH = "static/raids/%s/%s/*.*";
+  private static final String ASSETS_BASE_PATH = "classpath:static/raids/%s/%s/*.*";
+
+  private final PathMatchingResourcePatternResolver resourcePatternResolver;
+
+  public ImageAssetService(PathMatchingResourcePatternResolver resourcePatternResolver) {
+    this.resourcePatternResolver = resourcePatternResolver;
+  }
 
   /**
    * Retrieve all images for all encounters given a raid name and an encounter name
@@ -41,8 +47,7 @@ public class ImageAssetService {
     String basePath = ASSETS_BASE_PATH.formatted(raidDirectory, encounterDirectory);
     Resource[] resources;
     try {
-      resources = new PathMatchingResourcePatternResolver().getResources(
-          "classpath:" + basePath);
+      resources = resourcePatternResolver.getResources(basePath);
     } catch (IOException e) {
       log.error("Something unexpected happened when fetching [{}]", basePath, e);
       throw new InternalServerException(

@@ -15,7 +15,7 @@ import org.springframework.web.service.annotation.GetExchange;
 import reactor.core.publisher.Mono;
 
 /**
- * This client is responsible for making calls to the Bungie
+ * This client is responsible for making calls to the Bungie API
  */
 public interface BungieClient {
 
@@ -38,18 +38,6 @@ public interface BungieClient {
   @GetExchange("/User/GetMembershipsForCurrentUser/")
   Mono<MembershipResponse> getMembershipInfoForCurrentUser(
       @RequestHeader(name = HttpHeaders.AUTHORIZATION) String bearerToken);
-
-  /**
-   * Ges a manifest entity from the Manifest API
-   *
-   * @param entityType     The entity type (see {@link ManifestEntity})
-   * @param hashIdentifier The entity hash identifier
-   * @return {@link GenericResponse} of {@link ResponseFields}
-   */
-  @GetExchange("/Destiny2/Manifest/{entityType}/{hashIdentifier}/")
-  ResponseEntity<GenericResponse<ResponseFields>> getManifestEntity(
-      @PathVariable(value = "entityType") String entityType,
-      @PathVariable(value = "hashIdentifier") String hashIdentifier);
 
   /**
    * Ges a manifest entity from the Manifest API asynchronously
