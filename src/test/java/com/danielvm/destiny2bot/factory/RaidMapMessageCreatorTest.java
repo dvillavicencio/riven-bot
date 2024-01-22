@@ -55,7 +55,7 @@ public class RaidMapMessageCreatorTest {
         .build();
 
     List<Choice> choices = RaidEncounter.getRaidEncounters(Raid.LAST_WISH)
-        .map(encounter -> new Choice(encounter.getEncounterName(), encounter.getDirectoryName()))
+        .map(encounter -> new Choice(encounter.getName(), encounter.getDirectory()))
         .collectList().block();
     InteractionResponseData responseData = InteractionResponseData.builder()
         .choices(choices)

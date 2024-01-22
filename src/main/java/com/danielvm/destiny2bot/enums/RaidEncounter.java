@@ -1,84 +1,86 @@
 package com.danielvm.destiny2bot.enums;
 
+import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.Getter;
 import reactor.core.publisher.Flux;
 
-@Data
-@AllArgsConstructor
-@NoArgsConstructor
-public class RaidEncounter {
+public enum RaidEncounter {
 
-  /**
-   * In-memory map that contains all the encounters alongside the raid that they correspond to. The
-   * value of each entry is a list that comprises the name of the encounter and the file directory
-   * where the assets can be found under /resources/static/raids/{raidName}/{encounterName}/..
-   */
-  private static final Map<Raid, List<RaidEncounter>> ENCOUNTERS_BY_RAID =
-      Map.of(
-          Raid.ROOT_OF_NIGHTMARES, List.of(
-              new RaidEncounter("Cataclysm", "cataclysm"),
-              new RaidEncounter("Scission", "scission"),
-              new RaidEncounter("Chasm", "cross_the_chasm"),
-              new RaidEncounter("Zo’Aurc, Explicator of Planets", "zoaurc_explicator_of_planets"),
-              new RaidEncounter("Nezarec, the Final God of Pain", "nezarec_the_final_god_of_pain")),
-          Raid.LAST_WISH, List.of(
-              new RaidEncounter("Kalli, the Corrupted", "kalli"),
-              new RaidEncounter("Shuro Chi, the Corrupted", "shuro_chi"),
-              new RaidEncounter("Morgeth, the Spirekeeper", "morgeth"),
-              new RaidEncounter("Vault Security Mechanism", "vault_security_mechanism"),
-              new RaidEncounter("Riven of a Thousand Voices", "riven_of_a_thousand_voices"),
-              new RaidEncounter("Queenswalk", "queenswalk")),
-          Raid.GARDEN_OF_SALVATION, List.of(
-              new RaidEncounter("Embrace", "embrace"),
-              new RaidEncounter("Undergrowth", "undergrowth"),
-              new RaidEncounter("Consecrated Mind, Sol Inherent", "consecrated_mind"),
-              new RaidEncounter("Sanctified Mind, Sol Inherent", "sanctified_mind")
-          ),
-          Raid.DEEP_STONE_CRYPT, List.of(
-              new RaidEncounter("Entrance: Pike & Sparrow", "entrance"),
-              new RaidEncounter("Crypt Security", "crypt_security"),
-              new RaidEncounter("Atraks-1", "atraks_1"),
-              new RaidEncounter("Taniks-Reborn/Nuclear Descent", "taniks_reborn"),
-              new RaidEncounter("Taniks, the Abomination", "taniks_the_abomination")),
-          Raid.VAULT_OF_GLASS, List.of(
-              new RaidEncounter("Opening the Vault", "open_the_vault"),
-              new RaidEncounter("Confluxes", "confluxes"),
-              new RaidEncounter("Oracles", "oracles"),
-              new RaidEncounter("The Templar", "templar"),
-              new RaidEncounter("Gorgon's Labrynth", "gorgons_labrynth"),
-              new RaidEncounter("Gatekeeper", "gatekeepr"),
-              new RaidEncounter("Atheon, Time's Conflux", "atheon_times_conflux")),
-          Raid.VOW_OF_THE_DISCIPLE, List.of(
-              new RaidEncounter("Disciple's Bog", "disciples_bog"),
-              new RaidEncounter("Acquisition", "acquisition"),
-              new RaidEncounter("The Caretaker", "the_caretaker"),
-              new RaidEncounter("Exhibition", "exhibition"),
-              new RaidEncounter("Rhulk, Disciple of The Witness", "rhulk_disciple_of_the_witness")),
-          Raid.KINGS_FALL, List.of(
-              new RaidEncounter("Cataclysm", "cataclysm"),
-              new RaidEncounter("Scission", "scission"),
-              new RaidEncounter("Chasm", "cross_the_chasm"),
-              new RaidEncounter("Zo’Aurc, Explicator of Planets", "zoaurc_explicator_of_planets"),
-              new RaidEncounter("Nezarec, the Final God of Pain", "nezarec_the_final_god_of_pain")),
-          Raid.CROTAS_END, List.of(
-              new RaidEncounter("The Stills", "the_stills"),
-              new RaidEncounter("The Bridge", "bridge"),
-              new RaidEncounter("Ir Yut, the Deathsinger", "ir_yut_the_deathsinger"),
-              new RaidEncounter("Crota, Son of Oryx", "crota_son_of_oryx")));
+  // Root of Nightmares
+  CATACLYSM(Raid.ROOT_OF_NIGHTMARES, "Cataclysm", "cataclysm"),
+  SCISSION(Raid.ROOT_OF_NIGHTMARES, "Scission", "scission"),
+  CHASM(Raid.ROOT_OF_NIGHTMARES, "Chasm", "chasm"),
+  ZO_AURC(Raid.ROOT_OF_NIGHTMARES, "Zo'Aurc, Explicator of Planets", "zoaurc"),
+  NEZAREC(Raid.ROOT_OF_NIGHTMARES, "Nezarec, the Final God of Pain", "nezarec"),
 
-  /**
-   * The name of the encounter
-   */
-  private String encounterName;
-  /**
-   * Directory name of where to find the image assets to retrieve for a given raid encounter
-   */
-  private String directoryName;
+  // Last Wish
+  KALLI(Raid.LAST_WISH, "Kalli, the Corrupted", "kalli"),
+  SHURO_CHI(Raid.LAST_WISH, "Shuro Chi, the Corrupted", "shuro_chi"),
+  MORGETH(Raid.LAST_WISH, "Morgeth, the Spirekeeper", "morgeth"),
+  VAULT_SECURITY_MECHANISM(Raid.LAST_WISH, "Vault Security Mechanism", "vault_security"),
+  RIVEN_OF_A_THOUSAND_VOICES(Raid.LAST_WISH, "Riven of a Thousand Voices", "riven"),
+  QUEENSWALK(Raid.LAST_WISH, "Queenswalk", "queenswalk"),
+
+  // Garden of Salvation
+  EMBRACE(Raid.GARDEN_OF_SALVATION, "Embrace", "embrace"),
+  UNDERGROWTH(Raid.GARDEN_OF_SALVATION, "Undergrowth", "undergrowth"),
+  CONSECRATED_MIND(Raid.GARDEN_OF_SALVATION, "Consecrated Mind, Sol Inherent", "consecrated_mind"),
+  SANCTIFIED_MIND(Raid.GARDEN_OF_SALVATION, "Sanctified Mind, Sol Inherent", "sanctified_mind"),
+
+  // Deep Stone Crypt
+  PIKE_AND_SPARROW(Raid.DEEP_STONE_CRYPT, "Entrance: Pyke & Sparrow", "entrance"),
+  CRYPT_SECURITY(Raid.DEEP_STONE_CRYPT, "Crypt Security", "crypt_security"),
+  ATRAKS_1(Raid.DEEP_STONE_CRYPT, "Atraks-1", "atraks_1"),
+  TANIKS_REBORN(Raid.DEEP_STONE_CRYPT, "Taniks-Reborn/Nuclear Descent", "taniks_reborn"),
+  TANIKS_THE_ABOMNITAION(Raid.DEEP_STONE_CRYPT, "Taniks, the Abomination",
+      "taniks_the_abomination"),
+
+  // Vault of Glass
+  OPEN_THE_VAULT(Raid.VAULT_OF_GLASS, "Opening the Vault", "the_vault"),
+  CONFLUXES(Raid.VAULT_OF_GLASS, "Confluxes", "confluxes"),
+  ORACLES(Raid.VAULT_OF_GLASS, "Oracles", "oracles"),
+  THE_TEMPLAR(Raid.VAULT_OF_GLASS, "The Templar", "templar"),
+  GORGONS_LABRYNTH(Raid.VAULT_OF_GLASS, "Gorgon's Labrynth", "gorgons_labrynth"),
+  GATEKEEPER(Raid.VAULT_OF_GLASS, "The Gatekeeper", "gatekeeper"),
+  ATHEON(Raid.VAULT_OF_GLASS, "Atheon, Time's Conflux", "atheon"),
+
+  // Vow of the Disciple
+  ACQUISITION(Raid.VOW_OF_THE_DISCIPLE, "Acquisition", "acquisition"),
+  CARETAKER(Raid.VOW_OF_THE_DISCIPLE, "The Caretaker", "caretaker"),
+  EXHIBITION(Raid.VOW_OF_THE_DISCIPLE, "Exhibition", "exhibition"),
+  RHULK(Raid.VOW_OF_THE_DISCIPLE, "Rhulk, Disciple of the Witness", "rhulk"),
+
+  // King's Fall
+  PORTAL(Raid.KINGS_FALL, "Open the Portal", "portal"),
+  TOMB_SHIPS(Raid.KINGS_FALL, "Tombships", "tombships"),
+  ANNIHILATOR_TOTEMS(Raid.KINGS_FALL, "Annihilator Totems", "totems"),
+  WARPRIEST(Raid.KINGS_FALL, "Warpriest", "warpriest"),
+  GOLGOROTHS_MAZE(Raid.KINGS_FALL, "Golgoroth's Maze", "golgoroth_maze"),
+  GOLGOROTH(Raid.KINGS_FALL, "Golgoroth", "golgoroth"),
+  DICK_WALL(Raid.KINGS_FALL, "Dick Wall", "dick_wall"),
+  DAUGHTERS(Raid.KINGS_FALL, "Daughter's of Oryx", "daughters"),
+  ORYX(Raid.KINGS_FALL, "Oryx, the Taken King", "oryx"),
+
+  // Crota's End
+  STILLS(Raid.CROTAS_END, "The Stills", "stills"),
+  BRIDGE(Raid.CROTAS_END, "The Bridge", "bridge"),
+  IR_YUT(Raid.CROTAS_END, "Ir Yut, the Deathsinger", "ir_yut"),
+  CROTA(Raid.CROTAS_END, "Crota, Son of Oryx", "crota");
+
+  @Getter
+  private final String name;
+  @Getter
+  private final String directory;
+  @Getter
+  private final Raid raid;
+
+  RaidEncounter(Raid raid, String name, String directory) {
+    this.raid = raid;
+    this.name = name;
+    this.directory = directory;
+  }
 
   /**
    * Get all the raid encounters for a given raid wrapped in a Flux
@@ -87,7 +89,10 @@ public class RaidEncounter {
    * @return Flux of {@link RaidEncounter}s
    */
   public static Flux<RaidEncounter> getRaidEncounters(Raid raid) {
-    return Flux.fromIterable(ENCOUNTERS_BY_RAID.get(raid));
+    List<RaidEncounter> filteredResults = Arrays.stream(RaidEncounter.values())
+        .filter(raidEncounter -> Objects.equals(raidEncounter.getRaid(), raid))
+        .toList();
+    return Flux.fromIterable(filteredResults);
   }
 
   /**
@@ -97,10 +102,12 @@ public class RaidEncounter {
    * @param parameter The encounter directory parameter to find (snake-case)
    * @return The encounter name
    */
-  public static String findEncounter(Raid raid, String parameter) {
-    return ENCOUNTERS_BY_RAID.get(raid).stream()
-        .filter(encounter -> Objects.equals(encounter.getDirectoryName(), parameter))
-        .map(RaidEncounter::getEncounterName)
+  public static RaidEncounter findEncounter(Raid raid, String parameter) {
+    return Arrays.stream(RaidEncounter.values())
+        .filter(encounter -> Objects.equals(encounter.getRaid(), raid))
+        .filter(encounter ->
+            Objects.equals(encounter.getName(), parameter) ||
+            Objects.equals(encounter.getDirectory(), parameter))
         .findFirst().orElseThrow();
   }
 }

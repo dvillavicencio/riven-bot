@@ -53,11 +53,10 @@ public class RaidMapMessageCreator implements ApplicationCommandSource, Autocomp
 
     Raid raid = Raid.findRaid(raidDirectory);
 
-    String raidName = raid.getRaidName();
-    String encounterName = RaidEncounter.findEncounter(raid, encounterDirectory);
+    RaidEncounter raidEncounter = RaidEncounter.findEncounter(raid, encounterDirectory);
 
     String embedTitle = """
-        Encounter maps for: %s at %s""".formatted(raidName, encounterName);
+        Encounter maps for: %s at %s""".formatted(raid.getRaidName(), raidEncounter.getName());
     List<Embedded> embeds = attachments.stream()
         .map(attachment -> Embedded.builder()
             .title(embedTitle)
@@ -130,8 +129,8 @@ public class RaidMapMessageCreator implements ApplicationCommandSource, Autocomp
                 .flatMapMany(RaidEncounter::getRaidEncounters)
                 .map(
                     encounter ->
-                        new Choice(encounter.getEncounterName(),
-                            encounter.getDirectoryName()))
+                        new Choice(encounter.getName(),
+                            encounter.getDirectory()))
         )
         .collectList()
         .map(encounters ->
