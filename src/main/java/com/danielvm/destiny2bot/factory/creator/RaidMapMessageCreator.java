@@ -2,6 +2,7 @@ package com.danielvm.destiny2bot.factory.creator;
 
 import com.danielvm.destiny2bot.dto.discord.Attachment;
 import com.danielvm.destiny2bot.dto.discord.Choice;
+import com.danielvm.destiny2bot.dto.discord.Component;
 import com.danielvm.destiny2bot.dto.discord.Embedded;
 import com.danielvm.destiny2bot.dto.discord.EmbeddedImage;
 import com.danielvm.destiny2bot.dto.discord.Interaction;
@@ -21,13 +22,13 @@ import java.util.Map;
 import java.util.Objects;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.io.Resource;
-import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-@Component
+
 @Slf4j
+@org.springframework.stereotype.Component
 public class RaidMapMessageCreator implements ApplicationCommandSource, AutocompleteSource {
 
   private static final String EMBED_BINDING_URL = "https://www.youtube.com/watch?v=dQw4w9WgXcQ";
@@ -36,7 +37,8 @@ public class RaidMapMessageCreator implements ApplicationCommandSource, Autocomp
 
   private final ImageAssetService imageAssetService;
 
-  public RaidMapMessageCreator(ImageAssetService imageAssetService) {
+  public RaidMapMessageCreator(
+      ImageAssetService imageAssetService) {
     this.imageAssetService = imageAssetService;
   }
 
@@ -68,6 +70,15 @@ public class RaidMapMessageCreator implements ApplicationCommandSource, Autocomp
             .build())
         .toList();
     InteractionResponseData data = InteractionResponseData.builder()
+        .components(List.of(Component.builder()
+            .type(1)
+            .components(List.of(Component.builder()
+                .label("Infographics by A-Phantom-Moon!")
+                .type(2)
+                .style(5)
+                .url("https://www.deviantart.com/a-phantom-moon")
+                .build()))
+            .build()))
         .attachments(attachments)
         .embeds(embeds)
         .build();
@@ -87,9 +98,8 @@ public class RaidMapMessageCreator implements ApplicationCommandSource, Autocomp
                 .size(Math.toIntExact(entry.getValue().contentLength()))
                 .build();
           } catch (IOException e) {
-            String errorMessage = "Something went wrong while parsing filename for resource [%s]".formatted(
-                entry.getValue());
-            log.error(errorMessage, e);
+            String errorMessage = "Something went wrong while parsing filename for resource [%s]"
+                .formatted(entry.getValue());
             throw new InternalServerException(errorMessage, e);
           }
         })
@@ -127,10 +137,8 @@ public class RaidMapMessageCreator implements ApplicationCommandSource, Autocomp
         .flatMap(raid ->
             Mono.just(raid)
                 .flatMapMany(RaidEncounter::getRaidEncounters)
-                .map(
-                    encounter ->
-                        new Choice(encounter.getName(),
-                            encounter.getDirectory()))
+                .map(encounter ->
+                    new Choice(encounter.getName(), encounter.getDirectory()))
         )
         .collectList()
         .map(encounters ->

@@ -8,8 +8,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import java.nio.charset.StandardCharsets;
 import org.springframework.boot.SpringApplication;
-import org.springframework.boot.actuate.web.exchanges.HttpExchangeRepository;
-import org.springframework.boot.actuate.web.exchanges.InMemoryHttpExchangeRepository;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.cache.CacheManager;
@@ -80,11 +78,6 @@ public class Destiny2botApplication {
                         HttpStatus.BAD_REQUEST)
                 ))
         );
-  }
-
-  @Bean
-  HttpExchangeRepository httpExchangeRepository() {
-    return new InMemoryHttpExchangeRepository();
   }
 
   @Bean

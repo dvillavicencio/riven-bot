@@ -7,7 +7,7 @@ import com.danielvm.destiny2bot.TestUtils;
 import com.danielvm.destiny2bot.dto.discord.Interaction;
 import com.danielvm.destiny2bot.dto.discord.InteractionData;
 import com.danielvm.destiny2bot.dto.discord.Option;
-import com.danielvm.destiny2bot.exception.InternalServerException;
+import com.danielvm.destiny2bot.exception.ImageProcessingException;
 import java.io.IOException;
 import java.util.List;
 import org.assertj.core.api.Assertions;
@@ -88,7 +88,7 @@ public class ImageAssetServiceTest {
 
     // when: retrieveEncounterImages is called
     Assertions.assertThatThrownBy(() -> sut.retrieveEncounterImages(interaction).block())
-        .isInstanceOf(InternalServerException.class);
+        .isInstanceOf(ImageProcessingException.class);
 
     Assertions.assertThatThrownBy(() -> sut.retrieveEncounterImages(interaction).block())
         .hasMessage(

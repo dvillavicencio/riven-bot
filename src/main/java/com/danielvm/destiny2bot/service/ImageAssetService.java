@@ -4,14 +4,13 @@ import static com.danielvm.destiny2bot.util.InteractionUtil.retrieveInteractionO
 
 import com.danielvm.destiny2bot.dto.discord.Interaction;
 import com.danielvm.destiny2bot.dto.discord.Option;
-import com.danielvm.destiny2bot.exception.InternalServerException;
+import com.danielvm.destiny2bot.exception.ImageProcessingException;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -50,9 +49,9 @@ public class ImageAssetService {
       resources = resourcePatternResolver.getResources(basePath);
     } catch (IOException e) {
       log.error("Something unexpected happened when fetching [{}]", basePath, e);
-      throw new InternalServerException(
+      throw new ImageProcessingException(
           "Something unexpected happened when fetching resources for raid [%s] and encounter [%s]".formatted(
-              raidDirectory, encounterDirectory), HttpStatus.INTERNAL_SERVER_ERROR, e);
+              raidDirectory, encounterDirectory), e);
     }
     return Flux.fromArray(resources)
         .index()

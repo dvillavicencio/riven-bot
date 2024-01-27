@@ -16,7 +16,6 @@ public class CryptoUtil {
   /**
    * Validates if the signature that comes from the interaction is valid
    *
-   * @param request   The httpServletRequest
    * @param signature The passed signature from Discord
    * @param publicKey The public key of the bot
    * @param timestamp The passed timestamp from Discord
@@ -31,10 +30,10 @@ public class CryptoUtil {
           Crypto.signingPublicKey(Hex.decodeHex(publicKey.toCharArray())),
           (timestamp + rawBody).getBytes(UTF_8),
           Hex.decodeHex(signature.toCharArray()));
-    } catch (DecoderException decoderException) {
+    } catch (DecoderException de) {
       throw new InvalidSignatureException(
           "The passed in signature was invalid. Signature [%s], Timestamp [%s], Message [%s]"
-              .formatted(signature, timestamp, rawBody));
+              .formatted(signature, timestamp, rawBody), de);
     }
   }
 }

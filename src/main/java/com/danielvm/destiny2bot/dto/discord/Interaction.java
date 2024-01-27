@@ -42,7 +42,4 @@ public class Interaction implements Serializable {
    * Member Data of the user that invoked the command
    */
   private Member member;
-
-  private Object message;
-
 }

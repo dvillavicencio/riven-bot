@@ -34,8 +34,7 @@ public enum RaidEncounter {
   CRYPT_SECURITY(Raid.DEEP_STONE_CRYPT, "Crypt Security", "crypt_security"),
   ATRAKS_1(Raid.DEEP_STONE_CRYPT, "Atraks-1", "atraks_1"),
   TANIKS_REBORN(Raid.DEEP_STONE_CRYPT, "Taniks-Reborn/Nuclear Descent", "taniks_reborn"),
-  TANIKS_THE_ABOMNITAION(Raid.DEEP_STONE_CRYPT, "Taniks, the Abomination",
-      "taniks_the_abomination"),
+  TANIKS_THE_ABOMNITAION(Raid.DEEP_STONE_CRYPT, "Taniks, the Abomination", "taniks_the_abomination"),
 
   // Vault of Glass
   OPEN_THE_VAULT(Raid.VAULT_OF_GLASS, "Opening the Vault", "the_vault"),

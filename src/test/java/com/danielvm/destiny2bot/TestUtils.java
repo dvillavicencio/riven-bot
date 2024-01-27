@@ -10,7 +10,8 @@ import org.springframework.core.io.Resource;
 
 public class TestUtils {
 
-  private TestUtils() {}
+  private TestUtils() {
+  }
 
   /**
    * Creates an instance of a Resource ready to be mocked
@@ -36,6 +37,31 @@ public class TestUtils {
     Resource mockedResource = Mockito.mock(Resource.class);
     when(mockedResource.getFilename()).thenReturn(filename);
     when(mockedResource.contentLength()).thenReturn(16L);
+    return mockedResource;
+  }
+
+  /**
+   * Creates a Resource Mock with the given parameters
+   *
+   * @param filename             The filename of the created resource
+   * @param contentLength        The content length of the file
+   * @param shouldThrowException Whether this mock should return an IOException in an I/O operation
+   * @return The mocked resource
+   */
+  public static Resource createPartialResource(String filename, Long contentLength,
+      boolean shouldThrowException)
+      throws IOException {
+    Resource mockedResource = Mockito.mock(Resource.class);
+    when(mockedResource.getFilename()).thenReturn(filename);
+    when(mockedResource.contentLength()).thenReturn(contentLength);
+    if (shouldThrowException) {
+      when(mockedResource.getContentAsByteArray()).thenThrow(
+          new IOException("Something unexpected happened"));
+      when(mockedResource.getInputStream()).thenThrow(
+          new IOException("Something unexpected happened"));
+    } else {
+      when(mockedResource.getContentAsByteArray()).thenReturn(new byte[]{0, 1, 2, 3});
+    }
     return mockedResource;
   }
 
