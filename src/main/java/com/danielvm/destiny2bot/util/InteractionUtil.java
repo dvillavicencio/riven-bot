@@ -23,7 +23,8 @@ public class InteractionUtil {
   public static String retrieveInteractionOption(List<Option> options, String optionName) {
     return String.valueOf(options.stream()
         .filter(o -> Objects.equals(optionName, o.getName())).findAny()
-        .orElseThrow(() -> new BadRequestException("No raid option present in the request",
+        .orElseThrow(() -> new BadRequestException(
+            "No [%s] option present in the request".formatted(optionName),
             HttpStatus.BAD_REQUEST)).getValue());
   }
 }

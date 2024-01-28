@@ -7,6 +7,7 @@ import static com.github.tomakehurst.wiremock.client.WireMock.stubFor;
 import static com.github.tomakehurst.wiremock.client.WireMock.urlPathEqualTo;
 import static com.github.tomakehurst.wiremock.client.WireMock.urlPathMatching;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.hamcrest.Matchers.containsString;
 
 import com.danielvm.destiny2bot.dao.UserDetailsReactiveDao;
 import com.danielvm.destiny2bot.dto.destiny.GenericResponse;
@@ -521,7 +522,7 @@ public class InteractionControllerTest extends BaseIntegrationTest {
         .map(raidEncounter -> new Choice(raidEncounter.getName(), raidEncounter.getDirectory()))
         .toStream().toList();
 
-    var responseBody = response.expectStatus().is2xxSuccessful()
+    byte[] responseBody = response.expectStatus().is2xxSuccessful()
         .expectBody()
         .consumeWith(System.out::println)
         .jsonPath("$.type").isEqualTo(8)
@@ -533,6 +534,35 @@ public class InteractionControllerTest extends BaseIntegrationTest {
         InteractionResponse.class);
 
     assertThat(interactionResponse.getData().getChoices()).containsAll(expectedChoices);
+  }
+
+  @Test
+  @DisplayName("Command request for raid map request is for 1 image")
+  public void commandRequestsForRaidMapAreSuccessful()
+      throws DecoderException, IOException {
+    // given: an interaction for autocomplete for the /raid_map command
+    List<Option> options = List.of(
+        new Option("raid", 3, "last_wish", false),
+        new Option("encounter", 3, "kalli", false)
+    );
+    InteractionData data = InteractionData.builder()
+        .id("someID")
+        .name("raid_map")
+        .options(options).build();
+    Interaction body = Interaction.builder()
+        .id("someInteractionID")
+        .data(data)
+        .type(InteractionType.APPLICATION_COMMAND.getType())
+        .build();
+
+    // when: the raid_map autocomplete interaction is requested
+    var response = sendValidSignatureRequest("/interactions", body);
+
+    // TODO: Revisit this integration test for assertions on the multipart parts
+    // then: the correct raid encounters options are returned
+    response.expectStatus().is2xxSuccessful()
+        .expectHeader().value("Content-Type", containsString("multipart/form-data"));
+
   }
 
 }

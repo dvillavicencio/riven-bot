@@ -96,7 +96,7 @@ public abstract class BaseIntegrationTest {
     String timestamp = String.valueOf(Instant.now().getEpochSecond());
     String signature = createValidSignature(interaction, timestamp);
     return this.webTestClient.post().uri(endpoint)
-        .accept(MediaType.APPLICATION_JSON)
+        .accept(MediaType.APPLICATION_JSON, MediaType.MULTIPART_FORM_DATA)
         .contentType(MediaType.APPLICATION_JSON)
         .header("X-Signature-Ed25519", signature)
         .header("X-Signature-Timestamp", timestamp)
