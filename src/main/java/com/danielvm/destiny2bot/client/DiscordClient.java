@@ -7,6 +7,9 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.service.annotation.GetExchange;
 import reactor.core.publisher.Mono;
 
+/**
+ * This client is responsible for making calls to Discord's API
+ */
 public interface DiscordClient {
 
   /**

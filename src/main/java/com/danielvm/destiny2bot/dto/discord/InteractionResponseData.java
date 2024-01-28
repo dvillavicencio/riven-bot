@@ -1,11 +1,15 @@
 package com.danielvm.destiny2bot.dto.discord;
 
 import java.util.List;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Data
 @Builder
+@AllArgsConstructor
+@NoArgsConstructor
 public class InteractionResponseData {
 
   /**
@@ -27,6 +31,11 @@ public class InteractionResponseData {
    * List of components in the message
    */
   private List<Component> components;
+
+  /**
+   * List of partial attachments to send
+   */
+  private List<Attachment> attachments;
 
   /**
    * Whether this message should be secret or not (disappears after a time)

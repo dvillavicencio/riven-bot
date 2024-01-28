@@ -1,4 +1,4 @@
-package com.danielvm.destiny2bot.factory;
+package com.danielvm.destiny2bot.factory.creator;
 
 import com.danielvm.destiny2bot.dto.discord.Choice;
 import com.danielvm.destiny2bot.dto.discord.Interaction;
@@ -9,8 +9,8 @@ import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
 
 @Component
-public class RaidStatsMessageCreator implements CommandResponseCreator,
-    AutocompleteResponseSourceCreator {
+public class RaidStatsMessageCreator implements ApplicationCommandSource,
+    AutocompleteSource {
 
   private static final String CHOICE_FORMAT = "[%s] %s - %s";
   private final DestinyCharacterService destinyCharacterService;

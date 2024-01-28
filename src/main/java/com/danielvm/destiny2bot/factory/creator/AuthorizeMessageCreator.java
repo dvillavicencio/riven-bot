@@ -1,4 +1,4 @@
-package com.danielvm.destiny2bot.factory;
+package com.danielvm.destiny2bot.factory.creator;
 
 import static com.danielvm.destiny2bot.enums.InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE;
 
@@ -13,7 +13,7 @@ import java.util.List;
 import reactor.core.publisher.Mono;
 
 @org.springframework.stereotype.Component
-public class AuthorizeMessageCreator implements CommandResponseCreator {
+public class AuthorizeMessageCreator implements ApplicationCommandSource {
 
   public static final String MESSAGE_TITLE = "**Link Bungie and Discord accounts here**";
   public static final String MESSAGE_DESCRIPTION = """
