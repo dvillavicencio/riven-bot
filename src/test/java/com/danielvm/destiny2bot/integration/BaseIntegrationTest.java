@@ -5,6 +5,7 @@ import com.danielvm.destiny2bot.config.DiscordConfiguration;
 import com.danielvm.destiny2bot.dto.discord.Interaction;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.r2dbc.spi.ConnectionFactoryOptions;
 import java.nio.charset.StandardCharsets;
 import java.security.KeyPair;
 import java.security.PublicKey;
@@ -26,6 +27,8 @@ import org.springframework.test.web.reactive.server.WebTestClient;
 import org.springframework.test.web.reactive.server.WebTestClient.ResponseSpec;
 import org.springframework.web.reactive.function.BodyInserters;
 import org.testcontainers.containers.GenericContainer;
+import org.testcontainers.containers.PostgreSQLContainer;
+import org.testcontainers.containers.PostgreSQLR2DBCDatabaseContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import software.pando.crypto.nacl.Crypto;
@@ -37,10 +40,20 @@ import software.pando.crypto.nacl.Crypto;
 public abstract class BaseIntegrationTest {
 
   @Container
-  static final GenericContainer<?> REDIS_CONTAINER = new GenericContainer<>("redis:5.0.3-alpine")
-      .withExposedPorts(6379);
+  public static final PostgreSQLContainer<?> POSTGRES_SQL_CONTAINER = new PostgreSQLContainer<>(
+      "postgres:16.1")
+      .withDatabaseName("riven_of_a_thousand_servers")
+      .withUsername("username")
+      .withPassword("password");
+
+  @Container
+  private static final GenericContainer<?> REDIS_CONTAINER = new GenericContainer<>(
+      "redis:5.0.3-alpine").withExposedPorts(6379);
+
   private static final String MALICIOUS_PRIVATE_KEY = "CE4517095255B0C92D586AF9EEC27B998D68775363F9FE74341483FB3A657CEC";
+
   private static final String VALID_PRIVATE_KEY = "F0EA3A0516695324C03ED552CD5A08A58CA1248172E8816C3BF235E52E75A7BF";
+
   @LocalServerPort
   protected int localServerPort;
 

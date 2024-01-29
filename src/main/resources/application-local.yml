@@ -3,6 +3,19 @@ spring:
     redis:
       port: 6379
       host: localhost
+  r2dbc:
+    url: r2dbc:postgresql://localhost:5432/postgres
+    username: postgres
+    password: mysecretpassword
+  h2:
+    console:
+      enabled: true
+  flyway:
+    enabled: true
+    url: jdbc:postgresql://localhost:5432/postgres
+    user: postgres
+    password: mysecretpassword
+    locations: classpath:db/migration
 
 bungie:
   api:
@@ -20,4 +33,4 @@ server:
 application:
   callback:
     # Replace with your own callback url masking port 8080 to run locally
-    url: https://8cc5-2600-1700-4390-a930-bd4e-274b-69ec-53d4.ngrok-free.app
+    url: https://2d13-2600-1700-4390-a930-88d3-1a5f-5ca0-212e.ngrok-free.app

@@ -3,6 +3,12 @@ spring:
     redis:
       port: 6379
       host: redis
+  flyway:
+    enabled: true
+  datasource:
+    url: #TBD
+    username: #TBD
+    password: #TBD
 
 server:
   port: 443
