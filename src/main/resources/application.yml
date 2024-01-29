@@ -3,6 +3,12 @@ spring:
     redis:
       port: 6379
       host: redis
+  flyway:
+    enabled: true
+  datasource:
+    url: # TODO: Define production parameters
+    username: # TODO: Define production parameters
+    password: #TODO: Define production parameters
 
 server:
   port: 443
