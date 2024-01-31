@@ -1,20 +1,20 @@
-CREATE TABLE IF NOT EXISTS bungie_user
+CREATE TABLE IF NOT EXISTS bot_user
 (
     discord_id              BIGINT PRIMARY KEY,
-    discord_username        VARCHAR(50)         NOT NULL,
-    bungie_membership_id    BIGINT UNIQUE       NOT NULL,
-    bungie_access_token     VARCHAR(250) UNIQUE NOT NULL,
-    bungie_refresh_token    VARCHAR(250) UNIQUE NOT NULL,
-    bungie_token_expiration BIGINT              NOT NULL
+    discord_username        VARCHAR(50)  NOT NULL,
+    bungie_membership_id    BIGINT       NOT NULL,
+    bungie_access_token     VARCHAR(250) NOT NULL,
+    bungie_refresh_token    VARCHAR(250) NOT NULL,
+    bungie_token_expiration BIGINT       NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS bungie_user_character
 (
-    character_id   BIGINT PRIMARY KEY,
-    light_level    INTEGER     NOT NULL,
-    destiny_class  VARCHAR(10) NOT NULL,
-    bungie_user_id BIGINT,
-    FOREIGN KEY (bungie_user_id) REFERENCES bungie_user (bungie_membership_id)
+    character_id    BIGINT PRIMARY KEY,
+    light_level     INTEGER     NOT NULL,
+    destiny_class   VARCHAR(10) NOT NULL,
+    discord_user_id BIGINT,
+    CONSTRAINT user_fk FOREIGN KEY (discord_user_id) REFERENCES bot_user (discord_id)
 );
 
 CREATE TABLE IF NOT EXISTS character_raid
@@ -29,7 +29,7 @@ CREATE TABLE IF NOT EXISTS character_raid
     kill_death_assists   DECIMAL      NOT NULL,
     raid_duration        INTEGER      NOT NULL,
     user_character_id    BIGINT,
-    FOREIGN KEY (user_character_id) REFERENCES bungie_user_character (character_id)
+    CONSTRAINT user_character_fk FOREIGN KEY (user_character_id) REFERENCES bungie_user_character (character_id)
 );
 
 CREATE TABLE IF NOT EXISTS raid_participant
