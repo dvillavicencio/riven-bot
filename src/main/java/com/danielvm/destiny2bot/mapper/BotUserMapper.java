@@ -4,9 +4,7 @@ import com.danielvm.destiny2bot.entity.BotUser;
 import io.r2dbc.spi.Row;
 import java.util.ArrayList;
 import java.util.function.BiFunction;
-import org.springframework.stereotype.Component;
 
-@Component
 public class BotUserMapper implements BiFunction<Row, Object, BotUser> {
 
   @Override

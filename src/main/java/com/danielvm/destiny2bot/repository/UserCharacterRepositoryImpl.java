@@ -10,17 +10,15 @@ import reactor.core.publisher.Mono;
 @Repository
 public class UserCharacterRepositoryImpl implements UserCharacterRepository {
 
-  private static final String INSERT_CHARACTER_QUERY = """
+  private static final UserCharacterMapper USER_CHARACTER_MAPPER = new UserCharacterMapper();
+  public static final String INSERT_CHARACTER_QUERY = """
       INSERT INTO bungie_user_character (character_id, light_level, destiny_class, discord_user_id)
       VALUES (:characterId, :lightLevel, :destinyClass, :discordUserId)""";
 
-  private final UserCharacterMapper userCharacterMapper;
   private final DatabaseClient databaseClient;
 
   public UserCharacterRepositoryImpl(
-      UserCharacterMapper userCharacterMapper,
       DatabaseClient databaseClient) {
-    this.userCharacterMapper = userCharacterMapper;
     this.databaseClient = databaseClient;
   }
 
@@ -34,7 +32,7 @@ public class UserCharacterRepositoryImpl implements UserCharacterRepository {
     );
     return databaseClient.sql(INSERT_CHARACTER_QUERY)
         .bindValues(saveParameters)
-        .map(userCharacterMapper::apply)
+        .map(USER_CHARACTER_MAPPER::apply)
         .one();
   }
 }
