@@ -33,4 +33,4 @@ server:
 application:
   callback:
     # Replace with your own callback url masking port 8080 to run locally
-    url: https://2d13-2600-1700-4390-a930-88d3-1a5f-5ca0-212e.ngrok-free.app
+    url: https://c3ee-2600-1700-4390-a930-19b5-f155-e766-6d6.ngrok-free.app

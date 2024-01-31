@@ -31,7 +31,7 @@ ext {
     set('apacheCollectionsVersion', '4.4')
     set('pandoCryptoVersion', '1.1.1')
     set('postgresqlVersion', '42.5.1')
-    set('postgresR2dbcVersion', '0.8.13.RELEASE')
+    set('postgresR2dbcVersion', '1.0.4.RELEASE')
     set('flywayCoreVersion', '10.6.0')
     set('flywayPostgresVersion', '10.4.1')
     set('commonsCodecVersion', '1.15')
@@ -57,17 +57,18 @@ jar {
 dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-validation'
     implementation 'org.springframework.boot:spring-boot-starter-data-redis'
+    implementation 'org.springframework.boot:spring-boot-starter-data-r2dbc'
+    implementation 'org.springframework.session:spring-session-data-redis'
     implementation 'org.springframework.boot:spring-boot-starter-webflux'
     implementation 'org.springframework.boot:spring-boot-starter-web'
     implementation 'org.springframework.boot:spring-boot-devtools'
-    implementation 'org.springframework.session:spring-session-data-redis'
     implementation "net.i2p.crypto:eddsa:${i2pCryptoVersion}"
     implementation "commons-io:commons-io:${IOCommonsVersion}"
     implementation "org.projectlombok:lombok:${lombokVersion}"
     implementation "org.aspectj:aspectjrt:${aspectJRTVersion}"
     implementation "org.flywaydb:flyway-core:${flywayCoreVersion}"
     implementation "org.postgresql:postgresql:${postgresqlVersion}"
-    implementation "io.r2dbc:r2dbc-postgresql:${postgresR2dbcVersion}"
+    implementation "org.postgresql:r2dbc-postgresql:${postgresR2dbcVersion}"
     implementation "org.aspectj:aspectjweaver:${aspectJWeaverVersion}"
     implementation "commons-codec:commons-codec:${commonsCodecVersion}"
     implementation "software.pando.crypto:salty-coffee:${pandoCryptoVersion}"
