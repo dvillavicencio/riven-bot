@@ -57,8 +57,8 @@ public class InteractionsController {
           return containsAttachments ? multipartFormResponse(interaction, response) :
               Mono.just(ResponseEntity.ok(response));
         })
-        .doOnSubscribe(i -> log.debug("Received interaction: [{}]", interaction))
-        .doOnSuccess(i -> log.debug("Completed interaction: [{}]", i));
+        .doOnSubscribe(i -> log.info("Received interaction: [{}]", interaction))
+        .doOnSuccess(i -> log.info("Completed interaction: [{}]", i));
   }
 
   private Mono<ResponseEntity<MultiValueMap<String, HttpEntity<?>>>> multipartFormResponse(

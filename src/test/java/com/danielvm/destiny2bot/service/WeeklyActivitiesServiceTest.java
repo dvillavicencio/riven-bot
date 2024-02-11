@@ -5,7 +5,7 @@ import static org.mockito.Mockito.when;
 import com.danielvm.destiny2bot.client.BungieClient;
 import com.danielvm.destiny2bot.client.BungieClientWrapper;
 import com.danielvm.destiny2bot.dto.WeeklyActivity;
-import com.danielvm.destiny2bot.dto.destiny.GenericResponse;
+import com.danielvm.destiny2bot.dto.destiny.BungieResponse;
 import com.danielvm.destiny2bot.dto.destiny.manifest.DisplayProperties;
 import com.danielvm.destiny2bot.dto.destiny.manifest.ResponseFields;
 import com.danielvm.destiny2bot.dto.destiny.milestone.ActivitiesDto;
@@ -46,7 +46,7 @@ public class WeeklyActivitiesServiceTest {
     var endTime = ZonedDateTime.now().plusDays(2L);
     var activitiesNoWeekly = List.of(new ActivitiesDto("1262462921", Collections.emptyList()));
     var activitiesWeekly = List.of(new ActivitiesDto("2823159265", List.of("897950155")));
-    var milestoneResponse = new GenericResponse<>(
+    var milestoneResponse = new BungieResponse<>(
         Map.of(
             "526718853", new MilestoneEntry("526718853",
                 startTime, endTime, activitiesNoWeekly),
@@ -64,7 +64,7 @@ public class WeeklyActivitiesServiceTest {
 
     var activityWithType = new ResponseFields();
     activityWithType.setActivityTypeHash("608898761");
-    var raidActivityEntity = new GenericResponse<>(activityWithType);
+    var raidActivityEntity = new BungieResponse<>(activityWithType);
 
     when(
         bungieClientWrapper.getManifestEntityRx(ManifestEntity.ACTIVITY_DEFINITION, "2823159265"))
@@ -73,7 +73,7 @@ public class WeeklyActivitiesServiceTest {
     var raidResponseFields = new ResponseFields();
     raidResponseFields.setDisplayProperties(
         new DisplayProperties("someDescription", "Raid", null, null, false));
-    var activityTypeEntity = new GenericResponse<>(raidResponseFields);
+    var activityTypeEntity = new BungieResponse<>(raidResponseFields);
 
     when(bungieClientWrapper.getManifestEntityRx(ManifestEntity.ACTIVITY_TYPE_DEFINITION,
         "608898761"))
@@ -83,7 +83,7 @@ public class WeeklyActivitiesServiceTest {
     var lastWishDisplayProperties = new DisplayProperties("Delve into the Last Wish raid",
         "The Last Wish", null, null, false);
     milestoneResponseFields.setDisplayProperties(lastWishDisplayProperties);
-    var milestoneEntity = new GenericResponse<>(milestoneResponseFields);
+    var milestoneEntity = new BungieResponse<>(milestoneResponseFields);
 
     when(
         bungieClientWrapper.getManifestEntityRx(ManifestEntity.MILESTONE_DEFINITION, "3618845105"))
@@ -111,7 +111,7 @@ public class WeeklyActivitiesServiceTest {
     var endTime = ZonedDateTime.now().plusDays(2L);
     var activitiesNoWeekly = List.of(new ActivitiesDto("1262462921", Collections.emptyList()));
     var activitiesWeekly = List.of(new ActivitiesDto("2823159265", List.of("897950155")));
-    var milestoneResponse = new GenericResponse<>(
+    var milestoneResponse = new BungieResponse<>(
         Map.of(
             "526718853", new MilestoneEntry("526718853",
                 startTime, endTime, activitiesNoWeekly),
@@ -129,7 +129,7 @@ public class WeeklyActivitiesServiceTest {
 
     var activityWithType = new ResponseFields();
     activityWithType.setActivityTypeHash("608898761");
-    var raidActivityEntity = new GenericResponse<>(activityWithType);
+    var raidActivityEntity = new BungieResponse<>(activityWithType);
 
     when(bungieClientWrapper.getManifestEntityRx(ManifestEntity.ACTIVITY_DEFINITION, "2823159265"))
         .thenReturn(Mono.just(raidActivityEntity));
@@ -137,7 +137,7 @@ public class WeeklyActivitiesServiceTest {
     var dungeonResponseFields = new ResponseFields();
     dungeonResponseFields.setDisplayProperties(
         new DisplayProperties("someDescription", "Dungeon", null, null, false));
-    var activityTypeEntity = new GenericResponse<>(dungeonResponseFields);
+    var activityTypeEntity = new BungieResponse<>(dungeonResponseFields);
 
     when(bungieClientWrapper.getManifestEntityRx(ManifestEntity.ACTIVITY_TYPE_DEFINITION,
         "608898761"))
@@ -147,7 +147,7 @@ public class WeeklyActivitiesServiceTest {
     var dualityDisplayProperties = new DisplayProperties("Calus' mind as a dungeon lol",
         "Duality", null, null, false);
     milestoneResponseFields.setDisplayProperties(dualityDisplayProperties);
-    var milestoneEntity = new GenericResponse<>(milestoneResponseFields);
+    var milestoneEntity = new BungieResponse<>(milestoneResponseFields);
 
     when(bungieClientWrapper.getManifestEntityRx(ManifestEntity.MILESTONE_DEFINITION, "3618845105"))
         .thenReturn(Mono.just(milestoneEntity));
@@ -173,7 +173,7 @@ public class WeeklyActivitiesServiceTest {
     var startTime = ZonedDateTime.now();
     var endTime = ZonedDateTime.now().plusDays(2L);
     var activitiesNoWeekly = List.of(new ActivitiesDto("1262462921", Collections.emptyList()));
-    var milestoneResponse = new GenericResponse<>(
+    var milestoneResponse = new BungieResponse<>(
         Map.of(
             "526718853", new MilestoneEntry("526718853",
                 startTime, endTime, activitiesNoWeekly),
