@@ -26,13 +26,13 @@ import reactor.core.publisher.Mono;
 @Slf4j
 public class WeeklyActivitiesService {
 
-  private final BungieClient bungieClient;
+  private final BungieClient defaultBungieClient;
   private final BungieClientWrapper bungieClientWrapper;
 
   public WeeklyActivitiesService(
-      BungieClient bungieClient,
+      BungieClient defaultBungieClient,
       BungieClientWrapper bungieClientWrapper) {
-    this.bungieClient = bungieClient;
+    this.defaultBungieClient = defaultBungieClient;
     this.bungieClientWrapper = bungieClientWrapper;
   }
 
@@ -43,7 +43,7 @@ public class WeeklyActivitiesService {
    * @return {@link MilestoneResponse}
    */
   public Mono<WeeklyActivity> getWeeklyActivity(ActivityMode activityMode) {
-    return bungieClient.getPublicMilestonesRx()
+    return defaultBungieClient.getPublicMilestonesRx()
         .map(BungieResponse::getResponse)
         .flatMapIterable(Map::values)
         .filter(this::hasWeeklyObjectives)

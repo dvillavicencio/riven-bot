@@ -20,7 +20,7 @@ public class Interaction implements Serializable {
   /**
    * The Id of the interaction
    */
-  private Object id;
+  private Long id;
 
   /**
    * The Id of the application
@@ -42,4 +42,9 @@ public class Interaction implements Serializable {
    * Member Data of the user that invoked the command
    */
   private Member member;
+
+  /**
+   * Continuation token
+   */
+  private String token;
 }

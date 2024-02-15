@@ -2,14 +2,12 @@ package com.danielvm.destiny2bot;
 
 import com.danielvm.destiny2bot.exception.ExternalServiceException;
 import com.danielvm.destiny2bot.exception.InternalServerException;
-import com.danielvm.destiny2bot.filter.CachingRequestBodyFilter;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import java.nio.charset.StandardCharsets;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.cache.concurrent.ConcurrentMapCacheManager;
@@ -42,14 +40,6 @@ public class Destiny2botApplication {
   @Bean
   CacheManager inMemoryCacheManager() {
     return new ConcurrentMapCacheManager();
-  }
-
-  @Bean
-  public FilterRegistrationBean<CachingRequestBodyFilter> signatureValidationFilterBean() {
-    FilterRegistrationBean<CachingRequestBodyFilter> registrationBean = new FilterRegistrationBean<>();
-    registrationBean.setFilter(new CachingRequestBodyFilter());
-    registrationBean.addUrlPatterns("/interactions");
-    return registrationBean;
   }
 
   /**

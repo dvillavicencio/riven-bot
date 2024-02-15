@@ -2,9 +2,13 @@ package com.danielvm.destiny2bot.client;
 
 import com.danielvm.destiny2bot.dto.discord.DiscordUserResponse;
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.MediaType;
+import org.springframework.util.MultiValueMap;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.service.annotation.GetExchange;
+import org.springframework.web.service.annotation.PatchExchange;
 import reactor.core.publisher.Mono;
 
 /**
@@ -21,4 +25,9 @@ public interface DiscordClient {
   @GetExchange("/users/@me")
   Mono<DiscordUserResponse> getUser(
       @RequestHeader(HttpHeaders.AUTHORIZATION) String bearerToken);
+
+  @PatchExchange(value = "/webhooks/1109351854934065213/{interactionToken}/messages/@original", contentType = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
+  Mono<Void> editOriginalInteraction(
+      @PathVariable String interactionToken,
+      @RequestBody MultiValueMap<String, String> interactionResponse);
 }

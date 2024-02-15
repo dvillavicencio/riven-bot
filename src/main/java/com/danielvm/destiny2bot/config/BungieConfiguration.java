@@ -5,6 +5,8 @@ import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.support.WebClientAdapter;
 import org.springframework.web.service.invoker.HttpServiceProxyFactory;
@@ -40,6 +42,11 @@ public class BungieConfiguration implements OAuth2Configuration {
   private String baseUrl;
 
   /**
+   * Base URL for stats endpoint
+   */
+  private String statsBaseUrl;
+
+  /**
    * Url for Bungie Token endpoint
    */
   private String tokenUrl;
@@ -54,11 +61,27 @@ public class BungieConfiguration implements OAuth2Configuration {
    */
   private String callbackUrl;
 
-  @Bean
+  @Bean("defaultBungieClient")
   public BungieClient bungieCharacterClient(WebClient.Builder builder) {
     var webClient = builder
         .baseUrl(this.baseUrl)
         .defaultHeader(API_KEY_HEADER_NAME, this.key)
+        .codecs(clientCodecConfigurer -> clientCodecConfigurer.defaultCodecs()
+            .maxInMemorySize(1024 * 1024))
+        .build();
+    return HttpServiceProxyFactory.builder()
+        .exchangeAdapter(WebClientAdapter.create(webClient))
+        .build()
+        .createClient(BungieClient.class);
+  }
+
+  @Bean(name = "pgcrBungieClient")
+  public BungieClient pgcrBungieClient(WebClient.Builder builder) {
+    var webClient = builder
+        .baseUrl(this.statsBaseUrl)
+        .defaultHeader(API_KEY_HEADER_NAME, this.key)
+        .defaultHeader(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
+        .defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
         .build();
     return HttpServiceProxyFactory.builder()
         .exchangeAdapter(WebClientAdapter.create(webClient))

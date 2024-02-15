@@ -1,7 +1,9 @@
 package com.danielvm.destiny2bot.client;
 
+import com.danielvm.destiny2bot.dto.destiny.ActivitiesResponse;
 import com.danielvm.destiny2bot.dto.destiny.BungieResponse;
 import com.danielvm.destiny2bot.dto.destiny.MemberGroupResponse;
+import com.danielvm.destiny2bot.dto.destiny.PostGameCarnageReport;
 import com.danielvm.destiny2bot.dto.destiny.SearchResult;
 import com.danielvm.destiny2bot.dto.destiny.UserGlobalSearchBody;
 import com.danielvm.destiny2bot.dto.destiny.characters.CharactersResponse;
@@ -90,8 +92,12 @@ public interface BungieClient {
   );
 
   @GetExchange("/Destiny2/{membershipType}/Account/{destinyMembershipId}/Character/{characterId}/Stats/Activities/")
-  Mono<> getActivityHistory(@PathVariable Integer membershipType,
-      @PathVariable Long destinyMembershipId, @PathVariable Long characterId,
+  Mono<BungieResponse<ActivitiesResponse>> getActivityHistory(@PathVariable Integer membershipType,
+      @PathVariable String destinyMembershipId, @PathVariable String characterId,
       @RequestParam Integer count, @RequestParam Integer mode, @RequestParam Integer page);
 
+  @GetExchange("/Destiny2/Stats/PostGameCarnageReport/{activityId}/")
+  Mono<BungieResponse<PostGameCarnageReport>> getPostGameCarnageReport(
+      @PathVariable Long activityId
+  );
 }

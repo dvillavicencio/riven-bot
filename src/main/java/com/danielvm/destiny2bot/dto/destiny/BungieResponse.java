@@ -6,7 +6,6 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-
 /**
  * Most of the responses from Bungie.net have a Json element named 'Response' with arbitrary info
  * depending on the endpoint. This field is just a generic-wrapper for it. It also includes some
@@ -20,16 +19,4 @@ public class BungieResponse<T> {
   @JsonAlias("Response")
   @Nullable
   private T response;
-
-  @JsonAlias("ErrorCode")
-  private Integer errorCode;
-
-  @JsonAlias("ThrottleSeconds")
-  private Integer throttleSeconds;
-
-  @JsonAlias("ErrorStatus")
-  private String errorStatus;
-
-  @JsonAlias("Message")
-  private String message;
 }

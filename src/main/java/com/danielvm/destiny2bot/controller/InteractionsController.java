@@ -2,7 +2,6 @@ package com.danielvm.destiny2bot.controller;
 
 import static com.danielvm.destiny2bot.util.HttpUtil.prepareMultipartPayload;
 
-import com.danielvm.destiny2bot.annotation.ValidSignature;
 import com.danielvm.destiny2bot.dto.discord.Interaction;
 import com.danielvm.destiny2bot.dto.discord.InteractionResponse;
 import com.danielvm.destiny2bot.service.ImageAssetService;
@@ -19,7 +18,6 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.util.ContentCachingRequestWrapper;
 import reactor.core.publisher.Mono;
 
 @Slf4j
@@ -47,9 +45,7 @@ public class InteractionsController {
    * corresponding bytes, else an {@link InteractionResponse}
    */
   @PostMapping("/interactions")
-  public Mono<ResponseEntity<?>> interactions(
-      @RequestBody Interaction interaction,
-      @ValidSignature ContentCachingRequestWrapper request) {
+  public Mono<ResponseEntity<?>> interactions(@RequestBody Interaction interaction) {
     return interactionService.handleInteraction(interaction)
         .flatMap(response -> {
           boolean containsAttachments = response.getType() != 1 && CollectionUtils.isNotEmpty(

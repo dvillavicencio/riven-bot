@@ -37,4 +37,4 @@ application:
 
 logging:
   level:
-    this: debug
+    org.springframework.http.converter.json: DEBUG
