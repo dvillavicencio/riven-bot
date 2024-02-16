@@ -4,7 +4,7 @@ import com.danielvm.destiny2bot.client.BungieClient;
 import com.danielvm.destiny2bot.client.BungieClientWrapper;
 import com.danielvm.destiny2bot.dto.RaidEntry;
 import com.danielvm.destiny2bot.dto.destiny.Activity;
-import com.danielvm.destiny2bot.dto.destiny.CharacterRaidStatistics;
+import com.danielvm.destiny2bot.dto.destiny.RaidStatistics;
 import com.danielvm.destiny2bot.dto.discord.Interaction;
 import com.danielvm.destiny2bot.enums.ManifestEntity;
 import java.util.Map;
@@ -34,41 +34,49 @@ public class RaidStatsService {
     this.bungieClientWrapper = bungieClientWrapper;
   }
 
-  private static CharacterRaidStatistics createRaidStatistics(CharacterRaidStatistics stats,
-      RaidEntry raidEntry) {
+  private static RaidStatistics createRaidStatistics(RaidStatistics stats, RaidEntry raidEntry) {
     stats.setTotalKills(stats.getTotalKills() + raidEntry.getTotalKills());
     stats.setTotalDeaths(stats.getTotalDeaths() + raidEntry.getTotalDeaths());
-    stats.setTotalRuns(stats.getTotalRuns() + 1);
     if (raidEntry.getIsCompleted()) {
-      stats.setClears(stats.getClears() + 1);
+      stats.setTotalClears(stats.getTotalClears() + 1);
       if (raidEntry.getIsFromBeginning()) {
         stats.setFastestTime(Math.min(stats.getFastestTime(), raidEntry.getDuration()));
         stats.setFullClears(stats.getFullClears() + 1);
       }
-    } else {
-      stats.setUncompleted(stats.getUncompleted() + 1);
     }
     return stats;
   }
 
-  public Mono<Map<String, CharacterRaidStatistics>> retrieveRaidStatsForUser(
+  /**
+   * Retrieve user raid statistics based on the given interaction data
+   *
+   * @param interaction The Discord command interaction
+   * @return Map of Raid Statistics, the key will be the raid you want stats for
+   */
+  public Mono<Map<String, RaidStatistics>> calculateRaidLevelStats(
       Interaction interaction) {
-    String membershipId = (String) interaction.getData().getOptions().get(0).getValue();
-    return defaultBungieClient.getUserCharacters(3, membershipId)
+    var parsedData = ((String) interaction.getData().getOptions().get(0).getValue()).split(":");
+    String membershipId = parsedData[0];
+    Integer membershipType = Integer.valueOf(parsedData[1]);
+
+    return defaultBungieClient.getUserCharacters(membershipType, membershipId)
         .flatMapMany(userCharacter -> Flux.fromIterable(
             userCharacter.getResponse().getCharacters().getData().keySet()))
-        .flatMap(characterId -> getActivities(membershipId, characterId))
+        .flatMap(characterId -> getActivities(membershipType, membershipId, characterId))
         .flatMap(this::createRaidEntry)
-        .flatMap(this::addPGCRDetails, 25)
+        .flatMap(this::addPGCRDetails, 5)
         .groupBy(RaidEntry::getRaidName)
-        .flatMap(group -> group.reduce(new CharacterRaidStatistics(group.key()),
+        .flatMap(group -> group.reduce(new RaidStatistics(group.key()),
             RaidStatsService::createRaidStatistics))
-        .collectMap(CharacterRaidStatistics::getRaidName, characterRaidStatistics -> {
-          if (characterRaidStatistics.getFastestTime() == Integer.MAX_VALUE) {
-            characterRaidStatistics.setFastestTime(0);
+        .collectMap(RaidStatistics::getRaidName, raidStatistics -> {
+          if (raidStatistics.getFastestTime() == Integer.MAX_VALUE) {
+            raidStatistics.setFastestTime(0);
           }
-          return characterRaidStatistics;
-        });
+          return raidStatistics;
+        })
+        .doOnSubscribe(c -> log.info("Calculating raid statistics for user [{}]", parsedData[2]))
+        .doOnSuccess(
+            c -> log.info("Finished calculating raid statistics for user [{}]", parsedData[2]));
   }
 
   private Mono<RaidEntry> addPGCRDetails(RaidEntry raidEntry) {
@@ -79,13 +87,14 @@ public class RaidStatsService {
         });
   }
 
-  private Flux<Activity> getActivities(String membershipId, String characterId) {
+  private Flux<Activity> getActivities(Integer membershipType, String membershipId,
+      String characterId) {
     return Flux.range(0, 25)
         .flatMapSequential(
-            page -> defaultBungieClient.getActivityHistory(3, membershipId, characterId,
-                MAX_PAGE_COUNT, RAID_MODE, page))
+            page -> defaultBungieClient.getActivityHistory(membershipType, membershipId,
+                characterId, MAX_PAGE_COUNT, RAID_MODE, page))
         .filter(activities -> CollectionUtils.isNotEmpty(activities.getResponse().getActivities()))
-        .takeUntil(activities -> activities.getResponse().getActivities().size() < 250)
+        .takeUntil(activities -> activities.getResponse().getActivities().size() < MAX_PAGE_COUNT)
         .flatMapIterable(response -> response.getResponse().getActivities());
   }
 

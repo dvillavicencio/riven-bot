@@ -6,7 +6,7 @@ import static org.mockito.Mockito.when;
 import com.danielvm.destiny2bot.config.DiscordConfiguration;
 import com.danielvm.destiny2bot.dto.discord.Component;
 import com.danielvm.destiny2bot.enums.InteractionResponseType;
-import com.danielvm.destiny2bot.factory.creator.AuthorizeMessageCreator;
+import com.danielvm.destiny2bot.factory.handler.AuthorizeHandler;
 import com.danielvm.destiny2bot.util.OAuth2Util;
 import java.util.List;
 import java.util.Objects;
@@ -20,13 +20,13 @@ import reactor.test.StepVerifier;
 import reactor.test.StepVerifier.FirstStep;
 
 @ExtendWith(MockitoExtension.class)
-public class AuthorizeMessageCreatorTest {
+public class AuthorizeHandlerTest {
 
   @Mock
   DiscordConfiguration discordConfiguration;
 
   @InjectMocks
-  AuthorizeMessageCreator sut;
+  AuthorizeHandler sut;
 
   @Test
   @DisplayName("Create message is successful")
@@ -77,8 +77,8 @@ public class AuthorizeMessageCreatorTest {
               InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE.getType());
 
           assertThat(embedded.getDescription()).isEqualTo(
-              AuthorizeMessageCreator.MESSAGE_DESCRIPTION);
-          assertThat(embedded.getTitle()).isEqualTo(AuthorizeMessageCreator.MESSAGE_TITLE);
+              AuthorizeHandler.MESSAGE_DESCRIPTION);
+          assertThat(embedded.getTitle()).isEqualTo(AuthorizeHandler.MESSAGE_TITLE);
 
           assertThat(whyComponent).isNotNull();
           assertThat(whyComponent).isEqualTo(whyButton);

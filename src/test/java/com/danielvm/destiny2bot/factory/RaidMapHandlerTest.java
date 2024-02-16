@@ -17,7 +17,7 @@ import com.danielvm.destiny2bot.enums.InteractionResponseType;
 import com.danielvm.destiny2bot.enums.InteractionType;
 import com.danielvm.destiny2bot.enums.Raid;
 import com.danielvm.destiny2bot.enums.RaidEncounter;
-import com.danielvm.destiny2bot.factory.creator.RaidMapMessageCreator;
+import com.danielvm.destiny2bot.factory.handler.RaidMapHandler;
 import com.danielvm.destiny2bot.service.ImageAssetService;
 import java.io.IOException;
 import java.util.List;
@@ -34,13 +34,13 @@ import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
 @ExtendWith(MockitoExtension.class)
-public class RaidMapMessageCreatorTest {
+public class RaidMapHandlerTest {
 
   @Mock
   private ImageAssetService imageAssetService;
 
   @InjectMocks
-  private RaidMapMessageCreator sut;
+  private RaidMapHandler sut;
 
   @Test
   @DisplayName("Creating autocomplete response works correctly")
@@ -51,7 +51,7 @@ public class RaidMapMessageCreatorTest {
         .id(1).name("raid_map").options(options).type(1)
         .build();
     Interaction interaction = Interaction.builder()
-        .id(1).data(data).type(InteractionType.APPLICATION_COMMAND_AUTOCOMPLETE.getType())
+        .id(1L).data(data).type(InteractionType.APPLICATION_COMMAND_AUTOCOMPLETE.getType())
         .build();
 
     List<Choice> choices = RaidEncounter.getRaidEncounters(Raid.LAST_WISH)
@@ -85,7 +85,7 @@ public class RaidMapMessageCreatorTest {
         .id(1).name("raid_map").options(options).type(1)
         .build();
     Interaction interaction = Interaction.builder()
-        .id(1).data(data).type(InteractionType.APPLICATION_COMMAND_AUTOCOMPLETE.getType())
+        .id(1L).data(data).type(InteractionType.APPLICATION_COMMAND_AUTOCOMPLETE.getType())
         .build();
 
     Map<Long, Resource> resourcesMap = Map.of(

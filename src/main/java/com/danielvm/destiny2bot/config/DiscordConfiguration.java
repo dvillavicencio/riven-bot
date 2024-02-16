@@ -60,6 +60,11 @@ public class DiscordConfiguration implements OAuth2Configuration {
    */
   private List<String> scopes;
 
+  /**
+   * The applicationId for the discord bot
+   */
+  private Long applicationId;
+
   @Bean
   public DiscordClient discordClient(WebClient.Builder defaultBuilder) {
     var webClient = defaultBuilder

@@ -1,4 +1,4 @@
-package com.danielvm.destiny2bot.factory.creator;
+package com.danielvm.destiny2bot.factory.handler;
 
 import com.danielvm.destiny2bot.dto.discord.Interaction;
 import com.danielvm.destiny2bot.dto.discord.InteractionResponse;
@@ -17,5 +17,5 @@ public interface MessageComponentSource {
    * @param interaction Interaction data in-case the message component response needs context
    * @return {@link InteractionResponse}
    */
-  Mono<InteractionResponse> messageComponentResponse(Interaction interaction);
+  Mono<InteractionResponse> respond(Interaction interaction);
 }

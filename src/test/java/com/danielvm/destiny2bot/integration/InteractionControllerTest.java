@@ -104,7 +104,7 @@ public class InteractionControllerTest extends BaseIntegrationTest {
     InteractionData weeklyDungeonData = InteractionData.builder()
         .id(2).name("weekly_dungeon").type(1)
         .build();
-    Interaction body = Interaction.builder().id(1)
+    Interaction body = Interaction.builder().id(1L)
         .applicationId("theApplicationId").data(weeklyDungeonData).type(2)
         .build();
 
@@ -179,7 +179,7 @@ public class InteractionControllerTest extends BaseIntegrationTest {
     InteractionData weeklyRaidData = InteractionData.builder()
         .id(2).name("weekly_raid").type(1)
         .build();
-    Interaction body = Interaction.builder().id(1).applicationId("theApplicationId").type(2)
+    Interaction body = Interaction.builder().id(1L).applicationId("theApplicationId").type(2)
         .data(weeklyRaidData).build();
 
     stubFor(get(urlPathEqualTo("/bungie/Destiny2/Milestones/"))
@@ -244,7 +244,7 @@ public class InteractionControllerTest extends BaseIntegrationTest {
     InteractionData weeklyRaidData = InteractionData.builder()
         .id(2).name("weekly_raid").type(1)
         .build();
-    Interaction body = Interaction.builder().id(1).applicationId("theApplicationId").type(2)
+    Interaction body = Interaction.builder().id(1L).applicationId("theApplicationId").type(2)
         .data(weeklyRaidData).build();
 
     stubFor(get(urlPathEqualTo("/bungie/Destiny2/Milestones/"))
@@ -282,7 +282,7 @@ public class InteractionControllerTest extends BaseIntegrationTest {
     InteractionData data = InteractionData.builder()
         .id(2).name("weekly_raid").type(1).build();
     Interaction body = Interaction.builder()
-        .id(1).applicationId("theApplicationId").type(2).data(data)
+        .id(1L).applicationId("theApplicationId").type(2).data(data)
         .build();
 
     // when: the request is sent
@@ -300,7 +300,7 @@ public class InteractionControllerTest extends BaseIntegrationTest {
   @DisplayName("PING interactions with valid signatures are ack'd correctly")
   public void pingRequestsAreAckdCorrectly() throws JsonProcessingException, DecoderException {
     // given: an interaction with an invalid signature
-    Interaction body = Interaction.builder().id(1).applicationId("theApplicationId").type(1)
+    Interaction body = Interaction.builder().id(1L).applicationId("theApplicationId").type(1)
         .build();
 
     // when: the request is sent
@@ -317,7 +317,7 @@ public class InteractionControllerTest extends BaseIntegrationTest {
   @DisplayName("PING interactions with invalid signatures are not ack'd")
   public void invalidPingRequestsAreNotAckd() throws JsonProcessingException, DecoderException {
     // given: an interaction with an invalid signature
-    Interaction body = Interaction.builder().id(1)
+    Interaction body = Interaction.builder().id(1L)
         .applicationId("theApplicationId").type(1)
         .build();
 
@@ -344,7 +344,7 @@ public class InteractionControllerTest extends BaseIntegrationTest {
     InteractionData data = InteractionData.builder().id("2").name("raid_stats").type(1)
         .build();
     Interaction body = Interaction.builder()
-        .id("1").applicationId("theApplicationId").type(4).data(data).member(memberInfo)
+        .id(1L).applicationId("theApplicationId").type(4).data(data).member(memberInfo)
         .build();
 
     // dummy entity in Redis
@@ -404,7 +404,7 @@ public class InteractionControllerTest extends BaseIntegrationTest {
         .id("2").name("raid_stats").type(1)
         .build();
     Interaction body = Interaction.builder()
-        .id("1").applicationId("theApplicationId").type(4).data(data).member(memberInfo)
+        .id(1L).applicationId("theApplicationId").type(4).data(data).member(memberInfo)
         .build();
 
     // dummy entity in Redis
@@ -458,7 +458,7 @@ public class InteractionControllerTest extends BaseIntegrationTest {
         .id("1").name("raid_stats").type(1)
         .build();
     Interaction body = Interaction.builder()
-        .id("1").applicationId("theApplicationId").data(data).member(memberInfo).type(4)
+        .id(1L).applicationId("theApplicationId").data(data).member(memberInfo).type(4)
         .build();
 
     // dummy entity in Redis
@@ -509,7 +509,7 @@ public class InteractionControllerTest extends BaseIntegrationTest {
         .name("raid_map")
         .options(options).build();
     Interaction body = Interaction.builder()
-        .id("someInteractionID")
+        .id(1L)
         .data(data)
         .type(InteractionType.APPLICATION_COMMAND_AUTOCOMPLETE.getType())
         .build();
@@ -550,7 +550,7 @@ public class InteractionControllerTest extends BaseIntegrationTest {
         .name("raid_map")
         .options(options).build();
     Interaction body = Interaction.builder()
-        .id("someInteractionID")
+        .id(1L)
         .data(data)
         .type(InteractionType.APPLICATION_COMMAND.getType())
         .build();
