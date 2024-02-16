@@ -1,7 +1,5 @@
 package com.danielvm.destiny2bot.factory;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 import com.danielvm.destiny2bot.enums.SlashCommand;
 import com.danielvm.destiny2bot.exception.ResourceNotFoundException;
 import com.danielvm.destiny2bot.factory.handler.ApplicationCommandSource;
@@ -17,6 +15,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 @ExtendWith(MockitoExtension.class)
 public class ApplicationCommandFactoryTest {

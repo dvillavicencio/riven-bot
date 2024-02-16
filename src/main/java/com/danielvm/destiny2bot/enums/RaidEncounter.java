@@ -1,10 +1,11 @@
 package com.danielvm.destiny2bot.enums;
 
+import lombok.Getter;
+import reactor.core.publisher.Flux;
+
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
-import lombok.Getter;
-import reactor.core.publisher.Flux;
 
 public enum RaidEncounter {
 
@@ -62,7 +63,7 @@ public enum RaidEncounter {
   DAUGHTERS(Raid.KINGS_FALL, "Daughter's of Oryx", "daughters"),
   ORYX(Raid.KINGS_FALL, "Oryx, the Taken King", "oryx"),
 
-  // Crota's End
+  // Crota's
   STILLS(Raid.CROTAS_END, "The Stills", "stills"),
   BRIDGE(Raid.CROTAS_END, "The Bridge", "bridge"),
   IR_YUT(Raid.CROTAS_END, "Ir Yut, the Deathsinger", "ir_yut"),

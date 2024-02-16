@@ -1,24 +1,9 @@
 package com.danielvm.destiny2bot.integration;
 
-import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
-import static com.github.tomakehurst.wiremock.client.WireMock.equalTo;
-import static com.github.tomakehurst.wiremock.client.WireMock.get;
-import static com.github.tomakehurst.wiremock.client.WireMock.stubFor;
-import static com.github.tomakehurst.wiremock.client.WireMock.urlPathEqualTo;
-import static com.github.tomakehurst.wiremock.client.WireMock.urlPathMatching;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.hamcrest.Matchers.containsString;
-
 import com.danielvm.destiny2bot.dao.UserDetailsReactiveDao;
 import com.danielvm.destiny2bot.dto.destiny.BungieResponse;
 import com.danielvm.destiny2bot.dto.destiny.milestone.MilestoneEntry;
-import com.danielvm.destiny2bot.dto.discord.Choice;
-import com.danielvm.destiny2bot.dto.discord.DiscordUser;
-import com.danielvm.destiny2bot.dto.discord.Interaction;
-import com.danielvm.destiny2bot.dto.discord.InteractionData;
-import com.danielvm.destiny2bot.dto.discord.InteractionResponse;
-import com.danielvm.destiny2bot.dto.discord.Member;
-import com.danielvm.destiny2bot.dto.discord.Option;
+import com.danielvm.destiny2bot.dto.discord.*;
 import com.danielvm.destiny2bot.entity.UserDetails;
 import com.danielvm.destiny2bot.enums.InteractionType;
 import com.danielvm.destiny2bot.enums.ManifestEntity;
@@ -32,12 +17,6 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
-import java.io.File;
-import java.io.IOException;
-import java.time.Instant;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
 import org.apache.commons.codec.DecoderException;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
@@ -48,6 +27,17 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.reactive.server.WebTestClient.ResponseSpec;
+
+import java.io.File;
+import java.io.IOException;
+import java.time.Instant;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+
+import static com.github.tomakehurst.wiremock.client.WireMock.*;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.hamcrest.Matchers.containsString;
 
 public class InteractionControllerTest extends BaseIntegrationTest {
 

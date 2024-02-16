@@ -1,27 +1,13 @@
 package com.danielvm.destiny2bot.factory;
 
-import static com.danielvm.destiny2bot.enums.InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE;
-import static org.assertj.core.api.Assertions.assertThat;
-
 import com.danielvm.destiny2bot.TestUtils;
-import com.danielvm.destiny2bot.dto.discord.Attachment;
-import com.danielvm.destiny2bot.dto.discord.Choice;
-import com.danielvm.destiny2bot.dto.discord.Embedded;
-import com.danielvm.destiny2bot.dto.discord.EmbeddedImage;
-import com.danielvm.destiny2bot.dto.discord.Interaction;
-import com.danielvm.destiny2bot.dto.discord.InteractionData;
-import com.danielvm.destiny2bot.dto.discord.InteractionResponse;
-import com.danielvm.destiny2bot.dto.discord.InteractionResponseData;
-import com.danielvm.destiny2bot.dto.discord.Option;
+import com.danielvm.destiny2bot.dto.discord.*;
 import com.danielvm.destiny2bot.enums.InteractionResponseType;
 import com.danielvm.destiny2bot.enums.InteractionType;
 import com.danielvm.destiny2bot.enums.Raid;
 import com.danielvm.destiny2bot.enums.RaidEncounter;
 import com.danielvm.destiny2bot.factory.handler.RaidMapHandler;
 import com.danielvm.destiny2bot.service.ImageAssetService;
-import java.io.IOException;
-import java.util.List;
-import java.util.Map;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -32,6 +18,13 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.core.io.Resource;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
+
+import java.io.IOException;
+import java.util.List;
+import java.util.Map;
+
+import static com.danielvm.destiny2bot.enums.InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE;
+import static org.assertj.core.api.Assertions.assertThat;
 
 @ExtendWith(MockitoExtension.class)
 public class RaidMapHandlerTest {

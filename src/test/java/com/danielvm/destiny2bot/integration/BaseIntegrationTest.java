@@ -5,10 +5,6 @@ import com.danielvm.destiny2bot.config.DiscordConfiguration;
 import com.danielvm.destiny2bot.dto.discord.Interaction;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import java.nio.charset.StandardCharsets;
-import java.security.KeyPair;
-import java.security.PublicKey;
-import java.time.Instant;
 import org.apache.commons.codec.DecoderException;
 import org.apache.commons.codec.binary.Hex;
 import org.json.JSONException;
@@ -29,10 +25,14 @@ import org.springframework.test.web.reactive.server.WebTestClient;
 import org.springframework.test.web.reactive.server.WebTestClient.ResponseSpec;
 import org.springframework.web.reactive.function.BodyInserters;
 import org.testcontainers.containers.GenericContainer;
-import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import software.pando.crypto.nacl.Crypto;
+
+import java.nio.charset.StandardCharsets;
+import java.security.KeyPair;
+import java.security.PublicKey;
+import java.time.Instant;
 
 @ExtendWith(MockitoExtension.class)
 @SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT, properties = "spring.main.web-application-type=reactive")
@@ -40,13 +40,6 @@ import software.pando.crypto.nacl.Crypto;
 @Testcontainers
 @AutoConfigureWebTestClient
 public abstract class BaseIntegrationTest {
-
-  @Container
-  public static final PostgreSQLContainer<?> POSTGRES_SQL_CONTAINER = new PostgreSQLContainer<>(
-      "postgres:16.1")
-      .withDatabaseName("riven_of_a_thousand_servers")
-      .withUsername("username")
-      .withPassword("password");
 
   @Container
   private static final GenericContainer<?> REDIS_CONTAINER = new GenericContainer<>(
