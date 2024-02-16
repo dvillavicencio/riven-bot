@@ -59,9 +59,6 @@ public abstract class BaseIntegrationTest {
   WebTestClient webTestClient;
 
   @Autowired
-  ReactiveWebApplicationContext reactiveWebApplicationContext;
-
-  @Autowired
   ObjectMapper objectMapper;
 
   @Autowired
