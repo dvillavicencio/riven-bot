@@ -1,5 +1,6 @@
 package com.danielvm.destiny2bot.dto.discord;
 
+import java.io.Serializable;
 import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -10,7 +11,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class InteractionResponseData {
+public class InteractionResponseData implements Serializable {
 
   /**
    * The message content of the InteractionResponse

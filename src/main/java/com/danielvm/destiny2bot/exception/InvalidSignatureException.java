@@ -11,4 +11,8 @@ public class InvalidSignatureException extends BaseException {
   public InvalidSignatureException(String message, Throwable throwable) {
     super(message, HttpStatus.BAD_REQUEST, throwable);
   }
+
+  public InvalidSignatureException(String message) {
+    super(message, HttpStatus.BAD_REQUEST);
+  }
 }

@@ -6,6 +6,7 @@ import com.danielvm.destiny2bot.enums.InteractionType;
 import com.danielvm.destiny2bot.enums.SlashCommand;
 import com.danielvm.destiny2bot.factory.ApplicationCommandFactory;
 import com.danielvm.destiny2bot.factory.AutocompleteFactory;
+import com.danielvm.destiny2bot.factory.MessageComponentFactory;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
@@ -16,12 +17,14 @@ public class InteractionService {
 
   private final ApplicationCommandFactory applicationCommandFactory;
   private final AutocompleteFactory autocompleteFactory;
+  private final MessageComponentFactory messageComponentFactory;
 
   public InteractionService(
       ApplicationCommandFactory applicationCommandFactory,
-      AutocompleteFactory autocompleteFactory) {
+      AutocompleteFactory autocompleteFactory, MessageComponentFactory messageComponentFactory) {
     this.applicationCommandFactory = applicationCommandFactory;
     this.autocompleteFactory = autocompleteFactory;
+    this.messageComponentFactory = messageComponentFactory;
   }
 
   /**
@@ -34,7 +37,11 @@ public class InteractionService {
   public Mono<InteractionResponse> handleInteraction(Interaction interaction) {
     InteractionType interactionType = InteractionType.findByValue(interaction.getType());
     return switch (interactionType) {
-      case MODAL_SUBMIT, MESSAGE_COMPONENT -> Mono.just(new InteractionResponse());
+      case MESSAGE_COMPONENT -> {
+        String componentId = interaction.getData().getCustomId();
+        yield messageComponentFactory.handle(componentId).respond(interaction);
+      }
+      case MODAL_SUBMIT -> Mono.just(new InteractionResponse());
       case APPLICATION_COMMAND_AUTOCOMPLETE -> {
         SlashCommand command = SlashCommand.findByName(interaction.getData().getName());
         yield autocompleteFactory.messageCreator(command).autocompleteResponse(interaction);

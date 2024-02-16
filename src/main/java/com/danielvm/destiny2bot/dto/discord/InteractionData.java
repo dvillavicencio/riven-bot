@@ -50,4 +50,6 @@ public class InteractionData {
    */
   private List<String> values;
 
+  private ResolvedData resolved;
+
 }

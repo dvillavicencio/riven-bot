@@ -17,15 +17,15 @@ import reactor.core.publisher.Mono;
 @Slf4j
 public class DestinyCharacterService {
 
-  private final BungieClient bungieClient;
+  private final BungieClient defaultBungieClient;
   private final UserDetailsReactiveDao userDetailsReactiveDao;
   private final BungieMembershipService bungieMembershipService;
 
   public DestinyCharacterService(
-      BungieClient bungieClient,
+      BungieClient defaultBungieClient,
       UserDetailsReactiveDao userDetailsReactiveDao,
       BungieMembershipService bungieMembershipService) {
-    this.bungieClient = bungieClient;
+    this.defaultBungieClient = defaultBungieClient;
     this.userDetailsReactiveDao = userDetailsReactiveDao;
     this.bungieMembershipService = bungieMembershipService;
   }
@@ -45,7 +45,7 @@ public class DestinyCharacterService {
         .flatMap(membershipResponse -> {
           String membershipId = MembershipUtil.extractMembershipId(membershipResponse);
           Integer membershipType = MembershipUtil.extractMembershipType(membershipResponse);
-          return bungieClient.getUserCharacters(membershipType, membershipId);
+          return defaultBungieClient.getUserCharacters(membershipType, membershipId);
         })
         .flatMapIterable(characters ->
             characters.getResponse().getCharacters().getData().entrySet())

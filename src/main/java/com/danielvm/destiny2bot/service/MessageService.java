@@ -13,5 +13,4 @@ public interface MessageService {
    * @return {@link com.danielvm.destiny2bot.dto.discord.InteractionResponse}
    */
   Mono<InteractionResponse> createResponse(Interaction interaction);
-
 }

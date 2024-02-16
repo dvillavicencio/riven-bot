@@ -1,6 +1,11 @@
 package com.danielvm.destiny2bot.client;
 
-import com.danielvm.destiny2bot.dto.destiny.GenericResponse;
+import com.danielvm.destiny2bot.dto.destiny.ActivitiesResponse;
+import com.danielvm.destiny2bot.dto.destiny.BungieResponse;
+import com.danielvm.destiny2bot.dto.destiny.MemberGroupResponse;
+import com.danielvm.destiny2bot.dto.destiny.PostGameCarnageReport;
+import com.danielvm.destiny2bot.dto.destiny.SearchResult;
+import com.danielvm.destiny2bot.dto.destiny.UserGlobalSearchBody;
 import com.danielvm.destiny2bot.dto.destiny.characters.CharactersResponse;
 import com.danielvm.destiny2bot.dto.destiny.manifest.ResponseFields;
 import com.danielvm.destiny2bot.dto.destiny.membership.MembershipResponse;
@@ -10,8 +15,11 @@ import java.util.Map;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.service.annotation.GetExchange;
+import org.springframework.web.service.annotation.PostExchange;
 import reactor.core.publisher.Mono;
 
 /**
@@ -47,7 +55,7 @@ public interface BungieClient {
    * @return {@link Mono} of {@link ResponseFields}
    */
   @GetExchange("/Destiny2/Manifest/{entityType}/{hashIdentifier}/")
-  Mono<GenericResponse<ResponseFields>> getManifestEntityRx(
+  Mono<BungieResponse<ResponseFields>> getManifestEntityRx(
       @PathVariable(value = "entityType") String entityType,
       @PathVariable(value = "hashIdentifier") String hashIdentifier);
 
@@ -57,7 +65,7 @@ public interface BungieClient {
    * @return {@link Mono} of Map of {@link MilestoneEntry}
    */
   @GetExchange("/Destiny2/Milestones/")
-  Mono<GenericResponse<Map<String, MilestoneEntry>>> getPublicMilestonesRx();
+  Mono<BungieResponse<Map<String, MilestoneEntry>>> getPublicMilestonesRx();
 
   /**
    * Get a user characters
@@ -67,9 +75,29 @@ public interface BungieClient {
    * @return {@link Mono} containing {@link CharactersResponse}
    */
   @GetExchange("/Destiny2/{membershipType}/Profile/{destinyMembershipId}/?components=200")
-  Mono<GenericResponse<CharactersResponse>> getUserCharacters(
+  Mono<BungieResponse<CharactersResponse>> getUserCharacters(
       @PathVariable Integer membershipType,
       @PathVariable String destinyMembershipId
   );
 
+  @PostExchange("/User/Search/GlobalName/{page}/")
+  Mono<BungieResponse<SearchResult>> searchByGlobalName(
+      @RequestBody UserGlobalSearchBody searchBody,
+      @PathVariable Integer page);
+
+  @GetExchange("/GroupV2/User/{membershipType}/{membershipId}/{filter}/{groupType}/")
+  Mono<BungieResponse<MemberGroupResponse>> getGroupsForMember(
+      @PathVariable Integer membershipType, @PathVariable String membershipId,
+      @PathVariable Integer filter, @PathVariable Integer groupType
+  );
+
+  @GetExchange("/Destiny2/{membershipType}/Account/{destinyMembershipId}/Character/{characterId}/Stats/Activities/")
+  Mono<BungieResponse<ActivitiesResponse>> getActivityHistory(@PathVariable Integer membershipType,
+      @PathVariable String destinyMembershipId, @PathVariable String characterId,
+      @RequestParam Integer count, @RequestParam Integer mode, @RequestParam Integer page);
+
+  @GetExchange("/Destiny2/Stats/PostGameCarnageReport/{activityId}/")
+  Mono<BungieResponse<PostGameCarnageReport>> getPostGameCarnageReport(
+      @PathVariable Long activityId
+  );
 }

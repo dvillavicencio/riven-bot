@@ -2,11 +2,12 @@ package com.danielvm.destiny2bot.controller;
 
 import static com.danielvm.destiny2bot.util.HttpUtil.prepareMultipartPayload;
 
-import com.danielvm.destiny2bot.annotation.ValidSignature;
 import com.danielvm.destiny2bot.dto.discord.Interaction;
 import com.danielvm.destiny2bot.dto.discord.InteractionResponse;
 import com.danielvm.destiny2bot.service.ImageAssetService;
 import com.danielvm.destiny2bot.service.InteractionService;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
@@ -19,7 +20,6 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.util.ContentCachingRequestWrapper;
 import reactor.core.publisher.Mono;
 
 @Slf4j
@@ -29,12 +29,14 @@ public class InteractionsController {
 
   private final InteractionService interactionService;
   private final ImageAssetService imageAssetService;
+  private final ObjectMapper objectMapper;
 
   public InteractionsController(
       InteractionService interactionService,
-      ImageAssetService imageAssetService) {
+      ImageAssetService imageAssetService, ObjectMapper objectMapper) {
     this.interactionService = interactionService;
     this.imageAssetService = imageAssetService;
+    this.objectMapper = objectMapper;
   }
 
   /**
@@ -47,9 +49,7 @@ public class InteractionsController {
    * corresponding bytes, else an {@link InteractionResponse}
    */
   @PostMapping("/interactions")
-  public Mono<ResponseEntity<?>> interactions(
-      @RequestBody Interaction interaction,
-      @ValidSignature ContentCachingRequestWrapper request) {
+  public Mono<ResponseEntity<?>> interactions(@RequestBody Interaction interaction) {
     return interactionService.handleInteraction(interaction)
         .flatMap(response -> {
           boolean containsAttachments = response.getType() != 1 && CollectionUtils.isNotEmpty(
@@ -57,8 +57,14 @@ public class InteractionsController {
           return containsAttachments ? multipartFormResponse(interaction, response) :
               Mono.just(ResponseEntity.ok(response));
         })
-        .doOnSubscribe(i -> log.debug("Received interaction: [{}]", interaction))
-        .doOnSuccess(i -> log.debug("Completed interaction: [{}]", i));
+        .doOnSubscribe(i -> log.info("Received interaction: [{}]", interaction))
+        .doOnSuccess(i -> {
+          try {
+            log.info("Completed interaction: [{}]", objectMapper.writeValueAsString(i));
+          } catch (JsonProcessingException e) {
+            throw new RuntimeException(e);
+          }
+        });
   }
 
   private Mono<ResponseEntity<MultiValueMap<String, HttpEntity<?>>>> multipartFormResponse(

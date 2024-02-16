@@ -1,6 +1,7 @@
 package com.danielvm.destiny2bot.dto.discord;
 
 import com.danielvm.destiny2bot.enums.InteractionResponseType;
+import java.io.Serializable;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -10,7 +11,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class InteractionResponse {
+public class InteractionResponse implements Serializable {
 
   /**
    * The type of the InteractionResponse

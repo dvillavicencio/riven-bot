@@ -2,11 +2,12 @@ package com.danielvm.destiny2bot.factory;
 
 import com.danielvm.destiny2bot.enums.SlashCommand;
 import com.danielvm.destiny2bot.exception.ResourceNotFoundException;
-import com.danielvm.destiny2bot.factory.creator.ApplicationCommandSource;
-import com.danielvm.destiny2bot.factory.creator.AuthorizeMessageCreator;
-import com.danielvm.destiny2bot.factory.creator.RaidMapMessageCreator;
-import com.danielvm.destiny2bot.factory.creator.WeeklyDungeonMessageCreator;
-import com.danielvm.destiny2bot.factory.creator.WeeklyRaidMessageCreator;
+import com.danielvm.destiny2bot.factory.handler.ApplicationCommandSource;
+import com.danielvm.destiny2bot.factory.handler.AuthorizeHandler;
+import com.danielvm.destiny2bot.factory.handler.RaidStatsHandler;
+import com.danielvm.destiny2bot.factory.handler.RaidMapHandler;
+import com.danielvm.destiny2bot.factory.handler.WeeklyDungeonHandler;
+import com.danielvm.destiny2bot.factory.handler.WeeklyRaidHandler;
 import java.util.Map;
 import java.util.Objects;
 import org.springframework.stereotype.Component;
@@ -16,20 +17,22 @@ import org.springframework.stereotype.Component;
  * their corresponding message creation services.
  */
 @Component
-public class ApplicationCommandFactory implements InteractionFactory<ApplicationCommandSource> {
+public class ApplicationCommandFactory implements SlashCommandHandler<ApplicationCommandSource> {
 
   private final Map<SlashCommand, ApplicationCommandSource> messageFactory;
 
   public ApplicationCommandFactory(
-      RaidMapMessageCreator raidMapMessageCreator,
-      WeeklyRaidMessageCreator weeklyRaidMessageCreator,
-      WeeklyDungeonMessageCreator weeklyDungeonMessageCreator,
-      AuthorizeMessageCreator authorizeMessageCreator) {
+      RaidMapHandler raidMapHandler,
+      WeeklyRaidHandler weeklyRaidHandler,
+      WeeklyDungeonHandler weeklyDungeonHandler,
+      AuthorizeHandler authorizeMessageHandler,
+      RaidStatsHandler raidStatsHandler) {
     this.messageFactory = Map.of(
-        SlashCommand.WEEKLY_RAID, weeklyRaidMessageCreator,
-        SlashCommand.WEEKLY_DUNGEON, weeklyDungeonMessageCreator,
-        SlashCommand.AUTHORIZE, authorizeMessageCreator,
-        SlashCommand.RAID_MAP, raidMapMessageCreator);
+        SlashCommand.WEEKLY_RAID, weeklyRaidHandler,
+        SlashCommand.WEEKLY_DUNGEON, weeklyDungeonHandler,
+        SlashCommand.AUTHORIZE, authorizeMessageHandler,
+        SlashCommand.RAID_MAP, raidMapHandler,
+        SlashCommand.EXPERIMENTAL_RAID_STATS, raidStatsHandler);
   }
 
   @Override

@@ -8,7 +8,7 @@ import com.danielvm.destiny2bot.client.BungieClient;
 import com.danielvm.destiny2bot.client.BungieClientWrapper;
 import com.danielvm.destiny2bot.dto.MilestoneResponse;
 import com.danielvm.destiny2bot.dto.WeeklyActivity;
-import com.danielvm.destiny2bot.dto.destiny.GenericResponse;
+import com.danielvm.destiny2bot.dto.destiny.BungieResponse;
 import com.danielvm.destiny2bot.dto.destiny.milestone.ActivitiesDto;
 import com.danielvm.destiny2bot.dto.destiny.milestone.MilestoneEntry;
 import com.danielvm.destiny2bot.enums.ActivityMode;
@@ -26,13 +26,13 @@ import reactor.core.publisher.Mono;
 @Slf4j
 public class WeeklyActivitiesService {
 
-  private final BungieClient bungieClient;
+  private final BungieClient defaultBungieClient;
   private final BungieClientWrapper bungieClientWrapper;
 
   public WeeklyActivitiesService(
-      BungieClient bungieClient,
+      BungieClient defaultBungieClient,
       BungieClientWrapper bungieClientWrapper) {
-    this.bungieClient = bungieClient;
+    this.defaultBungieClient = defaultBungieClient;
     this.bungieClientWrapper = bungieClientWrapper;
   }
 
@@ -43,8 +43,8 @@ public class WeeklyActivitiesService {
    * @return {@link MilestoneResponse}
    */
   public Mono<WeeklyActivity> getWeeklyActivity(ActivityMode activityMode) {
-    return bungieClient.getPublicMilestonesRx()
-        .map(GenericResponse::getResponse)
+    return defaultBungieClient.getPublicMilestonesRx()
+        .map(BungieResponse::getResponse)
         .flatMapIterable(Map::values)
         .filter(this::hasWeeklyObjectives)
         .filterWhen(milestoneEntry -> activityModeMatches(milestoneEntry, activityMode))

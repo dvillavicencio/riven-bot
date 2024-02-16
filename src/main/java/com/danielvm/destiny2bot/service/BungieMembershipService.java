@@ -14,10 +14,10 @@ import reactor.core.publisher.Mono;
 @Slf4j
 public class BungieMembershipService {
 
-  private final BungieClient bungieClient;
+  private final BungieClient defaultBungieClient;
 
-  public BungieMembershipService(BungieClient bungieClient) {
-    this.bungieClient = bungieClient;
+  public BungieMembershipService(BungieClient defaultBungieClient) {
+    this.defaultBungieClient = defaultBungieClient;
   }
 
   /**
@@ -27,7 +27,7 @@ public class BungieMembershipService {
    * @return {@link MembershipResponse}
    */
   public MembershipResponse getCurrentUserMembershipInformation(String bearerToken) {
-    var membershipData = bungieClient.getMembershipForCurrentUser(
+    var membershipData = defaultBungieClient.getMembershipForCurrentUser(
         bearerToken).getBody();
 
     Assert.notNull(membershipData, "The membership characters for the current user is null");
@@ -45,7 +45,7 @@ public class BungieMembershipService {
    * @return {@link MembershipResponse}
    */
   public Mono<MembershipResponse> getUserMembershipInformation(String bearerToken) {
-    return bungieClient.getMembershipInfoForCurrentUser(bearerToken)
+    return defaultBungieClient.getMembershipInfoForCurrentUser(bearerToken)
         .filter(Objects::nonNull)
         .filter(membership ->
             Objects.nonNull(MembershipUtil.extractMembershipType(membership))

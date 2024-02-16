@@ -10,7 +10,8 @@ public enum SlashCommand {
   WEEKLY_DUNGEON("weekly_dungeon", false),
   WEEKLY_RAID("weekly_raid", false),
   RAID_STATS("raid_stats", true),
-  RAID_MAP("raid_map", false);
+  RAID_MAP("raid_map", false),
+  EXPERIMENTAL_RAID_STATS("experimental_raid_stats", false);
 
   @Getter
   private final String commandName;

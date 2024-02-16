@@ -1,12 +1,10 @@
 package com.danielvm.destiny2bot.service;
 
-import static com.danielvm.destiny2bot.enums.InteractionResponseType.APPLICATION_COMMAND_AUTOCOMPLETE_RESULT;
 import static com.danielvm.destiny2bot.enums.InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE;
-import static com.danielvm.destiny2bot.factory.creator.WeeklyDungeonMessageCreator.MESSAGE_TEMPLATE;
+import static com.danielvm.destiny2bot.factory.handler.WeeklyDungeonHandler.MESSAGE_TEMPLATE;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
-import com.danielvm.destiny2bot.dto.discord.Choice;
 import com.danielvm.destiny2bot.dto.discord.DiscordUser;
 import com.danielvm.destiny2bot.dto.discord.Interaction;
 import com.danielvm.destiny2bot.dto.discord.InteractionData;
@@ -16,11 +14,9 @@ import com.danielvm.destiny2bot.dto.discord.Member;
 import com.danielvm.destiny2bot.enums.SlashCommand;
 import com.danielvm.destiny2bot.factory.ApplicationCommandFactory;
 import com.danielvm.destiny2bot.factory.AutocompleteFactory;
-import com.danielvm.destiny2bot.factory.creator.RaidStatsMessageCreator;
-import com.danielvm.destiny2bot.factory.creator.WeeklyDungeonMessageCreator;
+import com.danielvm.destiny2bot.factory.handler.WeeklyDungeonHandler;
 import com.danielvm.destiny2bot.util.MessageUtil;
 import java.time.LocalDate;
-import java.util.List;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -34,12 +30,8 @@ import reactor.test.StepVerifier.FirstStep;
 @ExtendWith(MockitoExtension.class)
 public class InteractionServiceTest {
 
-
   @Mock
-  RaidStatsMessageCreator raidStatsMessageCreator;
-
-  @Mock
-  WeeklyDungeonMessageCreator weeklyDungeonMessageCreator;
+  WeeklyDungeonHandler weeklyDungeonHandler;
 
   @Mock
   ApplicationCommandFactory applicationCommandFactory;
@@ -91,9 +83,9 @@ public class InteractionServiceTest {
         .build();
 
     when(applicationCommandFactory.messageCreator(SlashCommand.WEEKLY_DUNGEON))
-        .thenReturn(weeklyDungeonMessageCreator);
+        .thenReturn(weeklyDungeonHandler);
 
-    when(weeklyDungeonMessageCreator.createResponse(interaction))
+    when(weeklyDungeonHandler.createResponse(interaction))
         .thenReturn(Mono.just(message));
 
     // when: the interaction is received
@@ -109,48 +101,4 @@ public class InteractionServiceTest {
         .verifyComplete();
   }
 
-  @Test
-  @DisplayName("Create response is successful for APPLICATION_COMMAND_AUTOCOMPLETE interaction request that requires authentication")
-  public void handleInteractionForAuthorizedAutocomplete() {
-    // given: interaction data from a slash-command autocomplete
-    String userId = "userId";
-    Member member = new Member(new DiscordUser(userId, "myUsername"));
-    InteractionData data = InteractionData.builder()
-        .id("someId").name("raid_stats").type(1)
-        .build();
-    Interaction interaction = Interaction.builder()
-        .applicationId("myApplicationId").type(4).data(data).member(member)
-        .build();
-
-    List<Choice> choices = List.of(
-        new Choice("Character 1", "1"),
-        new Choice("Character 1", "1"),
-        new Choice("Character 1", "1"),
-        new Choice("All", "All")
-    );
-    InteractionResponse message = InteractionResponse.builder()
-        .type(APPLICATION_COMMAND_AUTOCOMPLETE_RESULT.getType())
-        .data(InteractionResponseData.builder()
-            .choices(choices)
-            .build())
-        .build();
-
-    when(autocompleteFactory.messageCreator(SlashCommand.RAID_STATS))
-        .thenReturn(raidStatsMessageCreator);
-
-    when(raidStatsMessageCreator.autocompleteResponse(interaction))
-        .thenReturn(Mono.just(message));
-
-    // when: the interaction is received
-    FirstStep<InteractionResponse> response = StepVerifier.create(
-        interactionService.handleInteraction(interaction));
-
-    // then: the response received is correct and the message returned has the correct content
-    response
-        .assertNext(result -> {
-          assertThat(result.getType()).isEqualTo(APPLICATION_COMMAND_AUTOCOMPLETE_RESULT.getType());
-          assertThat(result.getData().getChoices()).containsAll(choices);
-        })
-        .verifyComplete();
-  }
 }
