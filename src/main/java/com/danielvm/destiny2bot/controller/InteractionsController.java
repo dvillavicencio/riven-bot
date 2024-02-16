@@ -6,6 +6,8 @@ import com.danielvm.destiny2bot.dto.discord.Interaction;
 import com.danielvm.destiny2bot.dto.discord.InteractionResponse;
 import com.danielvm.destiny2bot.service.ImageAssetService;
 import com.danielvm.destiny2bot.service.InteractionService;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
@@ -27,12 +29,14 @@ public class InteractionsController {
 
   private final InteractionService interactionService;
   private final ImageAssetService imageAssetService;
+  private final ObjectMapper objectMapper;
 
   public InteractionsController(
       InteractionService interactionService,
-      ImageAssetService imageAssetService) {
+      ImageAssetService imageAssetService, ObjectMapper objectMapper) {
     this.interactionService = interactionService;
     this.imageAssetService = imageAssetService;
+    this.objectMapper = objectMapper;
   }
 
   /**
@@ -54,7 +58,13 @@ public class InteractionsController {
               Mono.just(ResponseEntity.ok(response));
         })
         .doOnSubscribe(i -> log.info("Received interaction: [{}]", interaction))
-        .doOnSuccess(i -> log.info("Completed interaction: [{}]", i));
+        .doOnSuccess(i -> {
+          try {
+            log.info("Completed interaction: [{}]", objectMapper.writeValueAsString(i));
+          } catch (JsonProcessingException e) {
+            throw new RuntimeException(e);
+          }
+        });
   }
 
   private Mono<ResponseEntity<MultiValueMap<String, HttpEntity<?>>>> multipartFormResponse(

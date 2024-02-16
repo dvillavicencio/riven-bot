@@ -1,4 +1,4 @@
-package com.danielvm.destiny2bot.factory.creator;
+package com.danielvm.destiny2bot.factory.handler;
 
 import static com.danielvm.destiny2bot.enums.InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE;
 
@@ -12,29 +12,29 @@ import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
 
 @Component
-public class WeeklyRaidMessageCreator implements ApplicationCommandSource {
+public class WeeklyDungeonHandler implements ApplicationCommandSource {
 
   public static final String MESSAGE_TEMPLATE = """
-      This week's raid is: %s.
-      You have until %s to complete it before the next raid comes along.
+      This week's dungeon is: %s.
+      You have until %s to complete it before the next dungeon in the rotation.
       """;
-
   private final WeeklyActivitiesService weeklyActivitiesService;
 
-  public WeeklyRaidMessageCreator(WeeklyActivitiesService weeklyActivitiesService) {
+  public WeeklyDungeonHandler(WeeklyActivitiesService weeklyActivitiesService) {
     this.weeklyActivitiesService = weeklyActivitiesService;
   }
 
   @Override
   public Mono<InteractionResponse> createResponse(Interaction interaction) {
-    return weeklyActivitiesService.getWeeklyActivity(ActivityMode.RAID)
-        .map(activity -> {
-          var endDay = MessageUtil.formatDate(activity.getEndDate().toLocalDate());
+    return weeklyActivitiesService.getWeeklyActivity(ActivityMode.DUNGEON)
+        .map(wd -> {
+          var endDay = MessageUtil.formatDate(wd.getEndDate().toLocalDate());
           return InteractionResponse.builder()
               .type(CHANNEL_MESSAGE_WITH_SOURCE.getType())
               .data(InteractionResponseData.builder()
-                  .content(MESSAGE_TEMPLATE.formatted(activity.getName(), endDay))
-                  .build()).build();
+                  .content(MESSAGE_TEMPLATE.formatted(wd.getName(), endDay))
+                  .build())
+              .build();
         });
   }
 }

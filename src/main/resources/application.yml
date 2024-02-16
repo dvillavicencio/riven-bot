@@ -40,6 +40,7 @@ discord:
     authorizationUrl: https://discord.com/oauth2/authorize
     botToken: ${DISCORD_BOT_TOKEN}
     botPublicKey: ${DISCORD_BOT_PUBLIC_KEY}
+    applicationId: ${DISCORD_APPLICATION_ID}
     permissionsInteger: 137439217728
     clientId: ${DISCORD_CLIENT_ID}
     clientSecret: ${DISCORD_CLIENT_SECRET}

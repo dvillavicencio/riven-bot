@@ -2,7 +2,12 @@ package com.danielvm.destiny2bot.factory;
 
 import com.danielvm.destiny2bot.enums.SlashCommand;
 import com.danielvm.destiny2bot.exception.ResourceNotFoundException;
-import com.danielvm.destiny2bot.factory.creator.*;
+import com.danielvm.destiny2bot.factory.handler.ApplicationCommandSource;
+import com.danielvm.destiny2bot.factory.handler.AuthorizeHandler;
+import com.danielvm.destiny2bot.factory.handler.RaidMapHandler;
+import com.danielvm.destiny2bot.factory.handler.RaidStatsHandler;
+import com.danielvm.destiny2bot.factory.handler.WeeklyDungeonHandler;
+import com.danielvm.destiny2bot.factory.handler.WeeklyRaidHandler;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -17,15 +22,15 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class ApplicationCommandFactoryTest {
 
   @Mock
-  private WeeklyRaidMessageCreator weeklyRaidMessageCreator;
+  private WeeklyRaidHandler weeklyRaidHandler;
   @Mock
-  private WeeklyDungeonMessageCreator weeklyDungeonMessageCreator;
+  private WeeklyDungeonHandler weeklyDungeonHandler;
   @Mock
-  private AuthorizeMessageCreator authorizeMessageCreator;
+  private AuthorizeHandler authorizeHandler;
   @Mock
-  private RaidMapMessageCreator raidMapMessageCreator;
+  private RaidMapHandler raidMapHandler;
   @Mock
-  private ExperimentalRaidStatsCreator experimentalRaidStatsCreator;
+  private RaidStatsHandler raidStatsHandler;
   @InjectMocks
   private ApplicationCommandFactory sut;
 
@@ -40,8 +45,8 @@ public class ApplicationCommandFactoryTest {
 
     // then: the correct message creator is returned
     assertThat(creator)
-        .isInstanceOf(AuthorizeMessageCreator.class)
-        .isEqualTo(authorizeMessageCreator);
+        .isInstanceOf(AuthorizeHandler.class)
+        .isEqualTo(authorizeHandler);
   }
 
   @Test
@@ -55,8 +60,8 @@ public class ApplicationCommandFactoryTest {
 
     // then: the correct message creator is returned
     assertThat(creator)
-        .isInstanceOf(WeeklyDungeonMessageCreator.class)
-        .isEqualTo(weeklyDungeonMessageCreator);
+        .isInstanceOf(WeeklyDungeonHandler.class)
+        .isEqualTo(weeklyDungeonHandler);
   }
 
   @Test
@@ -70,8 +75,8 @@ public class ApplicationCommandFactoryTest {
 
     // then: the correct message creator is returned
     assertThat(creator)
-        .isInstanceOf(WeeklyRaidMessageCreator.class)
-        .isEqualTo(weeklyRaidMessageCreator);
+        .isInstanceOf(WeeklyRaidHandler.class)
+        .isEqualTo(weeklyRaidHandler);
   }
 
   @Test

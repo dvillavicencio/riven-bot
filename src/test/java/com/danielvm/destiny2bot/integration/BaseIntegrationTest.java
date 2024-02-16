@@ -12,7 +12,9 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.skyscreamer.jsonassert.JSONAssert;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.reactive.AutoConfigureWebTestClient;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.boot.web.reactive.context.ReactiveWebApplicationContext;
 import org.springframework.cloud.contract.wiremock.AutoConfigureWireMock;
@@ -33,9 +35,10 @@ import java.security.PublicKey;
 import java.time.Instant;
 
 @ExtendWith(MockitoExtension.class)
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT, properties = "spring.main.web-application-type=reactive")
 @AutoConfigureWireMock(files = "/build/resources/test/__files")
 @Testcontainers
+@AutoConfigureWebTestClient
 public abstract class BaseIntegrationTest {
 
   @Container
@@ -48,6 +51,9 @@ public abstract class BaseIntegrationTest {
 
   @LocalServerPort
   protected int localServerPort;
+
+  @Autowired
+  ReactiveWebApplicationContext reactiveWebApplicationContext;
 
   @Autowired
   WebTestClient webTestClient;

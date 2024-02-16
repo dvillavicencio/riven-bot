@@ -1,4 +1,4 @@
-package com.danielvm.destiny2bot.factory.creator;
+package com.danielvm.destiny2bot.factory.handler;
 
 import com.danielvm.destiny2bot.dto.discord.Attachment;
 import com.danielvm.destiny2bot.dto.discord.Choice;
@@ -29,7 +29,7 @@ import reactor.core.publisher.Mono;
 
 @Slf4j
 @org.springframework.stereotype.Component
-public class RaidMapMessageCreator implements ApplicationCommandSource, AutocompleteSource {
+public class RaidMapHandler implements ApplicationCommandSource, AutocompleteSource {
 
   private static final String EMBED_BINDING_URL = "https://www.youtube.com/watch?v=dQw4w9WgXcQ";
   private static final String RAID_OPTION_NAME = "raid";
@@ -37,7 +37,7 @@ public class RaidMapMessageCreator implements ApplicationCommandSource, Autocomp
 
   private final ImageAssetService imageAssetService;
 
-  public RaidMapMessageCreator(
+  public RaidMapHandler(
       ImageAssetService imageAssetService) {
     this.imageAssetService = imageAssetService;
   }
@@ -110,7 +110,7 @@ public class RaidMapMessageCreator implements ApplicationCommandSource, Autocomp
   public Mono<InteractionResponse> createResponse(Interaction interaction) {
     try {
       return imageAssetService.retrieveEncounterImages(interaction)
-          .map(RaidMapMessageCreator::extractAttachments)
+          .map(RaidMapHandler::extractAttachments)
           .map(attachments -> formatInteractionResponse(interaction, attachments));
     } catch (IOException e) {
       String raidName = InteractionUtil.retrieveInteractionOption(interaction.getData()

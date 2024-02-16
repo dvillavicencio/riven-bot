@@ -3,10 +3,9 @@ package com.danielvm.destiny2bot.factory;
 import static org.mockito.Mockito.when;
 
 import com.danielvm.destiny2bot.dto.WeeklyActivity;
-import com.danielvm.destiny2bot.dto.discord.InteractionResponse;
 import com.danielvm.destiny2bot.enums.ActivityMode;
 import com.danielvm.destiny2bot.enums.InteractionResponseType;
-import com.danielvm.destiny2bot.factory.creator.WeeklyDungeonMessageCreator;
+import com.danielvm.destiny2bot.factory.handler.WeeklyRaidHandler;
 import com.danielvm.destiny2bot.service.WeeklyActivitiesService;
 import com.danielvm.destiny2bot.util.MessageUtil;
 import java.time.ZonedDateTime;
@@ -22,28 +21,28 @@ import reactor.test.StepVerifier;
 import reactor.test.StepVerifier.FirstStep;
 
 @ExtendWith(MockitoExtension.class)
-public class WeeklyDungeonMessageCreatorTest {
+public class WeeklyRaidHandlerTest {
 
   @Mock
   WeeklyActivitiesService weeklyActivitiesService;
 
   @InjectMocks
-  WeeklyDungeonMessageCreator sut;
+  WeeklyRaidHandler sut;
 
   @Test
   @DisplayName("Create message is successful")
   public void createMessageIsSuccessful() {
     WeeklyActivity weeklyActivity = new WeeklyActivity(
         "dungeon", "description", ZonedDateTime.now(), ZonedDateTime.now());
-    when(weeklyActivitiesService.getWeeklyActivity(ActivityMode.DUNGEON))
+    when(weeklyActivitiesService.getWeeklyActivity(ActivityMode.RAID))
         .thenReturn(Mono.just(weeklyActivity));
 
     // when: create message is called
-    FirstStep<InteractionResponse> response = StepVerifier.create(
+    FirstStep<com.danielvm.destiny2bot.dto.discord.InteractionResponse> response = StepVerifier.create(
         sut.createResponse(null));
 
     // then: the message created is correct
-    String expectedMessage = WeeklyDungeonMessageCreator.MESSAGE_TEMPLATE.formatted(
+    String expectedMessage = WeeklyRaidHandler.MESSAGE_TEMPLATE.formatted(
         weeklyActivity.getName(),
         MessageUtil.formatDate(weeklyActivity.getEndDate().toLocalDate()));
     response

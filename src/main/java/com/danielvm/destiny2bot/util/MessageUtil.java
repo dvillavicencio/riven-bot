@@ -13,13 +13,13 @@ public class MessageUtil {
 
   private static final LocalTime DESTINY_2_STANDARD_RESET_TIME = LocalTime.of(9, 0);
   private static final ZoneId STANDARD_TIMEZONE = ZoneId.of("America/Los_Angeles");
+  public static final Integer EPHEMERAL_BYTE = 1000000;
   public static final ZonedDateTime NEXT_TUESDAY = ZonedDateTime.of(
           LocalDate.now(STANDARD_TIMEZONE), DESTINY_2_STANDARD_RESET_TIME, STANDARD_TIMEZONE)
       .with(TemporalAdjusters.next(DayOfWeek.TUESDAY));
   public static final ZonedDateTime PREVIOUS_TUESDAY = ZonedDateTime.of(
           LocalDate.now(STANDARD_TIMEZONE), DESTINY_2_STANDARD_RESET_TIME, STANDARD_TIMEZONE)
       .with(TemporalAdjusters.previous(DayOfWeek.TUESDAY));
-
   /**
    * Formatter used to format the date for a message Example: the LocalDate object with date
    * 2023-01-01 would be formatted to "Sunday 1st, January 2023"

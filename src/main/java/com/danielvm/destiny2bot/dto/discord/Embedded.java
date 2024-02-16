@@ -34,7 +34,7 @@ public class Embedded {
 
   private Object video;
 
-  private Object provider;
+  private EmbeddedProvider provider;
 
   private EmbeddedAuthor author;
 

@@ -1,4 +1,4 @@
-package com.danielvm.destiny2bot.factory.creator;
+package com.danielvm.destiny2bot.factory.handler;
 
 import com.danielvm.destiny2bot.dto.discord.Interaction;
 import com.danielvm.destiny2bot.dto.discord.InteractionResponse;

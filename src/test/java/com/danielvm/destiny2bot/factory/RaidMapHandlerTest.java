@@ -6,7 +6,7 @@ import com.danielvm.destiny2bot.enums.InteractionResponseType;
 import com.danielvm.destiny2bot.enums.InteractionType;
 import com.danielvm.destiny2bot.enums.Raid;
 import com.danielvm.destiny2bot.enums.RaidEncounter;
-import com.danielvm.destiny2bot.factory.creator.RaidMapMessageCreator;
+import com.danielvm.destiny2bot.factory.handler.RaidMapHandler;
 import com.danielvm.destiny2bot.service.ImageAssetService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -27,13 +27,13 @@ import static com.danielvm.destiny2bot.enums.InteractionResponseType.CHANNEL_MES
 import static org.assertj.core.api.Assertions.assertThat;
 
 @ExtendWith(MockitoExtension.class)
-public class RaidMapMessageCreatorTest {
+public class RaidMapHandlerTest {
 
   @Mock
   private ImageAssetService imageAssetService;
 
   @InjectMocks
-  private RaidMapMessageCreator sut;
+  private RaidMapHandler sut;
 
   @Test
   @DisplayName("Creating autocomplete response works correctly")
