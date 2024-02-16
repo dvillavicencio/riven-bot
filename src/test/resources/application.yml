@@ -1,14 +1,9 @@
 spring:
+  main:
+    web-application-type: reactive
   data:
     redis:
       port: 6379
-  r2dbc:
-    url: r2dbc:tc:postgresql:///riven_of_a_thousand_servers?postgres=16.1
-    username: username
-    password: password
-  flyway:
-    url: jdbc:tc:postgresql:16.1:///riven_of_a_thousand_servers
-    enabled: true
 
 bungie:
   api:

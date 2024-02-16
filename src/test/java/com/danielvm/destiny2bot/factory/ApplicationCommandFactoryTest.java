@@ -1,14 +1,8 @@
 package com.danielvm.destiny2bot.factory;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 import com.danielvm.destiny2bot.enums.SlashCommand;
 import com.danielvm.destiny2bot.exception.ResourceNotFoundException;
-import com.danielvm.destiny2bot.factory.creator.ApplicationCommandSource;
-import com.danielvm.destiny2bot.factory.creator.AuthorizeMessageCreator;
-import com.danielvm.destiny2bot.factory.creator.RaidMapMessageCreator;
-import com.danielvm.destiny2bot.factory.creator.WeeklyDungeonMessageCreator;
-import com.danielvm.destiny2bot.factory.creator.WeeklyRaidMessageCreator;
+import com.danielvm.destiny2bot.factory.creator.*;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -16,6 +10,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 @ExtendWith(MockitoExtension.class)
 public class ApplicationCommandFactoryTest {
@@ -28,6 +24,8 @@ public class ApplicationCommandFactoryTest {
   private AuthorizeMessageCreator authorizeMessageCreator;
   @Mock
   private RaidMapMessageCreator raidMapMessageCreator;
+  @Mock
+  private ExperimentalRaidStatsCreator experimentalRaidStatsCreator;
   @InjectMocks
   private ApplicationCommandFactory sut;
 

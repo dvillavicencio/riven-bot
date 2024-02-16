@@ -14,6 +14,7 @@ import org.skyscreamer.jsonassert.JSONAssert;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.server.LocalServerPort;
+import org.springframework.boot.web.reactive.context.ReactiveWebApplicationContext;
 import org.springframework.cloud.contract.wiremock.AutoConfigureWireMock;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.DynamicPropertyRegistry;
@@ -50,6 +51,9 @@ public abstract class BaseIntegrationTest {
 
   @Autowired
   WebTestClient webTestClient;
+
+  @Autowired
+  ReactiveWebApplicationContext reactiveWebApplicationContext;
 
   @Autowired
   ObjectMapper objectMapper;
