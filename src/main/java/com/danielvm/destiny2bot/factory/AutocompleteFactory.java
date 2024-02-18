@@ -19,7 +19,7 @@ public class AutocompleteFactory implements SlashCommandHandler<AutocompleteSour
       RaidStatsHandler raidStatsHandler) {
     this.autocompleteFactory = Map.of(
         SlashCommand.RAID_MAP, raidMapHandler,
-        SlashCommand.EXPERIMENTAL_RAID_STATS, raidStatsHandler);
+        SlashCommand.RAID_STATS, raidStatsHandler);
   }
 
   @Override

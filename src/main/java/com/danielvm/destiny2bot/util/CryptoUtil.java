@@ -32,8 +32,7 @@ public class CryptoUtil {
           Hex.decodeHex(signature.toCharArray()));
     } catch (DecoderException de) {
       throw new InvalidSignatureException(
-          "The passed in signature was invalid. Signature [%s], Timestamp [%s], Message [%s]"
-              .formatted(signature, timestamp, rawBody), de);
+          "Something wrong happened while decoding the request body");
     }
   }
 }

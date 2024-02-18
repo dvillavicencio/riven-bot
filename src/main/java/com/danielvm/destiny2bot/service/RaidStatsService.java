@@ -4,13 +4,17 @@ import com.danielvm.destiny2bot.client.BungieClient;
 import com.danielvm.destiny2bot.client.BungieClientWrapper;
 import com.danielvm.destiny2bot.dto.RaidEntry;
 import com.danielvm.destiny2bot.dto.destiny.Activity;
+import com.danielvm.destiny2bot.dto.destiny.BungieResponse;
+import com.danielvm.destiny2bot.dto.destiny.PostGameCarnageReport;
 import com.danielvm.destiny2bot.dto.destiny.RaidStatistics;
 import com.danielvm.destiny2bot.dto.discord.Interaction;
 import com.danielvm.destiny2bot.enums.ManifestEntity;
+import java.util.Collections;
 import java.util.Map;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.stereotype.Service;
+import org.springframework.web.reactive.function.client.WebClientException;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -81,6 +85,11 @@ public class RaidStatsService {
 
   private Mono<RaidEntry> addPGCRDetails(RaidEntry raidEntry) {
     return pgcrBungieClient.getPostGameCarnageReport(raidEntry.getInstanceId())
+        .onErrorResume(WebClientException.class, err -> {
+          log.warn("Response too big to parse, ignoring and falling back to default value");
+          return Mono.just(new BungieResponse<>(
+              new PostGameCarnageReport(null, false, Collections.emptyList())));
+        })
         .map(pgcr -> {
           raidEntry.setIsFromBeginning(pgcr.getResponse().getActivityWasStartedFromBeginning());
           return raidEntry;

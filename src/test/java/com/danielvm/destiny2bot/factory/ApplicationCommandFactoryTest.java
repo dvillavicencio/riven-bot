@@ -1,22 +1,20 @@
 package com.danielvm.destiny2bot.factory;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import com.danielvm.destiny2bot.enums.SlashCommand;
-import com.danielvm.destiny2bot.exception.ResourceNotFoundException;
 import com.danielvm.destiny2bot.factory.handler.ApplicationCommandSource;
 import com.danielvm.destiny2bot.factory.handler.AuthorizeHandler;
 import com.danielvm.destiny2bot.factory.handler.RaidMapHandler;
 import com.danielvm.destiny2bot.factory.handler.RaidStatsHandler;
 import com.danielvm.destiny2bot.factory.handler.WeeklyDungeonHandler;
 import com.danielvm.destiny2bot.factory.handler.WeeklyRaidHandler;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-
-import static org.assertj.core.api.Assertions.assertThat;
 
 @ExtendWith(MockitoExtension.class)
 public class ApplicationCommandFactoryTest {
@@ -77,18 +75,6 @@ public class ApplicationCommandFactoryTest {
     assertThat(creator)
         .isInstanceOf(WeeklyRaidHandler.class)
         .isEqualTo(weeklyRaidHandler);
-  }
-
-  @Test
-  @DisplayName("Getting message creator fails for authorized and invalid commands")
-  public void messageCreatorFails() {
-    // given: an authorized command
-    SlashCommand command = SlashCommand.RAID_STATS;
-
-    // when: messageCreator is called an exception is thrown
-    Assertions.assertThrows(ResourceNotFoundException.class,
-        () -> sut.messageCreator(command),
-        "No message creator found for command [%s]".formatted(command));
   }
 
 }

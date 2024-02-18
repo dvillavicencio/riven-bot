@@ -5,6 +5,10 @@ import com.danielvm.destiny2bot.config.DiscordConfiguration;
 import com.danielvm.destiny2bot.dto.discord.Interaction;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import java.nio.charset.StandardCharsets;
+import java.security.KeyPair;
+import java.security.PublicKey;
+import java.time.Instant;
 import org.apache.commons.codec.DecoderException;
 import org.apache.commons.codec.binary.Hex;
 import org.json.JSONException;
@@ -12,7 +16,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.skyscreamer.jsonassert.JSONAssert;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.reactive.AutoConfigureWebTestClient;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.boot.test.web.server.LocalServerPort;
@@ -29,16 +32,10 @@ import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import software.pando.crypto.nacl.Crypto;
 
-import java.nio.charset.StandardCharsets;
-import java.security.KeyPair;
-import java.security.PublicKey;
-import java.time.Instant;
-
 @ExtendWith(MockitoExtension.class)
 @SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT, properties = "spring.main.web-application-type=reactive")
 @AutoConfigureWireMock(files = "/build/resources/test/__files")
 @Testcontainers
-@AutoConfigureWebTestClient
 public abstract class BaseIntegrationTest {
 
   @Container
@@ -46,7 +43,6 @@ public abstract class BaseIntegrationTest {
       "redis:5.0.3-alpine").withExposedPorts(6379);
 
   private static final String MALICIOUS_PRIVATE_KEY = "CE4517095255B0C92D586AF9EEC27B998D68775363F9FE74341483FB3A657CEC";
-
   private static final String VALID_PRIVATE_KEY = "F0EA3A0516695324C03ED552CD5A08A58CA1248172E8816C3BF235E52E75A7BF";
 
   @LocalServerPort
@@ -128,11 +124,12 @@ public abstract class BaseIntegrationTest {
       throws DecoderException, JsonProcessingException {
     String timestamp = String.valueOf(Instant.now().getEpochSecond());
     String signature = createInvalidSignature(interaction, timestamp);
-    return this.webTestClient.post().uri("/interactions")
+    return this.webTestClient.post().uri(endpoint)
         .accept(MediaType.APPLICATION_JSON)
         .contentType(MediaType.APPLICATION_JSON)
         .header("X-Signature-Ed25519", signature)
         .header("X-Signature-Timestamp", timestamp)
+        .body(BodyInserters.fromValue(interaction))
         .exchange();
   }
 

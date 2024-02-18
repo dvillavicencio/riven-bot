@@ -21,7 +21,6 @@ public class HttpUtil {
 
   private static final String JSON_PAYLOAD_HEADER = "payload_json";
   private static final String JSON_PAYLOAD_CONTENT_DISPOSITION_VALUE = "form-data; name=\"payload_json\"";
-  private static final String FILE_PAYLOAD_HEADER_TEMPLATE = "form-data; name=\"files[%s]\"; filename=\"%s\"";
   private static final String FILE_PAYLOAD_INDEX = "files[%s]";
 
   private HttpUtil() {
