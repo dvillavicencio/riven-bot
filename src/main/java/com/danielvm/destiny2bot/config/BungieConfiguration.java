@@ -7,8 +7,6 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
-import org.springframework.http.client.reactive.ClientHttpConnector;
-import org.springframework.http.client.reactive.ReactorClientHttpConnector;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.support.WebClientAdapter;
 import org.springframework.web.service.invoker.HttpServiceProxyFactory;
@@ -16,7 +14,7 @@ import org.springframework.web.service.invoker.HttpServiceProxyFactory;
 @Data
 @Configuration
 @ConfigurationProperties(prefix = "bungie.api")
-public class BungieConfiguration implements OAuth2Configuration {
+public class BungieConfiguration {
 
   /**
    * The name of the Bungie API key header
@@ -63,6 +61,12 @@ public class BungieConfiguration implements OAuth2Configuration {
    */
   private String callbackUrl;
 
+  /**
+   * Default bungie client used to make general API calls to Bungie.net
+   *
+   * @param builder The default WebClient.Builder defined in the main application
+   * @return {@link BungieClient}
+   */
   @Bean("defaultBungieClient")
   public BungieClient bungieCharacterClient(WebClient.Builder builder) {
     var webClient = builder
@@ -77,6 +81,12 @@ public class BungieConfiguration implements OAuth2Configuration {
         .createClient(BungieClient.class);
   }
 
+  /**
+   * Bungie client used to make API calls to the stats.bungie.net domain
+   *
+   * @param builder The default WebClient.Builder defined in the main application
+   * @return {@link BungieClient}
+   */
   @Bean(name = "pgcrBungieClient")
   public BungieClient pgcrBungieClient(WebClient.Builder builder) {
     var webClient = builder
@@ -85,7 +95,7 @@ public class BungieConfiguration implements OAuth2Configuration {
         .defaultHeader(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
         .defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
         .codecs(clientCodecConfigurer -> clientCodecConfigurer.defaultCodecs()
-            .maxInMemorySize(1024 * 1024 * 15))
+            .maxInMemorySize(1024 * 1024 * 5))
         .build();
     return HttpServiceProxyFactory.builder()
         .exchangeAdapter(WebClientAdapter.create(webClient))

@@ -1,13 +1,13 @@
 package com.danielvm.destiny2bot.filter;
 
 import com.danielvm.destiny2bot.config.DiscordConfiguration;
-import com.danielvm.destiny2bot.exception.InvalidSignatureException;
 import com.danielvm.destiny2bot.util.CryptoUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.annotation.Order;
 import org.springframework.core.io.buffer.DataBuffer;
 import org.springframework.core.io.buffer.DataBufferUtils;
 import org.springframework.core.io.buffer.DefaultDataBufferFactory;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.http.server.reactive.ServerHttpRequestDecorator;
 import org.springframework.stereotype.Component;
@@ -21,23 +21,21 @@ import reactor.core.publisher.Mono;
 @Component
 @Order(1)
 @Slf4j
-public class SignatureFilter implements WebFilter {
+public class ValidSignatureWebFilter implements WebFilter {
 
   private static final String SIGNATURE_HEADER_NAME = "X-Signature-Ed25519";
   private static final String TIMESTAMP_HEADER_NAME = "X-Signature-Timestamp";
 
   private final DiscordConfiguration discordConfiguration;
 
-  public SignatureFilter(DiscordConfiguration discordConfiguration) {
+  public ValidSignatureWebFilter(DiscordConfiguration discordConfiguration) {
     this.discordConfiguration = discordConfiguration;
   }
 
   @Override
   public Mono<Void> filter(ServerWebExchange exchange, WebFilterChain chain) {
     ServerHttpRequest request = exchange.getRequest();
-    Flux<DataBuffer> body = exchange.getRequest().getBody();
-
-    return DataBufferUtils.join(body)
+    return DataBufferUtils.join(exchange.getRequest().getBody())
         .map(dataBuffer -> {
           byte[] bytes = new byte[dataBuffer.readableByteCount()];
           dataBuffer.read(bytes);
@@ -58,7 +56,12 @@ public class SignatureFilter implements WebFilter {
             log.error(
                 "There was a request with invalid signature. Signature: [{}], Timestamp: [{}]",
                 signature, timestamp);
-            return Mono.error(new InvalidSignatureException("The signature passed in was invalid"));
+            String errorMessage = "The signature passed in was invalid. Timestamp: [%s], Signature [%s]"
+                .formatted(timestamp, signature);
+            exchange.getResponse().setStatusCode(HttpStatus.BAD_REQUEST);
+            DataBuffer buffer = exchange.getResponse().bufferFactory()
+                .wrap(errorMessage.getBytes());
+            return exchange.getResponse().writeWith(Mono.just(buffer));
           }
 
           DefaultDataBufferFactory factory = new DefaultDataBufferFactory();

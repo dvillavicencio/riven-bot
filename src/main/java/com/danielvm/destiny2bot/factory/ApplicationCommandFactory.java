@@ -32,7 +32,7 @@ public class ApplicationCommandFactory implements SlashCommandHandler<Applicatio
         SlashCommand.WEEKLY_DUNGEON, weeklyDungeonHandler,
         SlashCommand.AUTHORIZE, authorizeMessageHandler,
         SlashCommand.RAID_MAP, raidMapHandler,
-        SlashCommand.EXPERIMENTAL_RAID_STATS, raidStatsHandler);
+        SlashCommand.RAID_STATS, raidStatsHandler);
   }
 
   @Override
