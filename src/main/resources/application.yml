@@ -3,12 +3,13 @@ spring:
     redis:
       port: 6379
       host: redis
-  flyway:
-    enabled: true
-  datasource:
-    url: # TODO: Define production parameters
-    username: # TODO: Define production parameters
-    password: #TODO: Define production parameters
+    mongodb:
+      username: ${MONGO_DB_ROOT_USERNAME}
+      password: ${MONGO_DB_ROOT_PASSWORD}
+      authentication-database: admin
+      database: riven_of_a_thousand_servers
+      host: mongo
+      port: 27017
 
 server:
   port: 443

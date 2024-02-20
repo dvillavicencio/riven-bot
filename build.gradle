@@ -29,10 +29,6 @@ ext {
     set('springCloudVersion', "2023.0.0-RC1")
     set('apacheCollectionsVersion', '4.4')
     set('pandoCryptoVersion', '1.1.1')
-    set('postgresqlVersion', '42.5.1')
-    set('postgresR2dbcVersion', '1.0.4.RELEASE')
-    set('flywayCoreVersion', '10.6.0')
-    set('flywayPostgresVersion', '10.4.1')
     set('commonsCodecVersion', '1.15')
     set('lombokVersion', '1.18.30')
     set('aspectJWeaverVersion', '1.8.9')
@@ -40,13 +36,12 @@ ext {
     set('i2pCryptoVersion', '0.3.0')
     set('IOCommonsVersion', '2.15.1')
     set('reactorTestVersion', '3.6.0')
-    set('flywayTestVersion', '10.0.0')
-    set('tcPostgresVersion', '1.19.4')
-    set('tcJdbcVersion', '1.19.4')
-    set('tcR2dbcVersion', '1.19.4')
     set('testContainersVersion', '1.19.2')
     set('tcJunitVersion', '1.19.3')
     set('junitJupiterParamsVersion', '5.10.1')
+    set('springDataMongoDbVersion', '3.1.2')
+    set('springDataRedisVersion', '3.1.2')
+    set('springSessionRedisVersion', '3.1.1')
 }
 
 jar {
@@ -55,10 +50,11 @@ jar {
 
 dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-validation'
-    implementation 'org.springframework.boot:spring-boot-starter-data-redis'
-    implementation 'org.springframework.session:spring-session-data-redis'
     implementation 'org.springframework.boot:spring-boot-starter-webflux'
     implementation 'org.springframework.boot:spring-boot-devtools'
+    implementation "org.springframework.session:spring-session-data-redis:${springSessionRedisVersion}"
+    implementation "org.springframework.boot:spring-boot-starter-data-redis:${springDataRedisVersion}"
+    implementation "org.springframework.boot:spring-boot-starter-data-mongodb-reactive:${springDataMongoDbVersion}"
     implementation "net.i2p.crypto:eddsa:${i2pCryptoVersion}"
     implementation "commons-io:commons-io:${IOCommonsVersion}"
     implementation "org.projectlombok:lombok:${lombokVersion}"
