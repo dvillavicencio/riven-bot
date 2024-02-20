@@ -3,6 +3,13 @@ spring:
     redis:
       port: 6379
       host: localhost
+    mongodb:
+      username: root
+      password: root
+      database: riven_of_a_thousand_servers
+      host: localhost
+      port: 27017
+      authentication-database: admin
 
 bungie:
   api:

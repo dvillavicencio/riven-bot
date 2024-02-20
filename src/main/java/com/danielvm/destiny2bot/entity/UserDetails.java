@@ -1,29 +1,39 @@
 package com.danielvm.destiny2bot.entity;
 
-import java.io.Serial;
 import java.io.Serializable;
-import java.time.Instant;
+import java.time.LocalDateTime;
+import java.util.Collection;
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.Document;
 
 @Data
-@Builder
 @AllArgsConstructor
 @NoArgsConstructor
+@Document(collection = "user_details")
 public class UserDetails implements Serializable {
 
-  @Serial
-  private static final long serialVersionUID = 6161559188488304844L;
+  /**
+   * The user identifier for a user which is a combination of their global username and their global
+   * tag, e.g., Deaht#8080
+   */
+  @Id
+  private String userIdentifier;
 
-  private String discordId;
+  /**
+   * Whether this user has a clan or not it will be saved in this field
+   */
+  private String destinyClanName;
 
-  private String discordUsername;
+  /**
+   * The last time this user was requested
+   */
+  private LocalDateTime lastRequestDateTime;
 
-  private String accessToken;
-
-  private String refreshToken;
-
-  private Instant expiration;
+  /**
+   * Collection of user raid data
+   */
+  private Collection<UserRaidDetails> userRaidDetails;
 }
