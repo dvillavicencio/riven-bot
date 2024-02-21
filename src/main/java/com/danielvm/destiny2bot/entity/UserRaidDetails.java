@@ -3,12 +3,14 @@ package com.danielvm.destiny2bot.entity;
 import com.danielvm.destiny2bot.enums.RaidDifficulty;
 import java.io.Serializable;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
+@Builder
 public class UserRaidDetails implements Serializable {
 
   /**

@@ -1,4 +1,4 @@
-package com.danielvm.destiny2bot.factory.handler;
+package com.danielvm.destiny2bot.handler;
 
 import com.danielvm.destiny2bot.dto.discord.Attachment;
 import com.danielvm.destiny2bot.dto.discord.Choice;

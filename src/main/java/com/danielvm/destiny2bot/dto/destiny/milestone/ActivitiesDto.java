@@ -10,7 +10,8 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class ActivitiesDto {
 
-  private String activityHash;
+  private Long activityHash;
+
   private List<String> challengeObjectiveHashes;
 
 }

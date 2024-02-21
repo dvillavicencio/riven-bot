@@ -44,17 +44,17 @@ public class WeeklyActivitiesServiceTest {
 
     var startTime = ZonedDateTime.now();
     var endTime = ZonedDateTime.now().plusDays(2L);
-    var activitiesNoWeekly = List.of(new ActivitiesDto("1262462921", Collections.emptyList()));
-    var activitiesWeekly = List.of(new ActivitiesDto("2823159265", List.of("897950155")));
+    var activitiesNoWeekly = List.of(new ActivitiesDto(1262462921L, Collections.emptyList()));
+    var activitiesWeekly = List.of(new ActivitiesDto(2823159265L, List.of("897950155")));
     var milestoneResponse = new BungieResponse<>(
         Map.of(
-            "526718853", new MilestoneEntry("526718853",
+            "526718853", new MilestoneEntry(526718853L,
                 startTime, endTime, activitiesNoWeekly),
 
-            "3618845105", new MilestoneEntry("3618845105",
+            "3618845105", new MilestoneEntry(3618845105L,
                 startTime, endTime, activitiesWeekly),
 
-            "2029743966", new MilestoneEntry("2029743966",
+            "2029743966", new MilestoneEntry(2029743966L,
                 startTime, endTime, null)
         )
     );
@@ -63,11 +63,11 @@ public class WeeklyActivitiesServiceTest {
         .thenReturn(Mono.just(milestoneResponse));
 
     var activityWithType = new ResponseFields();
-    activityWithType.setActivityTypeHash("608898761");
+    activityWithType.setActivityTypeHash(608898761L);
     var raidActivityEntity = new BungieResponse<>(activityWithType);
 
     when(
-        bungieClientWrapper.getManifestEntityRx(ManifestEntity.ACTIVITY_DEFINITION, "2823159265"))
+        bungieClientWrapper.getManifestEntity(ManifestEntity.ACTIVITY_DEFINITION, 2823159265L))
         .thenReturn(Mono.just(raidActivityEntity));
 
     var raidResponseFields = new ResponseFields();
@@ -75,8 +75,8 @@ public class WeeklyActivitiesServiceTest {
         new DisplayProperties("someDescription", "Raid", null, null, false));
     var activityTypeEntity = new BungieResponse<>(raidResponseFields);
 
-    when(bungieClientWrapper.getManifestEntityRx(ManifestEntity.ACTIVITY_TYPE_DEFINITION,
-        "608898761"))
+    when(bungieClientWrapper.getManifestEntity(ManifestEntity.ACTIVITY_TYPE_DEFINITION,
+        608898761L))
         .thenReturn(Mono.just(activityTypeEntity));
 
     var milestoneResponseFields = new ResponseFields();
@@ -86,7 +86,7 @@ public class WeeklyActivitiesServiceTest {
     var milestoneEntity = new BungieResponse<>(milestoneResponseFields);
 
     when(
-        bungieClientWrapper.getManifestEntityRx(ManifestEntity.MILESTONE_DEFINITION, "3618845105"))
+        bungieClientWrapper.getManifestEntity(ManifestEntity.MILESTONE_DEFINITION, 3618845105L))
         .thenReturn(Mono.just(milestoneEntity));
 
     WeeklyActivity expectedResponse = new WeeklyActivity("The Last Wish",
@@ -109,17 +109,17 @@ public class WeeklyActivitiesServiceTest {
 
     var startTime = ZonedDateTime.now();
     var endTime = ZonedDateTime.now().plusDays(2L);
-    var activitiesNoWeekly = List.of(new ActivitiesDto("1262462921", Collections.emptyList()));
-    var activitiesWeekly = List.of(new ActivitiesDto("2823159265", List.of("897950155")));
+    var activitiesNoWeekly = List.of(new ActivitiesDto(1262462921L, Collections.emptyList()));
+    var activitiesWeekly = List.of(new ActivitiesDto(2823159265L, List.of("897950155")));
     var milestoneResponse = new BungieResponse<>(
         Map.of(
-            "526718853", new MilestoneEntry("526718853",
+            "526718853", new MilestoneEntry(526718853L,
                 startTime, endTime, activitiesNoWeekly),
 
-            "3618845105", new MilestoneEntry("3618845105",
+            "3618845105", new MilestoneEntry(3618845105L,
                 startTime, endTime, activitiesWeekly),
 
-            "2029743966", new MilestoneEntry("2029743966",
+            "2029743966", new MilestoneEntry(2029743966L,
                 startTime, endTime, null)
         )
     );
@@ -128,10 +128,10 @@ public class WeeklyActivitiesServiceTest {
         .thenReturn(Mono.just(milestoneResponse));
 
     var activityWithType = new ResponseFields();
-    activityWithType.setActivityTypeHash("608898761");
+    activityWithType.setActivityTypeHash(608898761L);
     var raidActivityEntity = new BungieResponse<>(activityWithType);
 
-    when(bungieClientWrapper.getManifestEntityRx(ManifestEntity.ACTIVITY_DEFINITION, "2823159265"))
+    when(bungieClientWrapper.getManifestEntity(ManifestEntity.ACTIVITY_DEFINITION, 2823159265L))
         .thenReturn(Mono.just(raidActivityEntity));
 
     var dungeonResponseFields = new ResponseFields();
@@ -139,8 +139,8 @@ public class WeeklyActivitiesServiceTest {
         new DisplayProperties("someDescription", "Dungeon", null, null, false));
     var activityTypeEntity = new BungieResponse<>(dungeonResponseFields);
 
-    when(bungieClientWrapper.getManifestEntityRx(ManifestEntity.ACTIVITY_TYPE_DEFINITION,
-        "608898761"))
+    when(bungieClientWrapper.getManifestEntity(ManifestEntity.ACTIVITY_TYPE_DEFINITION,
+        608898761L))
         .thenReturn(Mono.just(activityTypeEntity));
 
     var milestoneResponseFields = new ResponseFields();
@@ -149,7 +149,7 @@ public class WeeklyActivitiesServiceTest {
     milestoneResponseFields.setDisplayProperties(dualityDisplayProperties);
     var milestoneEntity = new BungieResponse<>(milestoneResponseFields);
 
-    when(bungieClientWrapper.getManifestEntityRx(ManifestEntity.MILESTONE_DEFINITION, "3618845105"))
+    when(bungieClientWrapper.getManifestEntity(ManifestEntity.MILESTONE_DEFINITION, 3618845105L))
         .thenReturn(Mono.just(milestoneEntity));
 
     WeeklyActivity expectedResponse = new WeeklyActivity(dualityDisplayProperties.getName(),
@@ -172,13 +172,13 @@ public class WeeklyActivitiesServiceTest {
 
     var startTime = ZonedDateTime.now();
     var endTime = ZonedDateTime.now().plusDays(2L);
-    var activitiesNoWeekly = List.of(new ActivitiesDto("1262462921", Collections.emptyList()));
+    var activitiesNoWeekly = List.of(new ActivitiesDto(1262462921L, Collections.emptyList()));
     var milestoneResponse = new BungieResponse<>(
         Map.of(
-            "526718853", new MilestoneEntry("526718853",
+            "526718853", new MilestoneEntry(526718853L,
                 startTime, endTime, activitiesNoWeekly),
 
-            "2029743966", new MilestoneEntry("2029743966",
+            "2029743966", new MilestoneEntry(2029743966L,
                 startTime, endTime, null)
         )
     );

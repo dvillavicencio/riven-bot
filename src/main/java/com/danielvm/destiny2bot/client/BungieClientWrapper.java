@@ -3,13 +3,14 @@ package com.danielvm.destiny2bot.client;
 import com.danielvm.destiny2bot.dto.destiny.BungieResponse;
 import com.danielvm.destiny2bot.dto.destiny.manifest.ResponseFields;
 import com.danielvm.destiny2bot.enums.ManifestEntity;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.Cacheable;
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
 
-@Service
-@Slf4j
+/**
+ * This Bungie Client wrapper class is responsible for caching manifest entities
+ */
+@Component
 public class BungieClientWrapper {
 
   private final BungieClient defaultBungieClient;
@@ -26,9 +27,9 @@ public class BungieClientWrapper {
    * @return {@link BungieResponse} of {@link ResponseFields}
    */
   @Cacheable(cacheNames = "entity", cacheManager = "inMemoryCacheManager")
-  public Mono<BungieResponse<ResponseFields>> getManifestEntityRx(
-      ManifestEntity entityType, String hashIdentifier) {
-    return defaultBungieClient.getManifestEntityRx(entityType.getId(), hashIdentifier).cache();
+  public Mono<BungieResponse<ResponseFields>> getManifestEntity(
+      ManifestEntity entityType, Long hashIdentifier) {
+    return defaultBungieClient.getManifestEntity(entityType.getId(), hashIdentifier).cache();
   }
 
 }

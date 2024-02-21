@@ -1,4 +1,4 @@
-package com.danielvm.destiny2bot.factory.handler;
+package com.danielvm.destiny2bot.handler;
 
 import static com.danielvm.destiny2bot.enums.InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE;
 

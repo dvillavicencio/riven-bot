@@ -7,12 +7,17 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class PlayerEntry {
+public class PlayerEntryDetails {
 
   /**
    * The name of the player participant
    */
   private String playerName;
+
+  /**
+   * The tag of the player
+   */
+  private Integer playerTag;
 
   /**
    * The icon of the player at the time

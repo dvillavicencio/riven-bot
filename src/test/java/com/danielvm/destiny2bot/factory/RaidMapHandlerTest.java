@@ -6,7 +6,7 @@ import com.danielvm.destiny2bot.enums.InteractionResponseType;
 import com.danielvm.destiny2bot.enums.InteractionType;
 import com.danielvm.destiny2bot.enums.Raid;
 import com.danielvm.destiny2bot.enums.RaidEncounter;
-import com.danielvm.destiny2bot.factory.handler.RaidMapHandler;
+import com.danielvm.destiny2bot.handler.RaidMapHandler;
 import com.danielvm.destiny2bot.service.ImageAssetService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;

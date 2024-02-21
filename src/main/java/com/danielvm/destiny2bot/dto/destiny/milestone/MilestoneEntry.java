@@ -11,8 +11,11 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class MilestoneEntry {
 
-  private String milestoneHash;
+  private Long milestoneHash;
+
   private ZonedDateTime startDate;
+
   private ZonedDateTime endDate;
+
   private List<ActivitiesDto> activities;
 }

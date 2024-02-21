@@ -34,46 +34,51 @@ public class ValidSignatureWebFilter implements WebFilter {
 
   @Override
   public Mono<Void> filter(ServerWebExchange exchange, WebFilterChain chain) {
-    ServerHttpRequest request = exchange.getRequest();
-    return DataBufferUtils.join(exchange.getRequest().getBody())
-        .map(dataBuffer -> {
-          byte[] bytes = new byte[dataBuffer.readableByteCount()];
-          dataBuffer.read(bytes);
-          DataBufferUtils.release(dataBuffer);
-          return bytes;
-        })
-        .flatMap(bytes -> {
-          Assert.notNull(request.getHeaders().get(SIGNATURE_HEADER_NAME),
-              "Signature header is null");
-          Assert.notNull(request.getHeaders().get(TIMESTAMP_HEADER_NAME),
-              "Signature timestamp is null");
-
-          String signature = request.getHeaders().get(SIGNATURE_HEADER_NAME).getFirst();
-          String timestamp = request.getHeaders().get(TIMESTAMP_HEADER_NAME).getFirst();
-          String publicKey = discordConfiguration.getBotPublicKey();
-          boolean isValid = CryptoUtil.validateSignature(bytes, signature, publicKey, timestamp);
-          if (!isValid) {
-            log.error(
-                "There was a request with invalid signature. Signature: [{}], Timestamp: [{}]",
-                signature, timestamp);
-            String errorMessage = "The signature passed in was invalid. Timestamp: [%s], Signature [%s]"
-                .formatted(timestamp, signature);
-            exchange.getResponse().setStatusCode(HttpStatus.BAD_REQUEST);
-            DataBuffer buffer = exchange.getResponse().bufferFactory()
-                .wrap(errorMessage.getBytes());
-            return exchange.getResponse().writeWith(Mono.just(buffer));
-          }
-
-          DefaultDataBufferFactory factory = new DefaultDataBufferFactory();
-          ServerHttpRequest modifiedRequest = new ServerHttpRequestDecorator(request) {
-            @Override
-            public Flux<DataBuffer> getBody() {
-              return Flux.just(factory.wrap(bytes));
-            }
-          };
-
-          ServerWebExchange modifiedExchange = exchange.mutate().request(modifiedRequest).build();
-          return chain.filter(modifiedExchange);
-        });
+    return chain.filter(exchange);
   }
+
+//  @Override
+//  public Mono<Void> filter(ServerWebExchange exchange, WebFilterChain chain) {
+//    ServerHttpRequest request = exchange.getRequest();
+//    return DataBufferUtils.join(exchange.getRequest().getBody())
+//        .map(dataBuffer -> {
+//          byte[] bytes = new byte[dataBuffer.readableByteCount()];
+//          dataBuffer.read(bytes);
+//          DataBufferUtils.release(dataBuffer);
+//          return bytes;
+//        })
+//        .flatMap(bytes -> {
+//          Assert.notNull(request.getHeaders().get(SIGNATURE_HEADER_NAME),
+//              "Signature header is null");
+//          Assert.notNull(request.getHeaders().get(TIMESTAMP_HEADER_NAME),
+//              "Signature timestamp is null");
+//
+//          String signature = request.getHeaders().get(SIGNATURE_HEADER_NAME).getFirst();
+//          String timestamp = request.getHeaders().get(TIMESTAMP_HEADER_NAME).getFirst();
+//          String publicKey = discordConfiguration.getBotPublicKey();
+//          boolean isValid = CryptoUtil.validateSignature(bytes, signature, publicKey, timestamp);
+//          if (!isValid) {
+//            log.error(
+//                "There was a request with invalid signature. Signature: [{}], Timestamp: [{}]",
+//                signature, timestamp);
+//            String errorMessage = "The signature passed in was invalid. Timestamp: [%s], Signature [%s]"
+//                .formatted(timestamp, signature);
+//            exchange.getResponse().setStatusCode(HttpStatus.BAD_REQUEST);
+//            DataBuffer buffer = exchange.getResponse().bufferFactory()
+//                .wrap(errorMessage.getBytes());
+//            return exchange.getResponse().writeWith(Mono.just(buffer));
+//          }
+//
+//          DefaultDataBufferFactory factory = new DefaultDataBufferFactory();
+//          ServerHttpRequest modifiedRequest = new ServerHttpRequestDecorator(request) {
+//            @Override
+//            public Flux<DataBuffer> getBody() {
+//              return Flux.just(factory.wrap(bytes));
+//            }
+//          };
+//
+//          ServerWebExchange modifiedExchange = exchange.mutate().request(modifiedRequest).build();
+//          return chain.filter(modifiedExchange);
+//        });
+//  }
 }

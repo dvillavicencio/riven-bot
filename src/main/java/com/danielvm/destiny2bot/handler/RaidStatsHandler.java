@@ -1,9 +1,9 @@
-package com.danielvm.destiny2bot.factory.handler;
+package com.danielvm.destiny2bot.handler;
 
 import com.danielvm.destiny2bot.client.BungieClient;
 import com.danielvm.destiny2bot.client.DiscordClient;
 import com.danielvm.destiny2bot.config.DiscordConfiguration;
-import com.danielvm.destiny2bot.dto.destiny.BungieResponse;
+import com.danielvm.destiny2bot.dto.UserChoiceValue;
 import com.danielvm.destiny2bot.dto.destiny.MemberGroupResponse;
 import com.danielvm.destiny2bot.dto.destiny.UserGlobalSearchBody;
 import com.danielvm.destiny2bot.dto.destiny.UserSearchResult;
@@ -30,7 +30,8 @@ import reactor.core.scheduler.Schedulers;
 public class RaidStatsHandler implements AutocompleteSource, ApplicationCommandSource {
 
   private static final String STATS_TITLE = "Raid Stats for %s";
-  private static final String CHOICE_VALUE_TEMPLATE = "%s:%s:%s";
+  private static final Integer CLAN_GROUP_TYPE = 1;
+  private static final Integer CLAN_SIZE_FILTER = 0;
 
   private final BungieClient defaultBungieClient;
   private final DiscordClient discordClient;
@@ -46,22 +47,6 @@ public class RaidStatsHandler implements AutocompleteSource, ApplicationCommandS
     this.discordClient = discordClient;
     this.raidStatsService = raidStatsService;
     this.discordConfiguration = discordConfiguration;
-  }
-
-  private static StringBuilder buildChoiceDefaultName(UserSearchResult result,
-      BungieResponse<MemberGroupResponse> groupResponse) {
-    StringBuilder defaultName = new StringBuilder()
-        .append(result.getBungieGlobalDisplayName())
-        .append("#")
-        .append(result.getBungieGlobalDisplayNameCode());
-    if (CollectionUtils.isNotEmpty(groupResponse.getResponse().getResults())) {
-      String clanName = groupResponse.getResponse().getResults()
-          .get(0).getGroup().getName();
-      defaultName.append("[");
-      defaultName.append(clanName);
-      defaultName.append("]");
-    }
-    return defaultName;
   }
 
   @Override
@@ -85,13 +70,26 @@ public class RaidStatsHandler implements AutocompleteSource, ApplicationCommandS
   private Mono<Choice> createUserChoices(UserSearchResult result) {
     String membershipId = result.getDestinyMemberships().get(0).membershipId();
     Integer membershipType = result.getDestinyMemberships().get(0).membershipType();
-    return defaultBungieClient.getGroupsForMember(membershipType, membershipId, 0, 1)
-        .map(groupResponse -> {
-          StringBuilder defaultName = buildChoiceDefaultName(result, groupResponse);
-          return new Choice(defaultName.toString(),
-              CHOICE_VALUE_TEMPLATE.formatted(membershipId, membershipType,
-                  defaultName.toString()));
+    return defaultBungieClient.getGroupsForMember(membershipType, membershipId, CLAN_SIZE_FILTER,
+            CLAN_GROUP_TYPE)
+        .map(clanResponse -> {
+          String defaultName = choiceName(result, clanResponse.getResponse());
+          UserChoiceValue choiceValue = choiceValue(result, clanResponse.getResponse());
+          return new Choice(defaultName, choiceValue);
         });
+  }
+
+  private UserChoiceValue choiceValue(UserSearchResult result,
+      MemberGroupResponse clanResponse) {
+    UserChoiceValue value = new UserChoiceValue();
+    value.setMembershipId(result.getDestinyMemberships().get(0).membershipId());
+    value.setMembershipType(result.getDestinyMemberships().get(0).membershipType());
+    value.setBungieDisplayName(result.getBungieGlobalDisplayName());
+    value.setBungieDisplayCode(result.getBungieGlobalDisplayNameCode());
+    if (clanResponse != null && CollectionUtils.isNotEmpty(clanResponse.getResults())) {
+      value.setClanName(clanResponse.getResults().get(0).getGroup().getName());
+    }
+    return value;
   }
 
   @Override
@@ -111,8 +109,8 @@ public class RaidStatsHandler implements AutocompleteSource, ApplicationCommandS
   }
 
   private Mono<InteractionResponseData> processRaidsResponseUser(Interaction interaction) {
-    String playerName = ((String) interaction.getData().getOptions().get(0).getValue()).split(
-        ":")[2];
+    String playerName = ((UserChoiceValue) interaction.getData().getOptions().get(0)
+        .getValue()).getBungieDisplayName();
     return raidStatsService.calculateRaidLevelStats(interaction)
         .map(response -> response.entrySet().stream()
             .map(entry -> EmbeddedField.builder()
@@ -155,5 +153,21 @@ public class RaidStatsHandler implements AutocompleteSource, ApplicationCommandS
                     .build()))
                 .build()))
             .build());
+  }
+
+  private String choiceName(UserSearchResult result,
+      MemberGroupResponse groupResponse) {
+    StringBuilder defaultName = new StringBuilder()
+        .append(result.getBungieGlobalDisplayName())
+        .append("#")
+        .append(result.getBungieGlobalDisplayNameCode());
+    if (CollectionUtils.isNotEmpty(groupResponse.getResults())) {
+      String clanName = groupResponse.getResults()
+          .get(0).getGroup().getName();
+      defaultName.append("[");
+      defaultName.append(clanName);
+      defaultName.append("]");
+    }
+    return defaultName.toString();
   }
 }

@@ -60,6 +60,12 @@ public class RaidStatistics {
     this.fullClears = 0;
   }
 
+  /**
+   * This toString uses a StringBuilder to manipulate the actual output to send through Discord
+   * chat
+   *
+   * @return String representation of what the user will see in the embed for a given raid
+   */
   public String toString() {
     StringBuilder fastestRaidDuration = new StringBuilder();
     int hours = (fastestTime / 3600) % 24;

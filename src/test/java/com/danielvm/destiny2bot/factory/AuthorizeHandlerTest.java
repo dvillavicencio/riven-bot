@@ -6,7 +6,7 @@ import static org.mockito.Mockito.when;
 import com.danielvm.destiny2bot.config.DiscordConfiguration;
 import com.danielvm.destiny2bot.dto.discord.Component;
 import com.danielvm.destiny2bot.enums.InteractionResponseType;
-import com.danielvm.destiny2bot.factory.handler.AuthorizeHandler;
+import com.danielvm.destiny2bot.handler.AuthorizeHandler;
 import com.danielvm.destiny2bot.util.OAuth2Util;
 import java.util.List;
 import java.util.Objects;

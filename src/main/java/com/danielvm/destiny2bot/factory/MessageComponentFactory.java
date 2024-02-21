@@ -1,7 +1,7 @@
 package com.danielvm.destiny2bot.factory;
 
-import com.danielvm.destiny2bot.factory.handler.MessageComponentSource;
-import com.danielvm.destiny2bot.factory.handler.RaidStatsButtonHandler;
+import com.danielvm.destiny2bot.handler.MessageComponentSource;
+import com.danielvm.destiny2bot.handler.RaidStatsButtonHandler;
 import java.util.Map;
 import org.springframework.stereotype.Component;
 

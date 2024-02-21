@@ -15,7 +15,6 @@ import com.danielvm.destiny2bot.enums.ActivityMode;
 import com.danielvm.destiny2bot.exception.ResourceNotFoundException;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.stereotype.Service;
@@ -56,7 +55,7 @@ public class WeeklyActivitiesService {
   }
 
   private Mono<WeeklyActivity> createWeeklyActivity(MilestoneEntry milestoneEntry) {
-    return bungieClientWrapper.getManifestEntityRx(MILESTONE_DEFINITION,
+    return bungieClientWrapper.getManifestEntity(MILESTONE_DEFINITION,
             milestoneEntry.getMilestoneHash())
         .map(milestoneEntity -> milestoneEntity.getResponse().getDisplayProperties())
         .map(displayProperties ->
@@ -73,15 +72,13 @@ public class WeeklyActivitiesService {
       return Mono.just(false);
     }
     return Flux.fromIterable(entry.getActivities())
-        .flatMap(activity -> bungieClientWrapper.getManifestEntityRx(
+        .flatMap(activity -> bungieClientWrapper.getManifestEntity(
             ACTIVITY_DEFINITION, activity.getActivityHash()))
-        .filter(activityDefinition -> Objects.nonNull(
-            activityDefinition.getResponse().getActivityTypeHash()))
-        .flatMap(activityDefinition -> bungieClientWrapper.getManifestEntityRx(
+        .filter(activity -> activity.getResponse().getActivityTypeHash() != null)
+        .flatMap(activityDefinition -> bungieClientWrapper.getManifestEntity(
             ACTIVITY_TYPE_DEFINITION, activityDefinition.getResponse().getActivityTypeHash()))
-        .filter(activityTypeDefinition -> Objects.nonNull(
-            activityTypeDefinition.getResponse()) && Objects.nonNull(
-            activityTypeDefinition.getResponse().getDisplayProperties()))
+        .filter(activityType -> activityType.getResponse() != null &&
+                                activityType.getResponse().getDisplayProperties() != null)
         .any(activityTypeDefinition -> activityTypeDefinition.getResponse().getDisplayProperties()
             .getName().equalsIgnoreCase(activityMode.getLabel()));
   }

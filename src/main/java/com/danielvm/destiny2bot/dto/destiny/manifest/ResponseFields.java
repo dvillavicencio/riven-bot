@@ -23,7 +23,7 @@ public class ResponseFields {
 
   private Integer directActivityModeType;
 
-  private String activityTypeHash;
+  private Long activityTypeHash;
 
   private Long hash;
 }

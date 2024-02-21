@@ -2,12 +2,12 @@ package com.danielvm.destiny2bot.factory;
 
 import com.danielvm.destiny2bot.enums.SlashCommand;
 import com.danielvm.destiny2bot.exception.ResourceNotFoundException;
-import com.danielvm.destiny2bot.factory.handler.ApplicationCommandSource;
-import com.danielvm.destiny2bot.factory.handler.AuthorizeHandler;
-import com.danielvm.destiny2bot.factory.handler.RaidStatsHandler;
-import com.danielvm.destiny2bot.factory.handler.RaidMapHandler;
-import com.danielvm.destiny2bot.factory.handler.WeeklyDungeonHandler;
-import com.danielvm.destiny2bot.factory.handler.WeeklyRaidHandler;
+import com.danielvm.destiny2bot.handler.ApplicationCommandSource;
+import com.danielvm.destiny2bot.handler.AuthorizeHandler;
+import com.danielvm.destiny2bot.handler.RaidStatsHandler;
+import com.danielvm.destiny2bot.handler.RaidMapHandler;
+import com.danielvm.destiny2bot.handler.WeeklyDungeonHandler;
+import com.danielvm.destiny2bot.handler.WeeklyRaidHandler;
 import java.util.Map;
 import java.util.Objects;
 import org.springframework.stereotype.Component;

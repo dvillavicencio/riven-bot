@@ -1,7 +1,7 @@
 package com.danielvm.destiny2bot.service;
 
 import static com.danielvm.destiny2bot.enums.InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE;
-import static com.danielvm.destiny2bot.factory.handler.WeeklyDungeonHandler.MESSAGE_TEMPLATE;
+import static com.danielvm.destiny2bot.handler.WeeklyDungeonHandler.MESSAGE_TEMPLATE;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
@@ -14,7 +14,7 @@ import com.danielvm.destiny2bot.dto.discord.Member;
 import com.danielvm.destiny2bot.enums.SlashCommand;
 import com.danielvm.destiny2bot.factory.ApplicationCommandFactory;
 import com.danielvm.destiny2bot.factory.AutocompleteFactory;
-import com.danielvm.destiny2bot.factory.handler.WeeklyDungeonHandler;
+import com.danielvm.destiny2bot.handler.WeeklyDungeonHandler;
 import com.danielvm.destiny2bot.util.MessageUtil;
 import java.time.LocalDate;
 import org.junit.jupiter.api.DisplayName;

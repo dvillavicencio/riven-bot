@@ -1,7 +1,7 @@
 package com.danielvm.destiny2bot.entity;
 
 import java.io.Serializable;
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.Collection;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -30,7 +30,7 @@ public class UserDetails implements Serializable {
   /**
    * The last time this user was requested
    */
-  private LocalDateTime lastRequestDateTime;
+  private Instant lastRequestDateTime;
 
   /**
    * Collection of user raid data
