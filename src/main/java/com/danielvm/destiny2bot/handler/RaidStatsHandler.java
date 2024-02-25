@@ -109,9 +109,9 @@ public class RaidStatsHandler implements AutocompleteSource, ApplicationCommandS
   }
 
   private Mono<InteractionResponseData> processRaidsResponseUser(Interaction interaction) {
-    String playerName = ((UserChoiceValue) interaction.getData().getOptions().get(0)
-        .getValue()).getBungieDisplayName();
-    return raidStatsService.calculateRaidLevelStats(interaction)
+    UserChoiceValue parsedData = ((UserChoiceValue) interaction.getData().getOptions().get(0)
+        .getValue());
+    return raidStatsService.calculateRaidStats(parsedData)
         .map(response -> response.entrySet().stream()
             .map(entry -> EmbeddedField.builder()
                 .name(entry.getKey())
@@ -127,7 +127,7 @@ public class RaidStatsHandler implements AutocompleteSource, ApplicationCommandS
                         .iconUrl(
                             "https://ih1.redbubble.net/image.2953200665.7291/st,small,507x507-pad,600x600,f8f8f8.jpg")
                         .build())
-                    .title(STATS_TITLE.formatted(playerName))
+                    .title(STATS_TITLE.formatted(parsedData.getBungieDisplayCode()))
                     .description("""
                         <t:%s:R>
                         General crunched numbers regarding all the raid clears you've done so far guardian.
