@@ -10,9 +10,9 @@ import lombok.NoArgsConstructor;
 public class RaidStatistics {
 
   /**
-   * The name of the raid
+   * The _Id of the MongoDB aggregation should be the name of the raid
    */
-  private String raidName;
+  private String _id;
 
   /**
    * Total amount of kills done for a raid
@@ -30,11 +30,6 @@ public class RaidStatistics {
   private Integer fastestTime;
 
   /**
-   * The average time a player finishes the raid
-   */
-  private Integer averageTime;
-
-  /**
    * The number of completed raids that user has for a specific raid
    */
   private Integer partialClears;
@@ -49,16 +44,15 @@ public class RaidStatistics {
    */
   private Integer fullClears;
 
-  public RaidStatistics(String raidName) {
-    this.raidName = raidName;
-    this.totalKills = 0;
-    this.totalDeaths = 0;
-    this.fastestTime = Integer.MAX_VALUE;
-    this.averageTime = 0;
-    this.partialClears = 0;
-    this.totalClears = 0;
-    this.fullClears = 0;
-  }
+  /**
+   * The total amount of normal-mode raid clears for this raid
+   */
+  private Integer masterClears;
+
+  /**
+   * The total amount of master-mode raid clears for this raid
+   */
+  private Integer normalClears;
 
   /**
    * This toString uses a StringBuilder to manipulate the actual output to send through Discord

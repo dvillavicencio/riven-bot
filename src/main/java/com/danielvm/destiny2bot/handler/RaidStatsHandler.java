@@ -5,6 +5,7 @@ import com.danielvm.destiny2bot.client.DiscordClient;
 import com.danielvm.destiny2bot.config.DiscordConfiguration;
 import com.danielvm.destiny2bot.dto.UserChoiceValue;
 import com.danielvm.destiny2bot.dto.destiny.MemberGroupResponse;
+import com.danielvm.destiny2bot.dto.destiny.RaidStatistics;
 import com.danielvm.destiny2bot.dto.destiny.UserGlobalSearchBody;
 import com.danielvm.destiny2bot.dto.destiny.UserSearchResult;
 import com.danielvm.destiny2bot.dto.discord.Choice;
@@ -112,6 +113,7 @@ public class RaidStatsHandler implements AutocompleteSource, ApplicationCommandS
     UserChoiceValue parsedData = ((UserChoiceValue) interaction.getData().getOptions().get(0)
         .getValue());
     return raidStatsService.calculateRaidStats(parsedData)
+        .collectMap(RaidStatistics::get_id)
         .map(response -> response.entrySet().stream()
             .map(entry -> EmbeddedField.builder()
                 .name(entry.getKey())

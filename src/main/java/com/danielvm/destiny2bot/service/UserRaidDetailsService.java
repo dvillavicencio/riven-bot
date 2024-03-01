@@ -3,8 +3,10 @@ package com.danielvm.destiny2bot.service;
 import com.danielvm.destiny2bot.client.BungieClient;
 import com.danielvm.destiny2bot.client.BungieClientWrapper;
 import com.danielvm.destiny2bot.dto.UserChoiceValue;
+import com.danielvm.destiny2bot.dto.destiny.ActivitiesResponse;
 import com.danielvm.destiny2bot.dto.destiny.Activity;
 import com.danielvm.destiny2bot.dto.destiny.Basic;
+import com.danielvm.destiny2bot.dto.destiny.BungieResponse;
 import com.danielvm.destiny2bot.dto.destiny.ValueEntry;
 import com.danielvm.destiny2bot.entity.UserDetails;
 import com.danielvm.destiny2bot.entity.UserRaidDetails;
@@ -13,6 +15,7 @@ import com.danielvm.destiny2bot.enums.RaidDifficulty;
 import com.danielvm.destiny2bot.repository.UserDetailsRepository;
 import java.time.Instant;
 import java.util.List;
+import java.util.Objects;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import lombok.extern.slf4j.Slf4j;
@@ -70,8 +73,7 @@ public class UserRaidDetailsService {
     Integer membershipType = parsedData.getMembershipType();
     String userId = USER_ID_FORMAT.formatted(parsedData.getBungieDisplayName(),
         parsedData.getBungieDisplayCode());
-    return defaultBungieClient.getUserCharacters(membershipType,
-            membershipId)
+    return defaultBungieClient.getUserCharacters(membershipType, membershipId)
         .flatMapMany(userCharacter -> Flux.fromIterable(
             userCharacter.getResponse().getCharacters().getData().keySet()))
         .flatMap(
@@ -103,16 +105,22 @@ public class UserRaidDetailsService {
         .flatMap(userDetails -> defaultBungieClient.getUserCharacters(membershipType, membershipId)
             .flatMapIterable(response -> response.getResponse().getCharacters().getData().keySet())
             .flatMap(characterId -> getActivitiesUntil(membershipType, membershipId,
-                characterId, updateTimestamp))
-            .flatMap(this::buildRaidDetails)
-            .flatMap(this::addPGCRDetails)
+                characterId, userDetails.getLastRequestDateTime())
+                .flatMap(this::buildRaidDetails)
+                .flatMap(this::addPGCRDetails))
             .collectList()
             .flatMap(raidDetails -> {
-              log.info(
-                  "Adding [{}] new raid encounters for user [{}]. Last time requested set to: [{}]",
-                  raidDetails.size(), userDetails, updateTimestamp);
-              userDetails.getUserRaidDetails().addAll(raidDetails);
               userDetails.setLastRequestDateTime(updateTimestamp);
+              if (CollectionUtils.isEmpty(raidDetails)) {
+                log.warn(
+                    "No new raid encounters were found for user [{}]. Last time requested set to: [{}]",
+                    userId, updateTimestamp);
+              } else {
+                log.info(
+                    "Adding [{}] new raid encounters for user [{}]. Last time requested set to: [{}]",
+                    raidDetails.size(), userDetails, updateTimestamp);
+                userDetails.getUserRaidDetails().addAll(raidDetails);
+              }
               return userDetailsRepository.save(userDetails);
             }));
   }
@@ -128,13 +136,25 @@ public class UserRaidDetailsService {
    */
   public Flux<Activity> getActivitiesAll(Integer membershipType, String membershipId,
       String characterId) {
+    Predicate<BungieResponse<ActivitiesResponse>> takeUntilCondition = response ->
+        Objects.isNull(response.getResponse()) ||
+        CollectionUtils.isEmpty(response.getResponse().getActivities()) ||
+        response.getResponse().getActivities().size() < MAX_PAGE_COUNT;
+
+    // Filters if response is null and activities is null
+    Predicate<BungieResponse<ActivitiesResponse>> filterCondition = response ->
+        Objects.nonNull(response.getResponse()) &&
+        Objects.nonNull(response.getResponse().getActivities());
+
     return Flux.range(0, MAX_SANE_AMOUNT_OF_RAID_PAGES)
-        .flatMapSequential(
-            page -> defaultBungieClient.getActivityHistory(membershipType, membershipId,
-                characterId, MAX_PAGE_COUNT, RAID_MODE, page))
-        .filter(activities -> CollectionUtils.isNotEmpty(activities.getResponse().getActivities()))
-        .takeUntil(activities -> activities.getResponse().getActivities().size() < MAX_PAGE_COUNT)
-        .flatMapIterable(response -> response.getResponse().getActivities());
+        .flatMapSequential(pageNumber ->
+            defaultBungieClient.getActivityHistory(membershipType, membershipId,
+                characterId, MAX_PAGE_COUNT, RAID_MODE, pageNumber))
+        .takeUntil(takeUntilCondition)
+        .filter(filterCondition)
+        .flatMapIterable(response -> response.getResponse().getActivities())
+        .switchIfEmpty(Flux.empty());
+
   }
 
   /**
@@ -145,27 +165,32 @@ public class UserRaidDetailsService {
    * @param membershipType The membershipType of the user
    * @param membershipId   The membershipId of the user
    * @param characterId    The characterId of the user
-   * @param until          The instant that serves as the stopping point of the search
+   * @param until          The last timestamp when this user was searched for
    * @return Flux of all existing activities
    */
   public Flux<Activity> getActivitiesUntil(Integer membershipType, String membershipId,
       String characterId, Instant until) {
-    var retrieveActivities = Flux.range(0, MAX_SANE_AMOUNT_OF_RAID_PAGES)
-        .flatMapSequential(
-            page -> defaultBungieClient.getActivityHistory(membershipType, membershipId,
-                characterId, MAX_PAGE_COUNT, RAID_MODE, page));
+    return Flux.range(0, MAX_SANE_AMOUNT_OF_RAID_PAGES)
+        .flatMapSequential(pageNumber ->
+            defaultBungieClient.getActivityHistory(membershipType, membershipId, characterId,
+                MAX_PAGE_COUNT, RAID_MODE, pageNumber))
+        .filter(response ->
+            Objects.nonNull(response.getResponse()) &&
+            Objects.nonNull(response.getResponse().getActivities()))
+        .takeUntil(response -> {
+          boolean nullResponse = Objects.isNull(response.getResponse());
+          boolean emptyActivities = CollectionUtils.isEmpty(response.getResponse().getActivities());
 
-    Predicate<Activity> isNewActivity = activity -> activity.getPeriod().isAfter(until);
-    Predicate<List<Activity>> isLastPage = activities ->
-        activities.stream().filter(isNewActivity).count() < MAX_PAGE_COUNT;
-    Predicate<List<Activity>> existNewActivities = activities -> activities.stream()
-        .anyMatch(activity -> activity.getPeriod().isAfter(until));
-    return retrieveActivities
-        .filter(response -> CollectionUtils.isNotEmpty(response.getResponse().getActivities()))
-        .takeUntil(response -> existNewActivities.test(response.getResponse().getActivities()) &&
-                               isLastPage.test(response.getResponse().getActivities()))
+          List<Activity> activities = response.getResponse().getActivities();
+          long newRaidCount = activities.stream()
+              .filter(activity -> activity.getPeriod().isAfter(until))
+              .count();
+          boolean noMoreNewDataAvailable = newRaidCount < MAX_PAGE_COUNT;
+          return nullResponse || emptyActivities || noMoreNewDataAvailable;
+        })
         .flatMapIterable(response -> response.getResponse().getActivities())
-        .filter(isNewActivity);
+        .filter(activity -> activity.getPeriod().isAfter(until))
+        .switchIfEmpty(Flux.empty());
   }
 
   private Mono<UserRaidDetails> addPGCRDetails(UserRaidDetails userRaidDetails) {
