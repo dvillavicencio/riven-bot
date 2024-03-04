@@ -1,4 +1,4 @@
-package com.danielvm.destiny2bot.factory;
+package com.danielvm.destiny2bot.handler;
 
 import com.danielvm.destiny2bot.TestUtils;
 import com.danielvm.destiny2bot.dto.discord.*;
@@ -7,7 +7,7 @@ import com.danielvm.destiny2bot.enums.InteractionType;
 import com.danielvm.destiny2bot.enums.Raid;
 import com.danielvm.destiny2bot.enums.RaidEncounter;
 import com.danielvm.destiny2bot.handler.RaidMapHandler;
-import com.danielvm.destiny2bot.service.ImageAssetService;
+import com.danielvm.destiny2bot.service.RaidInfographicsService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -30,7 +30,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class RaidMapHandlerTest {
 
   @Mock
-  private ImageAssetService imageAssetService;
+  private RaidInfographicsService raidInfographicsService;
 
   @InjectMocks
   private RaidMapHandler sut;
@@ -120,7 +120,7 @@ public class RaidMapHandlerTest {
           }
         }).toList();
 
-    Mockito.when(imageAssetService.retrieveEncounterImages(interaction))
+    Mockito.when(raidInfographicsService.retrieveEncounterImages(interaction))
         .thenReturn(Mono.just(resourcesMap));
 
     // when: the autocomplete request is received

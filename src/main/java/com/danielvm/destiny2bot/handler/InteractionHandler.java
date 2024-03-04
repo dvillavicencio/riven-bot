@@ -1,0 +1,65 @@
+package com.danielvm.destiny2bot.handler;
+
+import com.danielvm.destiny2bot.dto.discord.Interaction;
+import com.danielvm.destiny2bot.dto.discord.InteractionResponse;
+import com.danielvm.destiny2bot.enums.InteractionType;
+import com.danielvm.destiny2bot.enums.SlashCommand;
+import com.danielvm.destiny2bot.factory.ApplicationCommandFactory;
+import com.danielvm.destiny2bot.factory.AutocompleteFactory;
+import com.danielvm.destiny2bot.factory.MessageComponentFactory;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Service;
+import org.springframework.web.reactive.function.BodyInserters;
+import org.springframework.web.reactive.function.server.ServerRequest;
+import org.springframework.web.reactive.function.server.ServerResponse;
+import reactor.core.publisher.Mono;
+
+@Service
+@Slf4j
+public class InteractionHandler {
+
+  private final ApplicationCommandFactory applicationCommandFactory;
+  private final AutocompleteFactory autocompleteFactory;
+  private final MessageComponentFactory messageComponentFactory;
+
+  public InteractionHandler(
+      ApplicationCommandFactory applicationCommandFactory,
+      AutocompleteFactory autocompleteFactory, MessageComponentFactory messageComponentFactory) {
+    this.applicationCommandFactory = applicationCommandFactory;
+    this.autocompleteFactory = autocompleteFactory;
+    this.messageComponentFactory = messageComponentFactory;
+  }
+
+  /**
+   * Handles the incoming interactions from Discord using each slash-command's appropriate message
+   * factory
+   *
+   * @param request the incoming server request from Discord chat
+   * @return {@link InteractionResponse}
+   */
+  public Mono<ServerResponse> handleInteraction(ServerRequest request) {
+    return request.bodyToMono(Interaction.class)
+        .flatMap(interaction -> {
+          InteractionType interactionType = InteractionType.findByValue(interaction.getType());
+          return switch (interactionType) {
+            case MESSAGE_COMPONENT -> {
+              String componentId = interaction.getData().getCustomId();
+              yield messageComponentFactory.handle(componentId).respond(interaction);
+            }
+            case MODAL_SUBMIT -> Mono.just(new InteractionResponse());
+            case APPLICATION_COMMAND_AUTOCOMPLETE -> {
+              SlashCommand command = SlashCommand.findByName(interaction.getData().getName());
+              yield autocompleteFactory.messageCreator(command).autocompleteResponse(interaction);
+            }
+            case APPLICATION_COMMAND -> {
+              SlashCommand command = SlashCommand.findByName(interaction.getData().getName());
+              yield applicationCommandFactory.messageCreator(command).createResponse(interaction);
+            }
+            case PING -> Mono.just(InteractionResponse.PING());
+          };
+        })
+        .flatMap(interactionResponse -> ServerResponse.ok()
+            .body(BodyInserters.fromValue(interactionResponse)));
+  }
+
+}

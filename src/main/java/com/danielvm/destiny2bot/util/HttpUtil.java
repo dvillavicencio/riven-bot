@@ -39,12 +39,12 @@ public class HttpUtil {
   public static MultiValueMap<String, HttpEntity<?>> prepareMultipartPayload(
       InteractionResponse interactionResponse, Map<Long, Resource> resources) {
     MultipartBodyBuilder builder = new MultipartBodyBuilder();
-    prepareJsonPayload(interactionResponse, builder);
-    prepareResourcesPayload(resources, builder);
+    buildJson(interactionResponse, builder);
+    buildFiles(resources, builder);
     return builder.build();
   }
 
-  private static void prepareResourcesPayload(Map<Long, Resource> resources,
+  private static void buildFiles(Map<Long, Resource> resources,
       MultipartBodyBuilder builder) {
     resources.forEach((fileIndex, resource) -> {
       try {
@@ -61,7 +61,7 @@ public class HttpUtil {
     });
   }
 
-  private static void prepareJsonPayload(InteractionResponse interactionResponse,
+  private static void buildJson(InteractionResponse interactionResponse,
       MultipartBodyBuilder builder) {
     builder.part(JSON_PAYLOAD_HEADER, interactionResponse)
         .contentType(MediaType.APPLICATION_JSON)

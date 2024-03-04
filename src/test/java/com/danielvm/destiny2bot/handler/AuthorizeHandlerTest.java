@@ -1,4 +1,4 @@
-package com.danielvm.destiny2bot.factory;
+package com.danielvm.destiny2bot.handler;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;

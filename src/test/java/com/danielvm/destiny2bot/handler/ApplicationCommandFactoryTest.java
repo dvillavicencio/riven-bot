@@ -1,8 +1,9 @@
-package com.danielvm.destiny2bot.factory;
+package com.danielvm.destiny2bot.handler;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.danielvm.destiny2bot.enums.SlashCommand;
+import com.danielvm.destiny2bot.factory.ApplicationCommandFactory;
 import com.danielvm.destiny2bot.handler.ApplicationCommandSource;
 import com.danielvm.destiny2bot.handler.AuthorizeHandler;
 import com.danielvm.destiny2bot.handler.RaidMapHandler;

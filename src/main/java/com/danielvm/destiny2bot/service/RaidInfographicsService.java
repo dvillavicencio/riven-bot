@@ -5,6 +5,8 @@ import static com.danielvm.destiny2bot.util.InteractionUtil.retrieveInteractionO
 import com.danielvm.destiny2bot.dto.discord.Interaction;
 import com.danielvm.destiny2bot.dto.discord.Option;
 import com.danielvm.destiny2bot.exception.ImageProcessingException;
+import java.io.BufferedReader;
+import java.io.FileReader;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
@@ -18,7 +20,7 @@ import reactor.util.function.Tuple2;
 
 @Service
 @Slf4j
-public class ImageAssetService {
+public class RaidInfographicsService {
 
   private static final String RAID_OPTION_NAME = "raid";
   private static final String ENCOUNTER_OPTION_NAME = "encounter";
@@ -26,7 +28,7 @@ public class ImageAssetService {
 
   private final PathMatchingResourcePatternResolver resourcePatternResolver;
 
-  public ImageAssetService(PathMatchingResourcePatternResolver resourcePatternResolver) {
+  public RaidInfographicsService(PathMatchingResourcePatternResolver resourcePatternResolver) {
     this.resourcePatternResolver = resourcePatternResolver;
   }
 

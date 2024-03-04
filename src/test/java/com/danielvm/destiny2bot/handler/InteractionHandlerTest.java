@@ -1,4 +1,4 @@
-package com.danielvm.destiny2bot.service;
+package com.danielvm.destiny2bot.handler;
 
 import static com.danielvm.destiny2bot.enums.InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE;
 import static com.danielvm.destiny2bot.handler.WeeklyDungeonHandler.MESSAGE_TEMPLATE;
@@ -14,6 +14,7 @@ import com.danielvm.destiny2bot.dto.discord.Member;
 import com.danielvm.destiny2bot.enums.SlashCommand;
 import com.danielvm.destiny2bot.factory.ApplicationCommandFactory;
 import com.danielvm.destiny2bot.factory.AutocompleteFactory;
+import com.danielvm.destiny2bot.handler.InteractionHandler;
 import com.danielvm.destiny2bot.handler.WeeklyDungeonHandler;
 import com.danielvm.destiny2bot.util.MessageUtil;
 import java.time.LocalDate;
@@ -28,7 +29,7 @@ import reactor.test.StepVerifier;
 import reactor.test.StepVerifier.FirstStep;
 
 @ExtendWith(MockitoExtension.class)
-public class InteractionServiceTest {
+public class InteractionHandlerTest {
 
   @Mock
   WeeklyDungeonHandler weeklyDungeonHandler;
@@ -40,7 +41,7 @@ public class InteractionServiceTest {
   AutocompleteFactory autocompleteFactory;
 
   @InjectMocks
-  private InteractionService interactionService;
+  private InteractionHandler interactionHandler;
 
   @Test
   @DisplayName("Create response is successful for PING interaction request")
@@ -52,7 +53,7 @@ public class InteractionServiceTest {
 
     // when: the interaction is received
     FirstStep<InteractionResponse> response = StepVerifier.create(
-        interactionService.handleInteraction(interaction));
+        interactionHandler.handleInteraction(interaction));
 
     // then: the response received is correct
     response
@@ -90,7 +91,7 @@ public class InteractionServiceTest {
 
     // when: the interaction is received
     FirstStep<InteractionResponse> response = StepVerifier.create(
-        interactionService.handleInteraction(interaction));
+        interactionHandler.handleInteraction(interaction));
 
     // then: the response received is correct and the message returned has the correct content
     response

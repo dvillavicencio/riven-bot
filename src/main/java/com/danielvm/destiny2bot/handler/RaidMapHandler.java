@@ -13,7 +13,7 @@ import com.danielvm.destiny2bot.enums.InteractionResponseType;
 import com.danielvm.destiny2bot.enums.Raid;
 import com.danielvm.destiny2bot.enums.RaidEncounter;
 import com.danielvm.destiny2bot.exception.InternalServerException;
-import com.danielvm.destiny2bot.service.ImageAssetService;
+import com.danielvm.destiny2bot.service.RaidInfographicsService;
 import com.danielvm.destiny2bot.util.InteractionUtil;
 import java.io.IOException;
 import java.util.Arrays;
@@ -35,11 +35,11 @@ public class RaidMapHandler implements ApplicationCommandSource, AutocompleteSou
   private static final String RAID_OPTION_NAME = "raid";
   private static final String ENCOUNTER_OPTION_NAME = "encounter";
 
-  private final ImageAssetService imageAssetService;
+  private final RaidInfographicsService raidInfographicsService;
 
   public RaidMapHandler(
-      ImageAssetService imageAssetService) {
-    this.imageAssetService = imageAssetService;
+      RaidInfographicsService raidInfographicsService) {
+    this.raidInfographicsService = raidInfographicsService;
   }
 
   private static InteractionResponse formatInteractionResponse(
@@ -109,7 +109,7 @@ public class RaidMapHandler implements ApplicationCommandSource, AutocompleteSou
   @Override
   public Mono<InteractionResponse> createResponse(Interaction interaction) {
     try {
-      return imageAssetService.retrieveEncounterImages(interaction)
+      return raidInfographicsService.retrieveEncounterImages(interaction)
           .map(RaidMapHandler::extractAttachments)
           .map(attachments -> formatInteractionResponse(interaction, attachments));
     } catch (IOException e) {

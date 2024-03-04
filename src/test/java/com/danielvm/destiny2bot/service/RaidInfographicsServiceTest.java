@@ -22,13 +22,13 @@ import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 import reactor.test.StepVerifier;
 
 @ExtendWith(MockitoExtension.class)
-public class ImageAssetServiceTest {
+public class RaidInfographicsServiceTest {
 
   @Mock
   private PathMatchingResourcePatternResolver resourcePatternResolver;
 
   @InjectMocks
-  private ImageAssetService sut;
+  private RaidInfographicsService sut;
 
   @Test
   @DisplayName("Retrieve encounter images' works as intended")

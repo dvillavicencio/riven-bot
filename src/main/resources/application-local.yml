@@ -31,4 +31,4 @@ application:
 
 logging:
   level:
-    org.springframework.http.converter.json: DEBUG
+    org.springframework.web.reactive: DEBUG
