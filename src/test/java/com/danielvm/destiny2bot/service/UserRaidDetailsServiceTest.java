@@ -11,7 +11,6 @@ import static org.mockito.Mockito.when;
 
 import com.danielvm.destiny2bot.client.BungieClient;
 import com.danielvm.destiny2bot.client.BungieClientWrapper;
-import com.danielvm.destiny2bot.dto.UserChoiceValue;
 import com.danielvm.destiny2bot.dto.destiny.ActivitiesResponse;
 import com.danielvm.destiny2bot.dto.destiny.Activity;
 import com.danielvm.destiny2bot.dto.destiny.ActivityDetails;
@@ -172,15 +171,6 @@ public class UserRaidDetailsServiceTest {
     String membershipId = "1389012";
     String characterId = "1";
 
-    Map<String, ValueEntry> entryMap = Map.of(
-        "deaths", new ValueEntry("deaths", new Basic(0.0, "0")),
-        "killsDeathsAssists", new ValueEntry("killsDeathsAssists", new Basic(134.0, "134")),
-        "activityDurationSeconds",
-        new ValueEntry("activityDurationSeconds", new Basic(3600.0, "3600")),
-        "completed", new ValueEntry("completed", new Basic(1.0, "1.0")),
-        "kills", new ValueEntry("kills", new Basic(134.0, "134.0"))
-    );
-
     var bungieResponse = new BungieResponse<ActivitiesResponse>(null);
     when(bungieClient.getActivityHistory(membershipType, membershipId, characterId, 250, 4, 0))
         .thenReturn(Mono.just(bungieResponse));
@@ -200,18 +190,16 @@ public class UserRaidDetailsServiceTest {
   }
 
   @Test
-  @DisplayName("create action for a new user is successful")
+  @DisplayName("Create action for a new user is successful")
   public void createUserRaidDetailsIsSuccessful() {
     // given: parsed data for user details
     String username = "Deaht";
-    Integer userTag = 8080;
+    int userTag = 8080;
     String membershipId = "12345";
     Integer membershipType = 3;
     String clanName = "Legends of Honor";
     String userId = username + "#" + userTag;
     Instant creationInstant = Instant.now();
-    UserChoiceValue parsedData = new UserChoiceValue(membershipId, membershipType, username,
-        userTag, "Legends of Honor");
 
     Map<String, UserCharacter> data = Map.of("1", new UserCharacter());
     Characters characters = new Characters(data);
@@ -265,7 +253,6 @@ public class UserRaidDetailsServiceTest {
 
       assertThat(ud.getUserIdentifier()).isEqualTo(userId);
       assertThat(ud.getLastRequestDateTime()).isEqualTo(creationInstant);
-      assertThat(ud.getDestinyClanName()).isEqualTo(clanName);
       assertThat(ud.getUserRaidDetails().size()).isEqualTo(5);
       assertThat(lastWish.getRaidName()).isEqualTo("Last Wish");
       assertThat(lastWish.getRaidDifficulty()).isNull();
@@ -278,7 +265,8 @@ public class UserRaidDetailsServiceTest {
     }))).thenReturn(Mono.empty());
 
     // when: create user details is called
-    var response = StepVerifier.create(sut.createUserDetails(creationInstant, parsedData));
+    var response = StepVerifier.create(
+        sut.createUserDetails(creationInstant, userId, membershipId, membershipType));
 
     // then: the saved entity is saved correctly
     response.verifyComplete();
@@ -295,14 +283,12 @@ public class UserRaidDetailsServiceTest {
   public void createUserDetailsRaidStatsDefaultValues() {
     // given: parsed data for user details
     String username = "Deaht";
-    Integer userTag = 8080;
+    int userTag = 8080;
     String membershipId = "12345";
     Integer membershipType = 3;
     String clanName = "Legends of Honor";
     String userId = username + "#" + userTag;
     Instant creationInstant = Instant.now();
-    UserChoiceValue parsedData = new UserChoiceValue(membershipId, membershipType, username,
-        userTag, "Legends of Honor");
 
     Map<String, UserCharacter> data = Map.of("1", new UserCharacter());
     Characters characters = new Characters(data);
@@ -348,7 +334,6 @@ public class UserRaidDetailsServiceTest {
 
       assertThat(ud.getUserIdentifier()).isEqualTo(userId);
       assertThat(ud.getLastRequestDateTime()).isEqualTo(creationInstant);
-      assertThat(ud.getDestinyClanName()).isEqualTo(clanName);
       assertThat(ud.getUserRaidDetails().size()).isEqualTo(5);
       assertThat(lastWish.getRaidName()).isEqualTo("Last Wish");
       assertThat(lastWish.getRaidDifficulty()).isNull();
@@ -361,7 +346,8 @@ public class UserRaidDetailsServiceTest {
     }))).thenReturn(Mono.empty());
 
     // when: create user details is called
-    var response = StepVerifier.create(sut.createUserDetails(creationInstant, parsedData));
+    var response = StepVerifier.create(
+        sut.createUserDetails(creationInstant, userId, membershipId, membershipType));
 
     // then: the saved entity is saved correctly
     response.verifyComplete();
@@ -527,13 +513,12 @@ public class UserRaidDetailsServiceTest {
   public void updateActionSuccessful() {
     // given: the timestamp this action was triggered and parsed user data
     String username = "Deaht";
-    Integer userTag = 8080;
+    int userTag = 8080;
     String membershipId = "12345";
     Integer membershipType = 3;
     String clanName = "Legends of Honor";
     String userId = username + "#" + userTag;
     var updatedInstant = Instant.now();
-    var parsedData = new UserChoiceValue(membershipId, membershipType, username, userTag, clanName);
 
     var threeDaysAgo = LocalDate.now().minusDays(3).atStartOfDay().toInstant(ZoneOffset.UTC);
     List<UserRaidDetails> existingData = new ArrayList<>();
@@ -607,7 +592,8 @@ public class UserRaidDetailsServiceTest {
     }))).thenReturn(Mono.empty());
 
     // when: create user details is called
-    var response = StepVerifier.create(sut.updateUserDetails(updatedInstant, parsedData));
+    var response = StepVerifier.create(
+        sut.updateUserDetails(updatedInstant, userId, membershipId, membershipType));
 
     // then: the saved entity is saved correctly
     response.verifyComplete();

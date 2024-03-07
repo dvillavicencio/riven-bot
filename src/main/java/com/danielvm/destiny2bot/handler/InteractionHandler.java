@@ -2,6 +2,7 @@ package com.danielvm.destiny2bot.handler;
 
 import com.danielvm.destiny2bot.dto.discord.Interaction;
 import com.danielvm.destiny2bot.dto.discord.InteractionResponse;
+import com.danielvm.destiny2bot.enums.InteractionResponseType;
 import com.danielvm.destiny2bot.enums.InteractionType;
 import com.danielvm.destiny2bot.enums.SlashCommand;
 import com.danielvm.destiny2bot.factory.ApplicationCommandFactory;
@@ -10,6 +11,7 @@ import com.danielvm.destiny2bot.factory.MessageComponentFactory;
 import com.danielvm.destiny2bot.service.RaidInfographicsService;
 import com.danielvm.destiny2bot.util.HttpResponseUtils;
 import java.io.IOException;
+import java.util.Objects;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.core.ParameterizedTypeReference;
@@ -57,13 +59,14 @@ public class InteractionHandler {
               };
           return resolveResponse(interaction, interactionType)
               .flatMap(response -> {
-                boolean hasAttachments = CollectionUtils.isNotEmpty(
-                    response.getData().getAttachments());
+                boolean hasAttachments =
+                    !Objects.equals(response.getType(), InteractionResponseType.PONG.getType())
+                    && CollectionUtils.isNotEmpty(response.getData().getAttachments());
+
                 return ServerResponse.ok().body(hasAttachments ?
                     BodyInserters.fromProducer(attachmentsResponse(interaction, response),
                         multiValueReference) :
                     BodyInserters.fromValue(response));
-
               });
         });
   }
