@@ -6,6 +6,10 @@ import com.danielvm.destiny2bot.dto.destiny.PostGameCarnageReport;
 import com.danielvm.destiny2bot.entity.PGCRDetails;
 import com.danielvm.destiny2bot.mapper.PGCRMapper;
 import com.danielvm.destiny2bot.repository.PGCRRepository;
+import io.github.resilience4j.ratelimiter.RateLimiter;
+import io.github.resilience4j.ratelimiter.RateLimiterConfig;
+import io.github.resilience4j.reactor.ratelimiter.operator.RateLimiterOperator;
+import java.time.Duration;
 import java.util.Collections;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -15,6 +19,13 @@ import reactor.core.publisher.Mono;
 @Service
 @Slf4j
 public class PostGameCarnageService {
+
+  private static final RateLimiter PGCR_RATE_LIMITER = RateLimiter.of("pgcr-rate-limiter",
+      RateLimiterConfig.custom()
+          .limitForPeriod(25)
+          .limitRefreshPeriod(Duration.ofSeconds(1))
+          .timeoutDuration(Duration.ofSeconds(30))
+          .build());
 
   private final BungieClient bungieClient;
   private final PGCRMapper pgcrMapper;
@@ -41,6 +52,7 @@ public class PostGameCarnageService {
         Collections.emptyList());
 
     Mono<PGCRDetails> retrievePGCR = bungieClient.getPostGameCarnageReport(activityInstanceId)
+        .transformDeferred(RateLimiterOperator.of(PGCR_RATE_LIMITER))
         .onErrorResume(WebClientException.class, err -> {
           log.warn("Response too big to parse, ignoring and falling back to default value", err);
           return Mono.just(new BungieResponse<>(errorFallbackResponse));

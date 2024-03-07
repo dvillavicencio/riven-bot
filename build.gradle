@@ -43,6 +43,8 @@ ext {
     set('springDataRedisVersion', '3.1.2')
     set('springSessionRedisVersion', '3.1.1')
     set('mapStructVersion', '1.5.5.Final')
+    set('resilienceReactorVersion', '1.6.1')
+    set('resilienceRateLimiterVersion', '1.6.1')
 }
 
 jar {
@@ -56,6 +58,8 @@ dependencies {
     implementation "org.springframework.session:spring-session-data-redis:${springSessionRedisVersion}"
     implementation "org.springframework.boot:spring-boot-starter-data-redis:${springDataRedisVersion}"
     implementation "org.springframework.boot:spring-boot-starter-data-mongodb-reactive:${springDataMongoDbVersion}"
+    implementation "io.github.resilience4j:resilience4j-reactor:${resilienceReactorVersion}"
+    implementation "io.github.resilience4j:resilience4j-ratelimiter:${resilienceRateLimiterVersion}"
     implementation "org.mapstruct:mapstruct:${mapStructVersion}"
     implementation "net.i2p.crypto:eddsa:${i2pCryptoVersion}"
     implementation "commons-io:commons-io:${IOCommonsVersion}"
