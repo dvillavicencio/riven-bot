@@ -7,7 +7,7 @@ import com.danielvm.destiny2bot.dto.discord.InteractionResponse;
 import com.danielvm.destiny2bot.dto.discord.InteractionResponseData;
 import com.danielvm.destiny2bot.enums.ActivityMode;
 import com.danielvm.destiny2bot.service.WeeklyActivitiesService;
-import com.danielvm.destiny2bot.util.MessageUtil;
+import com.danielvm.destiny2bot.util.MessageUtils;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
 
@@ -29,7 +29,7 @@ public class WeeklyRaidHandler implements ApplicationCommandSource {
   public Mono<InteractionResponse> createResponse(Interaction interaction) {
     return weeklyActivitiesService.getWeeklyActivity(ActivityMode.RAID)
         .map(activity -> {
-          var endDay = MessageUtil.formatDate(activity.getEndDate().toLocalDate());
+          var endDay = MessageUtils.formatDate(activity.getEndDate().toLocalDate());
           return InteractionResponse.builder()
               .type(CHANNEL_MESSAGE_WITH_SOURCE.getType())
               .data(InteractionResponseData.builder()

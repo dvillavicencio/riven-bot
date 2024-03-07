@@ -2,7 +2,7 @@ package com.danielvm.destiny2bot.filter;
 
 import com.danielvm.destiny2bot.config.DiscordConfiguration;
 import com.danielvm.destiny2bot.exception.InvalidSignatureException;
-import com.danielvm.destiny2bot.util.CryptoUtil;
+import com.danielvm.destiny2bot.util.CryptoUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.io.buffer.DataBuffer;
 import org.springframework.core.io.buffer.DataBufferUtils;
@@ -49,7 +49,7 @@ public class SignatureFilterFunction implements
           Assert.notNull(timestamp, "Signature timestamp is null");
 
           String publicKey = discordConfiguration.getBotPublicKey();
-          boolean isValid = CryptoUtil.validateSignature(bytes, signature, publicKey, timestamp);
+          boolean isValid = CryptoUtils.validateSignature(bytes, signature, publicKey, timestamp);
           if (!isValid) {
             log.error(
                 "There was a request with invalid signature. Signature: [{}], Timestamp: [{}]",

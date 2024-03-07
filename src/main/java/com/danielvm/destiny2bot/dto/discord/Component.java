@@ -43,6 +43,28 @@ public class Component {
   private String url;
 
   /**
+   * Emoji for this component
+   */
+  private Emoji emoji;
+
+  /**
+   * Placeholder value for a select menu before choosing
+   */
+  private String placeholder;
+
+  /**
+   * Minimum amount of select values in a select menu
+   */
+  @JsonProperty("min_values")
+  private Integer minValues;
+
+  /**
+   * Minimum amount of select values in a select menu
+   */
+  @JsonProperty("max_values")
+  private Integer maxValues;
+
+  /**
    * Array of options for select menu
    */
   private List<SelectOption> options;

@@ -30,7 +30,7 @@ public class CryptoUtilTest {
     String publicKey = Hex.encodeHexString(keyPair.getPublic().getEncoded());
 
     // when: validateSignature is called (ignore request for now)
-    boolean response = CryptoUtil.validateSignature(messageBytes, signature, publicKey, timeStamp);
+    boolean response = CryptoUtils.validateSignature(messageBytes, signature, publicKey, timeStamp);
 
     // then: no exception is thrown
     assertThat(response).isTrue();
@@ -55,7 +55,7 @@ public class CryptoUtilTest {
     String publicKey = Hex.encodeHexString(nonMaliciousKeyPair.getPublic().getEncoded());
 
     // when: validateSignature is called (ignore request for now)
-    boolean response = CryptoUtil.validateSignature(messageBytes, signature, publicKey, null);
+    boolean response = CryptoUtils.validateSignature(messageBytes, signature, publicKey, null);
 
     // then: the response is false
     assertThat(response).isFalse();

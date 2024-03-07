@@ -3,9 +3,8 @@ package com.danielvm.destiny2bot.factory;
 import com.danielvm.destiny2bot.enums.SlashCommand;
 import com.danielvm.destiny2bot.exception.ResourceNotFoundException;
 import com.danielvm.destiny2bot.handler.ApplicationCommandSource;
-import com.danielvm.destiny2bot.handler.AuthorizeHandler;
-import com.danielvm.destiny2bot.handler.RaidStatsHandler;
 import com.danielvm.destiny2bot.handler.RaidMapHandler;
+import com.danielvm.destiny2bot.handler.RaidStatsHandler;
 import com.danielvm.destiny2bot.handler.WeeklyDungeonHandler;
 import com.danielvm.destiny2bot.handler.WeeklyRaidHandler;
 import java.util.Map;
@@ -25,12 +24,10 @@ public class ApplicationCommandFactory implements SlashCommandHandler<Applicatio
       RaidMapHandler raidMapHandler,
       WeeklyRaidHandler weeklyRaidHandler,
       WeeklyDungeonHandler weeklyDungeonHandler,
-      AuthorizeHandler authorizeMessageHandler,
       RaidStatsHandler raidStatsHandler) {
     this.messageFactory = Map.of(
         SlashCommand.WEEKLY_RAID, weeklyRaidHandler,
         SlashCommand.WEEKLY_DUNGEON, weeklyDungeonHandler,
-        SlashCommand.AUTHORIZE, authorizeMessageHandler,
         SlashCommand.RAID_MAP, raidMapHandler,
         SlashCommand.RAID_STATS, raidStatsHandler);
   }

@@ -1,5 +1,6 @@
-package com.danielvm.destiny2bot.dto.destiny;
+package com.danielvm.destiny2bot.entity;
 
+import java.util.Set;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -8,6 +9,10 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class RaidStatistics {
+
+  private static final Set<String> RAIDS_WITH_MASTER_MODE = Set.of(
+      "Vault of Glass", "Vow of the Disciple", "King's Fall", "Root of Nightmares", "Crota's End"
+  );
 
   /**
    * The _Id of the MongoDB aggregation should be the name of the raid
@@ -83,6 +88,14 @@ public class RaidStatistics {
         .append("\n");
     raidTemplate.append(":trophy: ").append("Full Clears: ").append(this.fullClears)
         .append("\n");
+    if (RAIDS_WITH_MASTER_MODE.contains(this._id) && normalClears != 0) {
+      raidTemplate.append(":regional_indicator_n: ").append("Normal Clears: ")
+          .append(this.normalClears).append("\n");
+    }
+    if (RAIDS_WITH_MASTER_MODE.contains(this._id) && masterClears != 0) {
+      raidTemplate.append(":regional_indicator_m: ").append("Master Clears: ")
+          .append(this.masterClears).append("\n");
+    }
     return raidTemplate.toString();
   }
 }

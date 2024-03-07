@@ -1,6 +1,5 @@
 package com.danielvm.destiny2bot.dto.destiny;
 
-import com.danielvm.destiny2bot.dto.destiny.membership.DestinyMembershipData;
 import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Data;

@@ -8,6 +8,7 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import java.nio.charset.StandardCharsets;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cache.CacheManager;
@@ -24,6 +25,7 @@ import org.springframework.web.reactive.function.server.RouterFunctions;
 import org.springframework.web.reactive.function.server.ServerResponse;
 import reactor.core.publisher.Mono;
 
+@Slf4j
 @EnableCaching
 @SpringBootApplication
 @EnableAspectJAutoProxy
@@ -38,7 +40,7 @@ public class Destiny2botApplication {
       InteractionHandler interactionHandler,
       SignatureFilterFunction signatureFilterFunction) {
     return RouterFunctions.route()
-        .POST("/interactions", interactionHandler::handleInteraction)
+        .POST("/interactions", interactionHandler::handle)
         .filter(signatureFilterFunction)
         .build();
   }

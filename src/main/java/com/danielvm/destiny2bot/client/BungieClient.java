@@ -3,20 +3,17 @@ package com.danielvm.destiny2bot.client;
 import com.danielvm.destiny2bot.dto.destiny.ActivitiesResponse;
 import com.danielvm.destiny2bot.dto.destiny.BungieResponse;
 import com.danielvm.destiny2bot.dto.destiny.MemberGroupResponse;
+import com.danielvm.destiny2bot.dto.destiny.MembershipResponse;
 import com.danielvm.destiny2bot.dto.destiny.PostGameCarnageReport;
 import com.danielvm.destiny2bot.dto.destiny.SearchResult;
 import com.danielvm.destiny2bot.dto.destiny.UserGlobalSearchBody;
 import com.danielvm.destiny2bot.dto.destiny.characters.CharactersResponse;
 import com.danielvm.destiny2bot.dto.destiny.manifest.ResponseFields;
-import com.danielvm.destiny2bot.dto.destiny.membership.MembershipResponse;
 import com.danielvm.destiny2bot.dto.destiny.milestone.MilestoneEntry;
 import com.danielvm.destiny2bot.enums.ManifestEntity;
 import java.util.Map;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.service.annotation.GetExchange;
 import org.springframework.web.service.annotation.PostExchange;
@@ -28,24 +25,15 @@ import reactor.core.publisher.Mono;
 public interface BungieClient {
 
   /**
-   * Gets the membership info for the current user
+   * Gets the membership info for a user using their membershipId and their membershipType
    *
-   * @param bearerToken The user's bearer token
+   * @param membershipType The membership type of the user
+   * @param membershipId   The membershipId of the user
    * @return {@link MembershipResponse}
    */
-  @GetExchange("/User/GetMembershipsForCurrentUser/")
-  ResponseEntity<MembershipResponse> getMembershipForCurrentUser(
-      @RequestHeader(name = HttpHeaders.AUTHORIZATION) String bearerToken);
-
-  /**
-   * Gets the membership info for the current user in a reactive way
-   *
-   * @param bearerToken The user's bearer token
-   * @return {@link MembershipResponse}
-   */
-  @GetExchange("/User/GetMembershipsForCurrentUser/")
-  Mono<MembershipResponse> getMembershipInfoForCurrentUser(
-      @RequestHeader(name = HttpHeaders.AUTHORIZATION) String bearerToken);
+  @GetExchange("/User/GetMembershipsById/{membershipId}/{membershipType}/")
+  Mono<BungieResponse<MembershipResponse>> getMembershipInfoById(
+      @PathVariable String membershipId, @PathVariable Integer membershipType);
 
   /**
    * Ges a manifest entity from the Manifest API asynchronously

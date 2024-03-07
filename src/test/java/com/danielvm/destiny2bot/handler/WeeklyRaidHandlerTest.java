@@ -5,9 +5,8 @@ import static org.mockito.Mockito.when;
 import com.danielvm.destiny2bot.dto.WeeklyActivity;
 import com.danielvm.destiny2bot.enums.ActivityMode;
 import com.danielvm.destiny2bot.enums.InteractionResponseType;
-import com.danielvm.destiny2bot.handler.WeeklyRaidHandler;
 import com.danielvm.destiny2bot.service.WeeklyActivitiesService;
-import com.danielvm.destiny2bot.util.MessageUtil;
+import com.danielvm.destiny2bot.util.MessageUtils;
 import java.time.ZonedDateTime;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
@@ -44,7 +43,7 @@ public class WeeklyRaidHandlerTest {
     // then: the message created is correct
     String expectedMessage = WeeklyRaidHandler.MESSAGE_TEMPLATE.formatted(
         weeklyActivity.getName(),
-        MessageUtil.formatDate(weeklyActivity.getEndDate().toLocalDate()));
+        MessageUtils.formatDate(weeklyActivity.getEndDate().toLocalDate()));
     response
         .assertNext(ir -> {
           Assertions.assertThat(ir.getType())

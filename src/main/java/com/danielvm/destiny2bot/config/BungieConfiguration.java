@@ -7,9 +7,11 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
+import org.springframework.http.client.reactive.ReactorClientHttpConnector;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.support.WebClientAdapter;
 import org.springframework.web.service.invoker.HttpServiceProxyFactory;
+import reactor.netty.http.client.HttpClient;
 
 @Data
 @Configuration
@@ -69,8 +71,11 @@ public class BungieConfiguration {
    */
   @Bean("defaultBungieClient")
   public BungieClient bungieCharacterClient(WebClient.Builder builder) {
+    HttpClient httpClient = HttpClient.create()
+        .keepAlive(false);
     var webClient = builder
         .baseUrl(this.baseUrl)
+        .clientConnector(new ReactorClientHttpConnector(httpClient))
         .defaultHeader(API_KEY_HEADER_NAME, this.key)
         .codecs(clientCodecConfigurer -> clientCodecConfigurer.defaultCodecs()
             .maxInMemorySize(1024 * 1024))
@@ -89,8 +94,12 @@ public class BungieConfiguration {
    */
   @Bean(name = "pgcrBungieClient")
   public BungieClient pgcrBungieClient(WebClient.Builder builder) {
+    // Don't keep alive connections with Bungie.net
+    HttpClient httpClient = HttpClient.create()
+        .keepAlive(false);
     var webClient = builder
         .baseUrl(this.statsBaseUrl)
+        .clientConnector(new ReactorClientHttpConnector(httpClient))
         .defaultHeader(API_KEY_HEADER_NAME, this.key)
         .defaultHeader(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
         .defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)

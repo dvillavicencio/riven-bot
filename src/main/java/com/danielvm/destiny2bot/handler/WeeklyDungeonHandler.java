@@ -7,7 +7,7 @@ import com.danielvm.destiny2bot.dto.discord.InteractionResponse;
 import com.danielvm.destiny2bot.dto.discord.InteractionResponseData;
 import com.danielvm.destiny2bot.enums.ActivityMode;
 import com.danielvm.destiny2bot.service.WeeklyActivitiesService;
-import com.danielvm.destiny2bot.util.MessageUtil;
+import com.danielvm.destiny2bot.util.MessageUtils;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
 
@@ -27,12 +27,12 @@ public class WeeklyDungeonHandler implements ApplicationCommandSource {
   @Override
   public Mono<InteractionResponse> createResponse(Interaction interaction) {
     return weeklyActivitiesService.getWeeklyActivity(ActivityMode.DUNGEON)
-        .map(wd -> {
-          var endDay = MessageUtil.formatDate(wd.getEndDate().toLocalDate());
+        .map(weeklyDungeon -> {
+          var endDay = MessageUtils.formatDate(weeklyDungeon.getEndDate().toLocalDate());
           return InteractionResponse.builder()
               .type(CHANNEL_MESSAGE_WITH_SOURCE.getType())
               .data(InteractionResponseData.builder()
-                  .content(MESSAGE_TEMPLATE.formatted(wd.getName(), endDay))
+                  .content(MESSAGE_TEMPLATE.formatted(weeklyDungeon.getName(), endDay))
                   .build())
               .build();
         });

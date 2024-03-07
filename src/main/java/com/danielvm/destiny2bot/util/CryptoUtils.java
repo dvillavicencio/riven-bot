@@ -7,9 +7,9 @@ import org.apache.commons.codec.DecoderException;
 import org.apache.commons.codec.binary.Hex;
 import software.pando.crypto.nacl.Crypto;
 
-public class CryptoUtil {
+public class CryptoUtils {
 
-  private CryptoUtil() {
+  private CryptoUtils() {
 
   }
 

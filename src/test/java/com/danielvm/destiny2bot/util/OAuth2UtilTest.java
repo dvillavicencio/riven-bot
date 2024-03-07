@@ -17,7 +17,7 @@ public class OAuth2UtilTest {
     String token = "sometokentoformat";
 
     // when: formatBearerToken is called
-    String bearerToken = OAuth2Util.formatBearerToken(token);
+    String bearerToken = OAuth2Utils.formatBearerToken(token);
 
     // then: the returned bearer token is correct
     assertThat(bearerToken).isEqualTo("Bearer %s".formatted(token));
@@ -33,7 +33,7 @@ public class OAuth2UtilTest {
     String clientId = "someClientId";
 
     // when: buildTokenExchangeParameters is called
-    var responseMap = OAuth2Util.buildTokenExchangeParameters(authorizationCode, redirectUri,
+    var responseMap = OAuth2Utils.buildTokenExchangeParameters(authorizationCode, redirectUri,
         clientSecret, clientId);
 
     // then: the returned map contains all the values
@@ -54,7 +54,7 @@ public class OAuth2UtilTest {
     String clientId = "someClientId";
 
     // when: buildTokenExchangeParameters is called
-    var responseMap = OAuth2Util.buildRefreshTokenExchangeParameters(refreshToken,
+    var responseMap = OAuth2Utils.buildRefreshTokenExchangeParameters(refreshToken,
         clientId, clientSecret);
 
     // then: the returned map contains all the values
@@ -73,7 +73,7 @@ public class OAuth2UtilTest {
     String clientId = "someClientId";
 
     // when: buildTokenExchangeParameters is called
-    var authorizationUrl = OAuth2Util.bungieAuthorizationUrl(authUrl, clientId);
+    var authorizationUrl = OAuth2Utils.bungieAuthorizationUrl(authUrl, clientId);
 
     // then: the returned map contains all the values
     assertThat(authorizationUrl).isEqualTo("%s?response_type=code&client_id=%s"
@@ -90,7 +90,7 @@ public class OAuth2UtilTest {
     String scopes = "identify";
 
     // when: discordAuthorizationUrl is called
-    var authorizationUrl = OAuth2Util.discordAuthorizationUrl(authUrl, clientId,
+    var authorizationUrl = OAuth2Utils.discordAuthorizationUrl(authUrl, clientId,
         callbackUrl, scopes);
 
     // then: the returned map contains all the values

@@ -4,7 +4,7 @@ import com.danielvm.destiny2bot.dto.discord.Interaction;
 import com.danielvm.destiny2bot.dto.discord.InteractionResponse;
 import com.danielvm.destiny2bot.dto.discord.InteractionResponseData;
 import com.danielvm.destiny2bot.enums.InteractionResponseType;
-import com.danielvm.destiny2bot.util.MessageUtil;
+import com.danielvm.destiny2bot.util.MessageUtils;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
 
@@ -25,7 +25,7 @@ public class RaidStatsButtonHandler implements MessageComponentSource {
         .type(InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE.getType())
         .data(InteractionResponseData.builder()
             .content(RAID_STATS_EXPLANATION)
-            .flags(MessageUtil.EPHEMERAL_BYTE)
+            .flags(MessageUtils.EPHEMERAL_BYTE)
             .build())
         .build());
   }

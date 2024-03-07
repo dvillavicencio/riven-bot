@@ -19,7 +19,7 @@ import com.danielvm.destiny2bot.enums.InteractionType;
 import com.danielvm.destiny2bot.enums.ManifestEntity;
 import com.danielvm.destiny2bot.enums.Raid;
 import com.danielvm.destiny2bot.enums.RaidEncounter;
-import com.danielvm.destiny2bot.util.MessageUtil;
+import com.danielvm.destiny2bot.util.MessageUtils;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationFeature;
@@ -78,10 +78,10 @@ public class InteractionControllerTest extends BaseIntegrationTest {
           var startDate = entry.getValue().getStartDate();
           var endDate = entry.getValue().getEndDate();
           if (Objects.nonNull(startDate)) {
-            entry.getValue().setStartDate(MessageUtil.PREVIOUS_TUESDAY);
+            entry.getValue().setStartDate(MessageUtils.PREVIOUS_TUESDAY);
           }
           if (Objects.nonNull(endDate)) {
-            entry.getValue().setEndDate(MessageUtil.NEXT_TUESDAY);
+            entry.getValue().setEndDate(MessageUtils.NEXT_TUESDAY);
           }
         });
   }
@@ -158,7 +158,7 @@ public class InteractionControllerTest extends BaseIntegrationTest {
             """
                 This week's dungeon is: Spire of the Watcher.
                 You have until %s to complete it before the next dungeon in the rotation.
-                """.formatted(MessageUtil.formatDate(MessageUtil.NEXT_TUESDAY.toLocalDate())));
+                """.formatted(MessageUtils.formatDate(MessageUtils.NEXT_TUESDAY.toLocalDate())));
   }
 
   @Test
@@ -223,7 +223,7 @@ public class InteractionControllerTest extends BaseIntegrationTest {
             """
                 This week's raid is: Garden of Salvation.
                 You have until %s to complete it before the next raid comes along.
-                """.formatted(MessageUtil.formatDate(MessageUtil.NEXT_TUESDAY.toLocalDate())));
+                """.formatted(MessageUtils.formatDate(MessageUtils.NEXT_TUESDAY.toLocalDate())));
   }
 
   @Test

@@ -18,4 +18,9 @@ public class Emoji {
    * Name of the emoji
    */
   private String name;
+
+  /**
+   * Whether this emoji is animated or not
+   */
+  private Boolean animated;
 }

@@ -6,7 +6,7 @@ import lombok.Getter;
 
 public enum SlashCommand {
 
-  AUTHORIZE("authorize", false),
+  TEST("test", false),
   WEEKLY_DUNGEON("weekly_dungeon", false),
   WEEKLY_RAID("weekly_raid", false),
   RAID_STATS("raid_stats", true),

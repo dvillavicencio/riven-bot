@@ -9,7 +9,7 @@ import java.time.format.DateTimeFormatter;
 import java.time.temporal.TemporalAdjusters;
 
 
-public class MessageUtil {
+public class MessageUtils {
 
   private static final LocalTime DESTINY_2_STANDARD_RESET_TIME = LocalTime.of(9, 0);
   private static final ZoneId STANDARD_TIMEZONE = ZoneId.of("America/Los_Angeles");
@@ -27,7 +27,7 @@ public class MessageUtil {
   private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern(
       "EEEE d'%s', MMMM yyyy");
 
-  private MessageUtil() {
+  private MessageUtils() {
   }
 
   /**

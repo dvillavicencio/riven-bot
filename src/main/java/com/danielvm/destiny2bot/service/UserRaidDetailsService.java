@@ -2,7 +2,6 @@ package com.danielvm.destiny2bot.service;
 
 import com.danielvm.destiny2bot.client.BungieClient;
 import com.danielvm.destiny2bot.client.BungieClientWrapper;
-import com.danielvm.destiny2bot.dto.UserChoiceValue;
 import com.danielvm.destiny2bot.dto.destiny.ActivitiesResponse;
 import com.danielvm.destiny2bot.dto.destiny.Activity;
 import com.danielvm.destiny2bot.dto.destiny.Basic;
@@ -32,7 +31,6 @@ public class UserRaidDetailsService {
   private static final Integer MAX_PAGE_COUNT = 250;
   private static final Integer RAID_MODE = 4;
   private static final String EMPTY_RAID_NAME = "empty_name";
-  private static final String USER_ID_FORMAT = "%s#%s";
 
   private final BungieClient defaultBungieClient;
   private final UserDetailsRepository userDetailsRepository;
@@ -64,15 +62,13 @@ public class UserRaidDetailsService {
    * Creates user details for a new user that hasn't been seen yet
    *
    * @param creationInstant The instant this creation action was fired
-   * @param parsedData      Parsed data from the Discord option value that contains all data for
-   *                        retrieving and saving raid stats
+   * @param membershipId    The membershipId of the newly created user
+   * @param membershipType  The membershipType of the newly created user
+   * @param uniqueUsername  The unique username of the newly created user
    * @return {@link UserDetails} that were created and subsequently saved
    */
-  public Mono<UserDetails> createUserDetails(Instant creationInstant, UserChoiceValue parsedData) {
-    String membershipId = parsedData.getMembershipId();
-    Integer membershipType = parsedData.getMembershipType();
-    String userId = USER_ID_FORMAT.formatted(parsedData.getBungieDisplayName(),
-        parsedData.getBungieDisplayCode());
+  public Mono<UserDetails> createUserDetails(Instant creationInstant, String uniqueUsername,
+      String membershipId, Integer membershipType) {
     return defaultBungieClient.getUserCharacters(membershipType, membershipId)
         .flatMapMany(userCharacter -> Flux.fromIterable(
             userCharacter.getResponse().getCharacters().getData().keySet()))
@@ -82,7 +78,7 @@ public class UserRaidDetailsService {
         .flatMap(this::addPGCRDetails)
         .collectList()
         .flatMap(raidDetails -> {
-          UserDetails newEntry = new UserDetails(userId, parsedData.getClanName(), creationInstant,
+          UserDetails newEntry = new UserDetails(uniqueUsername, null, creationInstant,
               raidDetails);
           return userDetailsRepository.save(newEntry);
         });
@@ -92,16 +88,14 @@ public class UserRaidDetailsService {
    * Updates user details for a user that has already been seen by the bot
    *
    * @param updateTimestamp The timestamp when this update action was fired
-   * @param parsedData      Parsed data from the Discord option value that contains all data for
-   *                        retrieving and updating raid stats
+   * @param membershipId    The membershipId of the newly created user
+   * @param membershipType  The membershipType of the updated user
+   * @param uniqueUsername  The unique username of the updated user
    * @return {@link UserDetails} that were updated
    */
-  public Mono<UserDetails> updateUserDetails(Instant updateTimestamp, UserChoiceValue parsedData) {
-    String membershipId = parsedData.getMembershipId();
-    Integer membershipType = parsedData.getMembershipType();
-    String userId = USER_ID_FORMAT.formatted(parsedData.getBungieDisplayName(),
-        parsedData.getBungieDisplayCode());
-    return userDetailsRepository.findById(userId)
+  public Mono<UserDetails> updateUserDetails(Instant updateTimestamp, String uniqueUsername,
+      String membershipId, Integer membershipType) {
+    return userDetailsRepository.findById(uniqueUsername)
         .flatMap(userDetails -> defaultBungieClient.getUserCharacters(membershipType, membershipId)
             .flatMapIterable(response -> response.getResponse().getCharacters().getData().keySet())
             .flatMap(characterId -> getActivitiesUntil(membershipType, membershipId,
@@ -114,11 +108,11 @@ public class UserRaidDetailsService {
               if (CollectionUtils.isEmpty(raidDetails)) {
                 log.warn(
                     "No new raid encounters were found for user [{}]. Last time requested set to: [{}]",
-                    userId, updateTimestamp);
+                    uniqueUsername, updateTimestamp);
               } else {
                 log.info(
                     "Adding [{}] new raid encounters for user [{}]. Last time requested set to: [{}]",
-                    raidDetails.size(), userDetails, updateTimestamp);
+                    raidDetails.size(), uniqueUsername, updateTimestamp);
                 userDetails.getUserRaidDetails().addAll(raidDetails);
               }
               return userDetailsRepository.save(userDetails);

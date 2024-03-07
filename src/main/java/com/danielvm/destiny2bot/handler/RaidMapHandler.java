@@ -14,7 +14,7 @@ import com.danielvm.destiny2bot.enums.Raid;
 import com.danielvm.destiny2bot.enums.RaidEncounter;
 import com.danielvm.destiny2bot.exception.InternalServerException;
 import com.danielvm.destiny2bot.service.RaidInfographicsService;
-import com.danielvm.destiny2bot.util.InteractionUtil;
+import com.danielvm.destiny2bot.util.InteractionUtils;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
@@ -48,9 +48,9 @@ public class RaidMapHandler implements ApplicationCommandSource, AutocompleteSou
         "The options for the interaction cannot be null");
     List<Option> interactionOptions = interaction.getData().getOptions();
 
-    String encounterDirectory = InteractionUtil.retrieveInteractionOption(
+    String encounterDirectory = InteractionUtils.retrieveInteractionOption(
         interactionOptions, ENCOUNTER_OPTION_NAME);
-    String raidDirectory = InteractionUtil.retrieveInteractionOption(
+    String raidDirectory = InteractionUtils.retrieveInteractionOption(
         interactionOptions, RAID_OPTION_NAME);
 
     Raid raid = Raid.findRaid(raidDirectory);
@@ -113,7 +113,7 @@ public class RaidMapHandler implements ApplicationCommandSource, AutocompleteSou
           .map(RaidMapHandler::extractAttachments)
           .map(attachments -> formatInteractionResponse(interaction, attachments));
     } catch (IOException e) {
-      String raidName = InteractionUtil.retrieveInteractionOption(interaction.getData()
+      String raidName = InteractionUtils.retrieveInteractionOption(interaction.getData()
           .getOptions(), ENCOUNTER_OPTION_NAME);
       String errorMessage =
           "Something wrong happened while retrieving encounter images for raid [%s]".formatted(

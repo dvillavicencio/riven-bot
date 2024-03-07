@@ -7,8 +7,15 @@ import com.danielvm.destiny2bot.enums.SlashCommand;
 import com.danielvm.destiny2bot.factory.ApplicationCommandFactory;
 import com.danielvm.destiny2bot.factory.AutocompleteFactory;
 import com.danielvm.destiny2bot.factory.MessageComponentFactory;
+import com.danielvm.destiny2bot.service.RaidInfographicsService;
+import com.danielvm.destiny2bot.util.HttpResponseUtils;
+import java.io.IOException;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections4.CollectionUtils;
+import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.http.HttpEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.util.MultiValueMap;
 import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.server.ServerRequest;
 import org.springframework.web.reactive.function.server.ServerResponse;
@@ -21,13 +28,17 @@ public class InteractionHandler {
   private final ApplicationCommandFactory applicationCommandFactory;
   private final AutocompleteFactory autocompleteFactory;
   private final MessageComponentFactory messageComponentFactory;
+  private final RaidInfographicsService raidInfographicsService;
 
   public InteractionHandler(
       ApplicationCommandFactory applicationCommandFactory,
-      AutocompleteFactory autocompleteFactory, MessageComponentFactory messageComponentFactory) {
+      AutocompleteFactory autocompleteFactory,
+      MessageComponentFactory messageComponentFactory,
+      RaidInfographicsService raidInfographicsService) {
     this.applicationCommandFactory = applicationCommandFactory;
     this.autocompleteFactory = autocompleteFactory;
     this.messageComponentFactory = messageComponentFactory;
+    this.raidInfographicsService = raidInfographicsService;
   }
 
   /**
@@ -37,29 +48,54 @@ public class InteractionHandler {
    * @param request the incoming server request from Discord chat
    * @return {@link InteractionResponse}
    */
-  public Mono<ServerResponse> handleInteraction(ServerRequest request) {
+  public Mono<ServerResponse> handle(ServerRequest request) {
     return request.bodyToMono(Interaction.class)
         .flatMap(interaction -> {
           InteractionType interactionType = InteractionType.findByValue(interaction.getType());
-          return switch (interactionType) {
-            case MESSAGE_COMPONENT -> {
-              String componentId = interaction.getData().getCustomId();
-              yield messageComponentFactory.handle(componentId).respond(interaction);
-            }
-            case MODAL_SUBMIT -> Mono.just(new InteractionResponse());
-            case APPLICATION_COMMAND_AUTOCOMPLETE -> {
-              SlashCommand command = SlashCommand.findByName(interaction.getData().getName());
-              yield autocompleteFactory.messageCreator(command).autocompleteResponse(interaction);
-            }
-            case APPLICATION_COMMAND -> {
-              SlashCommand command = SlashCommand.findByName(interaction.getData().getName());
-              yield applicationCommandFactory.messageCreator(command).createResponse(interaction);
-            }
-            case PING -> Mono.just(InteractionResponse.PING());
-          };
-        })
-        .flatMap(interactionResponse -> ServerResponse.ok()
-            .body(BodyInserters.fromValue(interactionResponse)));
+          ParameterizedTypeReference<MultiValueMap<String, HttpEntity<?>>> multiValueReference =
+              new ParameterizedTypeReference<>() {
+              };
+          return resolveResponse(interaction, interactionType)
+              .flatMap(response -> {
+                boolean hasAttachments = CollectionUtils.isNotEmpty(
+                    response.getData().getAttachments());
+                return ServerResponse.ok().body(hasAttachments ?
+                    BodyInserters.fromProducer(attachmentsResponse(interaction, response),
+                        multiValueReference) :
+                    BodyInserters.fromValue(response));
+
+              });
+        });
+  }
+
+  private Mono<InteractionResponse> resolveResponse(Interaction interaction,
+      InteractionType interactionType) {
+    return switch (interactionType) {
+      case MESSAGE_COMPONENT -> {
+        String componentId = interaction.getData().getCustomId();
+        yield messageComponentFactory.handle(componentId).respond(interaction);
+      }
+      case MODAL_SUBMIT -> Mono.just(new InteractionResponse());
+      case APPLICATION_COMMAND_AUTOCOMPLETE -> {
+        SlashCommand command = SlashCommand.findByName(interaction.getData().getName());
+        yield autocompleteFactory.messageCreator(command).autocompleteResponse(interaction);
+      }
+      case APPLICATION_COMMAND -> {
+        SlashCommand command = SlashCommand.findByName(interaction.getData().getName());
+        yield applicationCommandFactory.messageCreator(command).createResponse(interaction);
+      }
+      case PING -> Mono.just(InteractionResponse.PING());
+    };
+  }
+
+  private Mono<MultiValueMap<String, HttpEntity<?>>> attachmentsResponse(
+      Interaction interaction, InteractionResponse interactionResponse) {
+    try {
+      return raidInfographicsService.retrieveEncounterImages(interaction)
+          .map(assets -> HttpResponseUtils.filesResponse(interactionResponse, assets));
+    } catch (IOException e) {
+      return Mono.error(new RuntimeException(e));
+    }
   }
 
 }

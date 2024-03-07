@@ -8,11 +8,11 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.util.UriComponentsBuilder;
 
 @Validated
-public class OAuth2Util {
+public class OAuth2Utils {
 
   private static final String BEARER_TOKEN_FORMAT = "Bearer %s";
 
-  private OAuth2Util() {
+  private OAuth2Utils() {
   }
 
   /**

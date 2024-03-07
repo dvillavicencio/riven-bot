@@ -1,11 +1,10 @@
 package com.danielvm.destiny2bot.service;
 
-import com.danielvm.destiny2bot.dto.UserChoiceValue;
-import com.danielvm.destiny2bot.dto.destiny.RaidStatistics;
+import com.danielvm.destiny2bot.entity.RaidStatistics;
 import com.danielvm.destiny2bot.entity.UserDetails;
 import com.danielvm.destiny2bot.enums.RaidDifficulty;
 import java.time.Instant;
-import java.util.List;
+import java.util.Set;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.data.mongodb.core.aggregation.Aggregation;
@@ -23,7 +22,7 @@ import reactor.core.publisher.Mono;
 @Slf4j
 public class RaidStatsService {
 
-  private static final List<String> RAIDS_WITH_MASTER_MODE = List.of(
+  private static final Set<String> RAIDS_WITH_MASTER_MODE = Set.of(
       "Vault of Glass", "Vow of the Disciple", "King's Fall", "Root of Nightmares", "Crota's End"
   );
   private static final String RAID_NAME = "userRaidDetails.raidName";
@@ -116,26 +115,48 @@ public class RaidStatsService {
    * Calculate user raid statistics based on the parsed data from a Discord option value. This
    * method returns a map of the raid stats grouped by the raid name.
    *
-   * @param parsedData The parsed data needed to retrieve Raid Statistics for a player
+   * @param uniqueUsername The parsed data needed to retrieve Raid Statistics for a player
+   * @param membershipId   The membershipId of the Destiny 2 user
+   * @param membershipType The membership type of the Destiny 2 user
    * @return Map of Raid Statistics grouped by raid name
    */
-  public Flux<RaidStatistics> calculateRaidStats(UserChoiceValue parsedData) {
+  public Flux<RaidStatistics> calculateRaidStats(String uniqueUsername, String membershipId,
+      Integer membershipType) {
     Instant now = Instant.now(); // Timestamp for this action
-    String userId = parsedData.getBungieDisplayName() + "#" + parsedData.getBungieDisplayCode();
+    Mono<UserDetails> createAction = createUser(
+        now, uniqueUsername, membershipType, membershipId);
+    Mono<UserDetails> updateAction = updateUser(
+        now, uniqueUsername, membershipType, membershipId);
 
-    Mono<UserDetails> createAction = userRaidDetailsService.createUserDetails(now, parsedData)
-        .doOnSubscribe(subscription -> log.info("Creation action initiated for user [{}]", userId))
-        .doOnSuccess(userDetails -> log.info("Creation action finished for user [{}]", userId));
+    Aggregation aggregation = raidStatisticsAggregationPipeline(uniqueUsername);
 
-    Mono<UserDetails> updateAction = userRaidDetailsService.updateUserDetails(now, parsedData)
-        .doOnSubscribe(subscription -> log.info("Update action initiated for user [{}]", userId))
-        .doOnSuccess(userDetails -> log.info("Update action finished for user [{}]", userId));
-
-    Aggregation aggregation = raidStatisticsAggregationPipeline(userId);
-
-    return userRaidDetailsService.existsById(userId)
+    return userRaidDetailsService.existsById(uniqueUsername)
         .flatMap(exists -> exists ? updateAction : createAction)
         .flatMapMany(userDetails -> reactiveMongoTemplate.aggregate(aggregation,
             UserDetails.class, RaidStatistics.class));
+  }
+
+  private Mono<UserDetails> updateUser(Instant now, String uniqueUsername, Integer membershipType,
+      String membershipId) {
+    return userRaidDetailsService.updateUserDetails(now, uniqueUsername, membershipId,
+            membershipType)
+        .doOnSubscribe(subscription ->
+            log.info("Update action initiated for user [{}] with ID [{}] and membership type: [{}]",
+                uniqueUsername, membershipId, membershipType))
+        .doOnSuccess(userDetails ->
+            log.info("Update action finished for user [{}] with ID: [{}] and membership type: [{}]",
+                uniqueUsername, membershipId, membershipType));
+  }
+
+  private Mono<UserDetails> createUser(Instant now, String uniqueUsername,
+      Integer membershipType, String membershipId) {
+    return userRaidDetailsService.createUserDetails(now, uniqueUsername, membershipId,
+            membershipType)
+        .doOnSubscribe(subscription -> log.info(
+            "Creation action initiated for user [{}] with ID: [{}] and membership type: [{}]",
+            uniqueUsername, membershipId, membershipType))
+        .doOnSuccess(userDetails -> log.info(
+            "Creation action finished for user [{}] with ID: [{}] and membership type: [{}]",
+            uniqueUsername, membershipId, membershipType));
   }
 }

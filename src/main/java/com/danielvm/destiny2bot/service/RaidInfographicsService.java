@@ -1,12 +1,10 @@
 package com.danielvm.destiny2bot.service;
 
-import static com.danielvm.destiny2bot.util.InteractionUtil.retrieveInteractionOption;
+import static com.danielvm.destiny2bot.util.InteractionUtils.retrieveInteractionOption;
 
 import com.danielvm.destiny2bot.dto.discord.Interaction;
 import com.danielvm.destiny2bot.dto.discord.Option;
 import com.danielvm.destiny2bot.exception.ImageProcessingException;
-import java.io.BufferedReader;
-import java.io.FileReader;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;

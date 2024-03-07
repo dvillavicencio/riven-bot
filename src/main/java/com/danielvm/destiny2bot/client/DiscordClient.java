@@ -26,6 +26,13 @@ public interface DiscordClient {
   Mono<DiscordUserResponse> getUser(
       @RequestHeader(HttpHeaders.AUTHORIZATION) String bearerToken);
 
+  /**
+   * Edit an interaction that was sent already
+   *
+   * @param applicationId    The id of the application
+   * @param interactionToken The interaction token of the original interaction to edit
+   * @param data             The data to send
+   */
   @PatchExchange(value = "/webhooks/{applicationId}/{interactionToken}/messages/@original", contentType = MediaType.APPLICATION_JSON_VALUE)
   Mono<Void> editOriginalInteraction(
       @PathVariable Long applicationId,

@@ -14,9 +14,7 @@ import com.danielvm.destiny2bot.dto.discord.Member;
 import com.danielvm.destiny2bot.enums.SlashCommand;
 import com.danielvm.destiny2bot.factory.ApplicationCommandFactory;
 import com.danielvm.destiny2bot.factory.AutocompleteFactory;
-import com.danielvm.destiny2bot.handler.InteractionHandler;
-import com.danielvm.destiny2bot.handler.WeeklyDungeonHandler;
-import com.danielvm.destiny2bot.util.MessageUtil;
+import com.danielvm.destiny2bot.util.MessageUtils;
 import java.time.LocalDate;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -53,7 +51,7 @@ public class InteractionHandlerTest {
 
     // when: the interaction is received
     FirstStep<InteractionResponse> response = StepVerifier.create(
-        interactionHandler.handleInteraction(interaction));
+        interactionHandler.handle(interaction));
 
     // then: the response received is correct
     response
@@ -72,7 +70,7 @@ public class InteractionHandlerTest {
         .applicationId("myApplicationId").type(2).member(member).data(data)
         .build();
 
-    String endDate = MessageUtil.formatDate(LocalDate.now());
+    String endDate = MessageUtils.formatDate(LocalDate.now());
     String dungeon = "Duality";
     String content = MESSAGE_TEMPLATE.formatted(dungeon, endDate);
 
@@ -91,7 +89,7 @@ public class InteractionHandlerTest {
 
     // when: the interaction is received
     FirstStep<InteractionResponse> response = StepVerifier.create(
-        interactionHandler.handleInteraction(interaction));
+        interactionHandler.handle(interaction));
 
     // then: the response received is correct and the message returned has the correct content
     response

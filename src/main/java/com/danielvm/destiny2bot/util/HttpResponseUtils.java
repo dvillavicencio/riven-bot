@@ -17,13 +17,13 @@ import org.springframework.util.MultiValueMap;
  * Utilities for reformatting Request/Response entities
  */
 @Slf4j
-public class HttpUtil {
+public class HttpResponseUtils {
 
   private static final String JSON_PAYLOAD_HEADER = "payload_json";
   private static final String JSON_PAYLOAD_CONTENT_DISPOSITION_VALUE = "form-data; name=\"payload_json\"";
   private static final String FILE_PAYLOAD_INDEX = "files[%s]";
 
-  private HttpUtil() {
+  private HttpResponseUtils() {
   }
 
   /**
@@ -36,7 +36,7 @@ public class HttpUtil {
    * @param resources           The Map indexed classpath resources
    * @return MultiValueMap HttpEntities with all files and the json payload
    */
-  public static MultiValueMap<String, HttpEntity<?>> prepareMultipartPayload(
+  public static MultiValueMap<String, HttpEntity<?>> filesResponse(
       InteractionResponse interactionResponse, Map<Long, Resource> resources) {
     MultipartBodyBuilder builder = new MultipartBodyBuilder();
     buildJson(interactionResponse, builder);
