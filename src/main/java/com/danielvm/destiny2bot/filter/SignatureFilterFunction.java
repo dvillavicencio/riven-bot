@@ -1,17 +1,19 @@
 package com.danielvm.destiny2bot.filter;
 
 import com.danielvm.destiny2bot.config.DiscordConfiguration;
-import com.danielvm.destiny2bot.exception.InvalidSignatureException;
 import com.danielvm.destiny2bot.util.CryptoUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.io.buffer.DataBuffer;
 import org.springframework.core.io.buffer.DataBufferUtils;
 import org.springframework.core.io.buffer.DefaultDataBufferFactory;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ProblemDetail;
 import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.http.server.reactive.ServerHttpRequestDecorator;
 import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 import org.springframework.web.reactive.function.BodyExtractors;
+import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.server.HandlerFilterFunction;
 import org.springframework.web.reactive.function.server.HandlerFunction;
 import org.springframework.web.reactive.function.server.ServerRequest;
@@ -57,7 +59,9 @@ public class SignatureFilterFunction implements
                 signature, timestamp);
             String errorMessage = "The signature passed in was invalid. Timestamp: [%s], Signature [%s]"
                 .formatted(timestamp, signature);
-            return Mono.error(new InvalidSignatureException(errorMessage));
+            ProblemDetail detail = ProblemDetail.forStatus(HttpStatus.BAD_REQUEST);
+            detail.setDetail(errorMessage);
+            return ServerResponse.badRequest().body(BodyInserters.fromValue(detail));
           }
 
           DefaultDataBufferFactory factory = new DefaultDataBufferFactory();

@@ -7,12 +7,14 @@ import com.danielvm.destiny2bot.dto.destiny.characters.UserCharacter;
 import com.danielvm.destiny2bot.dto.destiny.manifest.ManifestResponseFields;
 import com.danielvm.destiny2bot.dto.destiny.milestone.MilestoneEntry;
 import com.danielvm.destiny2bot.enums.ManifestEntity;
+import com.danielvm.destiny2bot.exception.InternalServerException;
 import com.danielvm.destiny2bot.exception.ResourceNotFoundException;
 import java.util.Map;
 import java.util.Objects;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 
@@ -94,6 +96,13 @@ public class BungieAPIService {
    */
   public Mono<Map<String, MilestoneEntry>> getPublicMilestones() {
     return defaultBungieClient.getPublicMilestones()
-        .map(BungieResponse::getResponse);
+        .flatMap(response -> {
+          if (Objects.isNull(response) || Objects.isNull(response.getResponse())) {
+            return Mono.error(new InternalServerException(
+                "No available milestone data was available for processing",
+                HttpStatus.INTERNAL_SERVER_ERROR));
+          }
+          return Mono.just(response.getResponse());
+        });
   }
 }

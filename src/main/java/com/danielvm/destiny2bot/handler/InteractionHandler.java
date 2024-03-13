@@ -75,7 +75,7 @@ public class InteractionHandler {
                     ProblemDetail problemDetail = ProblemDetail.forStatus(ex.getStatus());
                     problemDetail.setDetail(ex.getMessage());
                     return ServerResponse.status(ex.getStatus())
-                        .body(BodyInserters.fromValue(ex.getMessage()));
+                        .body(BodyInserters.fromValue(problemDetail));
                   }
               );
         });
