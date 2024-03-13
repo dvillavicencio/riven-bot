@@ -150,6 +150,7 @@ public class RaidStatsService {
 
   private Mono<UserDetails> createUser(Instant now, String uniqueUsername,
       Integer membershipType, String membershipId) {
+
     return userRaidDetailsService.createUserDetails(now, uniqueUsername, membershipId,
             membershipType)
         .doOnSubscribe(subscription -> log.info(

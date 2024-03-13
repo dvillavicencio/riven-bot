@@ -69,6 +69,7 @@ dependencies {
     implementation "commons-codec:commons-codec:${commonsCodecVersion}"
     implementation "software.pando.crypto:salty-coffee:${pandoCryptoVersion}"
     implementation "org.apache.commons:commons-collections4:${apacheCollectionsVersion}"
+    implementation 'org.springframework.boot:spring-boot-starter-actuator'
     compileOnly 'org.projectlombok:lombok'
     annotationProcessor 'org.projectlombok:lombok'
     annotationProcessor "org.mapstruct:mapstruct-processor:${mapStructVersion}"

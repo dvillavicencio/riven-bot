@@ -5,6 +5,7 @@ import com.danielvm.destiny2bot.dto.discord.InteractionResponse;
 import com.danielvm.destiny2bot.enums.InteractionResponseType;
 import com.danielvm.destiny2bot.enums.InteractionType;
 import com.danielvm.destiny2bot.enums.SlashCommand;
+import com.danielvm.destiny2bot.exception.BaseException;
 import com.danielvm.destiny2bot.factory.ApplicationCommandFactory;
 import com.danielvm.destiny2bot.factory.AutocompleteFactory;
 import com.danielvm.destiny2bot.factory.MessageComponentFactory;
@@ -16,6 +17,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpEntity;
+import org.springframework.http.ProblemDetail;
 import org.springframework.stereotype.Service;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.reactive.function.BodyInserters;
@@ -67,7 +69,15 @@ public class InteractionHandler {
                     BodyInserters.fromProducer(attachmentsResponse(interaction, response),
                         multiValueReference) :
                     BodyInserters.fromValue(response));
-              });
+              })
+              .onErrorResume(BaseException.class,
+                  ex -> {
+                    ProblemDetail problemDetail = ProblemDetail.forStatus(ex.getStatus());
+                    problemDetail.setDetail(ex.getMessage());
+                    return ServerResponse.status(ex.getStatus())
+                        .body(BodyInserters.fromValue(ex.getMessage()));
+                  }
+              );
         });
   }
 

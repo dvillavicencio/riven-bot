@@ -9,6 +9,7 @@ import com.danielvm.destiny2bot.dto.discord.InteractionData;
 import com.danielvm.destiny2bot.dto.discord.Option;
 import com.danielvm.destiny2bot.exception.ImageProcessingException;
 import java.io.IOException;
+import java.util.Collections;
 import java.util.List;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
@@ -37,8 +38,8 @@ public class RaidInfographicsServiceTest {
     String raidName = "last_wish";
     String raidEncounter = "kalli";
     List<Option> options = List.of(
-        new Option("raid", 3, raidName, false),
-        new Option("encounter", 3, raidEncounter, false));
+        new Option("raid", 3, raidName, false, Collections.emptyList()),
+        new Option("encounter", 3, raidEncounter, false, Collections.emptyList()));
     InteractionData data = InteractionData.builder()
         .options(options)
         .build();
@@ -74,8 +75,8 @@ public class RaidInfographicsServiceTest {
     String raidName = "last_wish";
     String raidEncounter = "kalli";
     List<Option> options = List.of(
-        new Option("raid", 3, raidName, false),
-        new Option("encounter", 3, raidEncounter, false));
+        new Option("raid", 3, raidName, false, Collections.emptyList()),
+        new Option("encounter", 3, raidEncounter, false, Collections.emptyList()));
     InteractionData data = InteractionData.builder()
         .options(options)
         .build();

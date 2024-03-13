@@ -54,7 +54,7 @@ public class PostGameCarnageService {
     Mono<PGCRDetails> retrievePGCR = bungieClient.getPostGameCarnageReport(activityInstanceId)
         .transformDeferred(RateLimiterOperator.of(PGCR_RATE_LIMITER))
         .onErrorResume(WebClientException.class, err -> {
-          log.warn("Response too big to parse, ignoring and falling back to default value", err);
+          log.debug("Response too big to parse, ignoring and falling back to default value", err);
           return Mono.just(new BungieResponse<>(errorFallbackResponse));
         })
         .map(BungieResponse::getResponse)

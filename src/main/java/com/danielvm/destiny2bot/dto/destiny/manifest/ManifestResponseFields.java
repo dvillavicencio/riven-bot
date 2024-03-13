@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class ResponseFields {
+public class ManifestResponseFields {
 
   private DisplayProperties displayProperties;
 

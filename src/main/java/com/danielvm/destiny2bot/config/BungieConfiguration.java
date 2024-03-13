@@ -78,7 +78,7 @@ public class BungieConfiguration {
         .clientConnector(new ReactorClientHttpConnector(httpClient))
         .defaultHeader(API_KEY_HEADER_NAME, this.key)
         .codecs(clientCodecConfigurer -> clientCodecConfigurer.defaultCodecs()
-            .maxInMemorySize(1024 * 1024))
+            .maxInMemorySize(1024 * 512))
         .build();
     return HttpServiceProxyFactory.builder()
         .exchangeAdapter(WebClientAdapter.create(webClient))
@@ -95,16 +95,13 @@ public class BungieConfiguration {
   @Bean(name = "pgcrBungieClient")
   public BungieClient pgcrBungieClient(WebClient.Builder builder) {
     // Don't keep alive connections with Bungie.net
-    HttpClient httpClient = HttpClient.create()
-        .keepAlive(false);
     var webClient = builder
         .baseUrl(this.statsBaseUrl)
-        .clientConnector(new ReactorClientHttpConnector(httpClient))
         .defaultHeader(API_KEY_HEADER_NAME, this.key)
         .defaultHeader(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
         .defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
         .codecs(clientCodecConfigurer -> clientCodecConfigurer.defaultCodecs()
-            .maxInMemorySize(1024 * 1024 * 5))
+            .maxInMemorySize(1024 * 20))
         .build();
     return HttpServiceProxyFactory.builder()
         .exchangeAdapter(WebClientAdapter.create(webClient))

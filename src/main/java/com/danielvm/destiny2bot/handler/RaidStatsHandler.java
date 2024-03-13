@@ -3,8 +3,8 @@ package com.danielvm.destiny2bot.handler;
 import com.danielvm.destiny2bot.client.BungieClient;
 import com.danielvm.destiny2bot.client.DiscordClient;
 import com.danielvm.destiny2bot.config.DiscordConfiguration;
+import com.danielvm.destiny2bot.dto.destiny.ExactUserSearchRequest;
 import com.danielvm.destiny2bot.dto.destiny.MemberGroupResponse;
-import com.danielvm.destiny2bot.entity.RaidStatistics;
 import com.danielvm.destiny2bot.dto.destiny.UserGlobalSearchBody;
 import com.danielvm.destiny2bot.dto.destiny.UserSearchResult;
 import com.danielvm.destiny2bot.dto.discord.Choice;
@@ -16,12 +16,16 @@ import com.danielvm.destiny2bot.dto.discord.EmbeddedFooter;
 import com.danielvm.destiny2bot.dto.discord.Interaction;
 import com.danielvm.destiny2bot.dto.discord.InteractionResponse;
 import com.danielvm.destiny2bot.dto.discord.InteractionResponseData;
+import com.danielvm.destiny2bot.dto.discord.Option;
+import com.danielvm.destiny2bot.entity.RaidStatistics;
 import com.danielvm.destiny2bot.enums.InteractionResponseType;
+import com.danielvm.destiny2bot.exception.BadRequestException;
 import com.danielvm.destiny2bot.service.RaidStatsService;
 import java.time.Instant;
 import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
+import org.springframework.http.HttpStatus;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
 
@@ -31,6 +35,8 @@ public class RaidStatsHandler implements AutocompleteSource, ApplicationCommandS
 
   private static final String STATS_TITLE = "Raid Stats for %s";
   private static final String CHOICE_FORMAT = "%s:%s";
+  private static final String USER_TAG_OPTION_NAME = "usertag";
+  private static final String USERNAME_OPTION_NAME = "username";
   private static final Integer CLAN_GROUP_TYPE = 1;
   private static final Integer CLAN_SIZE_FILTER = 0;
 
@@ -52,9 +58,13 @@ public class RaidStatsHandler implements AutocompleteSource, ApplicationCommandS
 
   @Override
   public Mono<InteractionResponse> autocompleteResponse(Interaction interaction) {
-    Object focusedOption = interaction.getData().getOptions().get(0).getValue();
-    return defaultBungieClient.searchByGlobalName(new UserGlobalSearchBody((String) focusedOption),
-            0)
+    Option usernameLookupOption = interaction.getData().getOptions().stream()
+        .filter(option -> option.getName().equalsIgnoreCase(USERNAME_OPTION_NAME)).findFirst()
+        .orElseThrow(
+            () -> new BadRequestException("Username option not found", HttpStatus.BAD_REQUEST))
+        .getOptions().getFirst();
+    return defaultBungieClient.searchByGlobalName(
+            new UserGlobalSearchBody((String) usernameLookupOption.getValue()), 0)
         .flatMapIterable(response -> response.getResponse().getSearchResults())
         .take(25)
         .filter(result -> CollectionUtils.isNotEmpty(result.getDestinyMemberships()))
@@ -83,10 +93,10 @@ public class RaidStatsHandler implements AutocompleteSource, ApplicationCommandS
   @Override
   public Mono<InteractionResponse> createResponse(Interaction interaction) {
     var asyncScheduler = Schedulers.boundedElastic();
-    var raidsAsync = processRaidsResponseUser(interaction)
+    var raidsAsync = processRaidsAsynchronously(interaction)
+        .subscribeOn(asyncScheduler)
         .flatMap(response -> discordClient.editOriginalInteraction(
-            discordConfiguration.getApplicationId(), interaction.getToken(), response))
-        .subscribeOn(asyncScheduler);
+            discordConfiguration.getApplicationId(), interaction.getToken(), response));
 
     raidsAsync.subscribe();
 
@@ -96,13 +106,38 @@ public class RaidStatsHandler implements AutocompleteSource, ApplicationCommandS
         .build());
   }
 
-  private Mono<InteractionResponseData> processRaidsResponseUser(Interaction interaction) {
-    String parsedData = ((String) interaction.getData().getOptions().get(0)
-        .getValue());
-    String[] values = parsedData.split(":");
-    Integer membershipType = Integer.valueOf(values[0]);
-    String membershipId = values[1];
+  private Mono<InteractionResponseData> processRaidsAsynchronously(Interaction interaction) {
+    return Mono.just(interaction).flatMap(i -> {
+      var usernameOnly = interaction.getData().getOptions().stream()
+          .anyMatch(option -> option.getName().equalsIgnoreCase(USERNAME_OPTION_NAME));
+      // If the request only has username
+      if (usernameOnly) {
+        Object optionValue = i.getData().getOptions().get(0).getOptions().get(0).getValue();
 
+        String[] values = ((String) optionValue).split(":");
+        Integer membershipType = Integer.valueOf(values[0]);
+        String membershipId = values[1];
+        return createResponse(membershipType, membershipId);
+      } else {
+        String username = (String) i.getData().getOptions().get(0).getOptions().stream()
+            .filter(option -> option.getName().equalsIgnoreCase(USERNAME_OPTION_NAME))
+            .findFirst().orElseThrow().getValue();
+        Integer userTag = (Integer) i.getData().getOptions().get(0).getOptions().stream()
+            .filter(option -> option.getName().equalsIgnoreCase(USER_TAG_OPTION_NAME))
+            .findFirst().orElseThrow().getValue();
+        ExactUserSearchRequest request = ExactUserSearchRequest.builder()
+            .displayName(username)
+            .displayNameCode(userTag)
+            .build();
+        return defaultBungieClient.searchUserByExactNameAndCode(request)
+            .flatMap(response -> createResponse(response.getResponse().get(0).getMembershipType(),
+                response.getResponse().get(0).getMembershipId()));
+      }
+    });
+  }
+
+  private Mono<InteractionResponseData> createResponse(Integer membershipType,
+      String membershipId) {
     return defaultBungieClient.getMembershipInfoById(membershipId, membershipType)
         .flatMap(bungieUser -> {
           String uniqueUsername = bungieUser.getResponse().getBungieNetUser().getUniqueName();
@@ -134,7 +169,7 @@ public class RaidStatsHandler implements AutocompleteSource, ApplicationCommandS
                               .text("""
                                   Keep in mind this command is still being developed and the data displayed may be inaccurate. \
                                                               
-                                  For example, fastest clears for Last Wish could be incorrect because of the Wall of Wishes, \
+                                  For example, fastest clears for Last Wish *could* be incorrect because of the Wall of Wishes, \
                                   meaning that if the raid was started from the beginning, but you used a wish to get to \
                                   Riven and finish the raid in under ~10 minutes, the bot would still count that as your fastest clear.""")
                               .build())

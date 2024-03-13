@@ -9,19 +9,14 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.danielvm.destiny2bot.client.BungieClient;
-import com.danielvm.destiny2bot.client.BungieClientWrapper;
 import com.danielvm.destiny2bot.dto.destiny.ActivitiesResponse;
 import com.danielvm.destiny2bot.dto.destiny.Activity;
 import com.danielvm.destiny2bot.dto.destiny.ActivityDetails;
 import com.danielvm.destiny2bot.dto.destiny.Basic;
-import com.danielvm.destiny2bot.dto.destiny.BungieResponse;
 import com.danielvm.destiny2bot.dto.destiny.ValueEntry;
-import com.danielvm.destiny2bot.dto.destiny.characters.Characters;
-import com.danielvm.destiny2bot.dto.destiny.characters.CharactersResponse;
 import com.danielvm.destiny2bot.dto.destiny.characters.UserCharacter;
 import com.danielvm.destiny2bot.dto.destiny.manifest.DisplayProperties;
-import com.danielvm.destiny2bot.dto.destiny.manifest.ResponseFields;
+import com.danielvm.destiny2bot.dto.destiny.manifest.ManifestResponseFields;
 import com.danielvm.destiny2bot.entity.PGCRDetails;
 import com.danielvm.destiny2bot.entity.UserDetails;
 import com.danielvm.destiny2bot.entity.UserRaidDetails;
@@ -48,9 +43,7 @@ import reactor.test.StepVerifier;
 public class UserRaidDetailsServiceTest {
 
   @Mock
-  BungieClient bungieClient;
-  @Mock
-  BungieClientWrapper bungieClientWrapper;
+  BungieAPIService bungieAPIService;
   @Mock
   UserDetailsRepository userDetailsRepository;
   @Mock
@@ -83,9 +76,8 @@ public class UserRaidDetailsServiceTest {
       activities.add(new Activity(completionDate, details, entryMap));
     }
     var activitiesResponse = new ActivitiesResponse(activities);
-    var bungieResponse = new BungieResponse<>(activitiesResponse);
-    when(bungieClient.getActivityHistory(membershipType, membershipId, characterId, 250, 4, 0))
-        .thenReturn(Mono.just(bungieResponse));
+    when(bungieAPIService.getRaidActivities(membershipType, membershipId, characterId, 0))
+        .thenReturn(Mono.just(activitiesResponse));
 
     // when: getActivitiesAll is called
     var response = sut.getActivitiesAll(membershipType, membershipId, characterId);
@@ -98,10 +90,10 @@ public class UserRaidDetailsServiceTest {
         }).verifyComplete();
 
     // and: the bungie API calls is only one
-    verify(bungieClient, times(1)).getActivityHistory(membershipType, membershipId, characterId,
-        250, 4, 0);
-    verify(bungieClient, times(0)).getActivityHistory(membershipType, membershipId, characterId,
-        250, 4, 1);
+    verify(bungieAPIService, times(1))
+        .getRaidActivities(membershipType, membershipId, characterId, 0);
+    verify(bungieAPIService, times(0))
+        .getRaidActivities(membershipType, membershipId, characterId, 1);
   }
 
   @Test
@@ -127,9 +119,8 @@ public class UserRaidDetailsServiceTest {
           .toInstant(ZoneOffset.UTC);
       firstActivities.add(new Activity(completionDate, details, entryMap));
     }
-    var firstPageActivities = new ActivitiesResponse(firstActivities);
-    var firstPage = new BungieResponse<>(firstPageActivities);
-    when(bungieClient.getActivityHistory(membershipType, membershipId, characterId, 250, 4, 0))
+    var firstPage = new ActivitiesResponse(firstActivities);
+    when(bungieAPIService.getRaidActivities(membershipType, membershipId, characterId, 0))
         .thenReturn(Mono.just(firstPage));
 
     ArrayList<Activity> secondActivities = new ArrayList<>();
@@ -139,9 +130,8 @@ public class UserRaidDetailsServiceTest {
           .toInstant(ZoneOffset.UTC);
       secondActivities.add(new Activity(completionDate, details, entryMap));
     }
-    var secondPageActivities = new ActivitiesResponse(secondActivities);
-    var secondPage = new BungieResponse<>(secondPageActivities);
-    when(bungieClient.getActivityHistory(membershipType, membershipId, characterId, 250, 4, 1))
+    var secondPage = new ActivitiesResponse(secondActivities);
+    when(bungieAPIService.getRaidActivities(membershipType, membershipId, characterId, 1))
         .thenReturn(Mono.just(secondPage));
 
     // when: getActivitiesAll is called
@@ -155,12 +145,12 @@ public class UserRaidDetailsServiceTest {
         }).verifyComplete();
 
     // and: there's two Bungie API calls
-    verify(bungieClient, times(1)).getActivityHistory(membershipType, membershipId, characterId,
-        250, 4, 0);
-    verify(bungieClient, times(1)).getActivityHistory(membershipType, membershipId, characterId,
-        250, 4, 1);
-    verify(bungieClient, times(0)).getActivityHistory(membershipType, membershipId, characterId,
-        250, 4, 2);
+    verify(bungieAPIService, times(1))
+        .getRaidActivities(membershipType, membershipId, characterId, 0);
+    verify(bungieAPIService, times(1))
+        .getRaidActivities(membershipType, membershipId, characterId, 1);
+    verify(bungieAPIService, times(0))
+        .getRaidActivities(membershipType, membershipId, characterId, 2);
   }
 
   @Test
@@ -171,9 +161,8 @@ public class UserRaidDetailsServiceTest {
     String membershipId = "1389012";
     String characterId = "1";
 
-    var bungieResponse = new BungieResponse<ActivitiesResponse>(null);
-    when(bungieClient.getActivityHistory(membershipType, membershipId, characterId, 250, 4, 0))
-        .thenReturn(Mono.just(bungieResponse));
+    when(bungieAPIService.getRaidActivities(membershipType, membershipId, characterId, 0))
+        .thenReturn(Mono.just(new ActivitiesResponse()));
 
     // when: getActivitiesAll is called
     var response = StepVerifier.create(
@@ -183,10 +172,10 @@ public class UserRaidDetailsServiceTest {
     response.expectNextCount(0).verifyComplete();
 
     // and: the bungie API calls is only one
-    verify(bungieClient, times(1)).getActivityHistory(membershipType, membershipId, characterId,
-        250, 4, 0);
-    verify(bungieClient, times(0)).getActivityHistory(membershipType, membershipId, characterId,
-        250, 4, 1);
+    verify(bungieAPIService, times(1))
+        .getRaidActivities(membershipType, membershipId, characterId, 0);
+    verify(bungieAPIService, times(0))
+        .getRaidActivities(membershipType, membershipId, characterId, 1);
   }
 
   @Test
@@ -197,15 +186,12 @@ public class UserRaidDetailsServiceTest {
     int userTag = 8080;
     String membershipId = "12345";
     Integer membershipType = 3;
-    String clanName = "Legends of Honor";
     String userId = username + "#" + userTag;
     Instant creationInstant = Instant.now();
 
     Map<String, UserCharacter> data = Map.of("1", new UserCharacter());
-    Characters characters = new Characters(data);
-    CharactersResponse charactersResponse = new CharactersResponse(characters);
-    when(bungieClient.getUserCharacters(membershipType, membershipId))
-        .thenReturn(Mono.just(new BungieResponse<>(charactersResponse)));
+    when(bungieAPIService.getUserCharacters(membershipType, membershipId))
+        .thenReturn(Mono.just(data));
 
     Map<String, ValueEntry> entryMap = Map.of(
         "deaths", new ValueEntry("deaths", new Basic(0.0, "0")),
@@ -223,20 +209,20 @@ public class UserRaidDetailsServiceTest {
         new Activity(Instant.now(), new ActivityDetails(2L, 789124L, 4), entryMap)
     );
     ActivitiesResponse activitiesResponse = new ActivitiesResponse(activities);
-    when(bungieClient.getActivityHistory(membershipType, membershipId, "1", 250, 4, 0))
-        .thenReturn(Mono.just(new BungieResponse<>(activitiesResponse)));
+    when(bungieAPIService.getRaidActivities(membershipType, membershipId, "1", 0))
+        .thenReturn(Mono.just(activitiesResponse));
 
-    ResponseFields firstActivity = ResponseFields.builder()
+    ManifestResponseFields firstActivity = ManifestResponseFields.builder()
         .displayProperties(new DisplayProperties("", "Last Wish: 50", "", "", false))
         .build();
-    when(bungieClientWrapper.getManifestEntity(ManifestEntity.ACTIVITY_DEFINITION, 1L))
-        .thenReturn(Mono.just(new BungieResponse<>(firstActivity)));
+    when(bungieAPIService.getManifestEntity(ManifestEntity.ACTIVITY_DEFINITION, 1L))
+        .thenReturn(Mono.just(firstActivity));
 
-    ResponseFields secondActivity = ResponseFields.builder()
+    ManifestResponseFields secondActivity = ManifestResponseFields.builder()
         .displayProperties(new DisplayProperties("", "King's Fall: Master", "", "", false))
         .build();
-    when(bungieClientWrapper.getManifestEntity(ManifestEntity.ACTIVITY_DEFINITION, 2L))
-        .thenReturn(Mono.just(new BungieResponse<>(secondActivity)));
+    when(bungieAPIService.getManifestEntity(ManifestEntity.ACTIVITY_DEFINITION, 2L))
+        .thenReturn(Mono.just(secondActivity));
 
     PGCRDetails pgcr = new PGCRDetails(null, true, null);
     when(postGameCarnageService.retrievePGCR(any(Long.class)))
@@ -272,8 +258,8 @@ public class UserRaidDetailsServiceTest {
     response.verifyComplete();
 
     // and: the correct interactions occur
-    verify(bungieClient, times(1)).getUserCharacters(membershipType, membershipId);
-    verify(bungieClientWrapper, times(5)).getManifestEntity(any(), anyLong());
+    verify(bungieAPIService, times(1)).getUserCharacters(membershipType, membershipId);
+    verify(bungieAPIService, times(5)).getManifestEntity(any(), anyLong());
     verify(postGameCarnageService, atMost(5)).retrievePGCR(anyLong());
     verify(userDetailsRepository, times(1)).save(any());
   }
@@ -286,15 +272,12 @@ public class UserRaidDetailsServiceTest {
     int userTag = 8080;
     String membershipId = "12345";
     Integer membershipType = 3;
-    String clanName = "Legends of Honor";
     String userId = username + "#" + userTag;
     Instant creationInstant = Instant.now();
 
     Map<String, UserCharacter> data = Map.of("1", new UserCharacter());
-    Characters characters = new Characters(data);
-    CharactersResponse charactersResponse = new CharactersResponse(characters);
-    when(bungieClient.getUserCharacters(membershipType, membershipId))
-        .thenReturn(Mono.just(new BungieResponse<>(charactersResponse)));
+    when(bungieAPIService.getUserCharacters(membershipType, membershipId))
+        .thenReturn(Mono.just(data));
 
     List<Activity> activities = List.of(
         new Activity(Instant.now(), new ActivityDetails(1L, 789120L, 4), Collections.emptyMap()),
@@ -304,20 +287,20 @@ public class UserRaidDetailsServiceTest {
         new Activity(Instant.now(), new ActivityDetails(2L, 789124L, 4), Collections.emptyMap())
     );
     ActivitiesResponse activitiesResponse = new ActivitiesResponse(activities);
-    when(bungieClient.getActivityHistory(membershipType, membershipId, "1", 250, 4, 0))
-        .thenReturn(Mono.just(new BungieResponse<>(activitiesResponse)));
+    when(bungieAPIService.getRaidActivities(membershipType, membershipId, "1", 0))
+        .thenReturn(Mono.just(activitiesResponse));
 
-    ResponseFields firstActivity = ResponseFields.builder()
+    ManifestResponseFields firstActivity = ManifestResponseFields.builder()
         .displayProperties(new DisplayProperties("", "Last Wish: 50", "", "", false))
         .build();
-    when(bungieClientWrapper.getManifestEntity(ManifestEntity.ACTIVITY_DEFINITION, 1L))
-        .thenReturn(Mono.just(new BungieResponse<>(firstActivity)));
+    when(bungieAPIService.getManifestEntity(ManifestEntity.ACTIVITY_DEFINITION, 1L))
+        .thenReturn(Mono.just(firstActivity));
 
-    ResponseFields secondActivity = ResponseFields.builder()
+    ManifestResponseFields secondActivity = ManifestResponseFields.builder()
         .displayProperties(new DisplayProperties("", "King's Fall: Master", "", "", false))
         .build();
-    when(bungieClientWrapper.getManifestEntity(ManifestEntity.ACTIVITY_DEFINITION, 2L))
-        .thenReturn(Mono.just(new BungieResponse<>(secondActivity)));
+    when(bungieAPIService.getManifestEntity(ManifestEntity.ACTIVITY_DEFINITION, 2L))
+        .thenReturn(Mono.just(secondActivity));
 
     PGCRDetails pgcr = new PGCRDetails(null, true, null);
     when(postGameCarnageService.retrievePGCR(any(Long.class)))
@@ -353,8 +336,8 @@ public class UserRaidDetailsServiceTest {
     response.verifyComplete();
 
     // and: the correct interactions occur
-    verify(bungieClient, times(1)).getUserCharacters(membershipType, membershipId);
-    verify(bungieClientWrapper, times(5)).getManifestEntity(any(), anyLong());
+    verify(bungieAPIService, times(1)).getUserCharacters(membershipType, membershipId);
+    verify(bungieAPIService, times(5)).getManifestEntity(any(), anyLong());
     verify(postGameCarnageService, atMost(5)).retrievePGCR(anyLong());
     verify(userDetailsRepository, times(1)).save(any());
   }
@@ -384,9 +367,8 @@ public class UserRaidDetailsServiceTest {
       activities.add(new Activity(completionDate, details, entryMap));
     }
     var activitiesResponse = new ActivitiesResponse(activities);
-    var bungieResponse = new BungieResponse<>(activitiesResponse);
-    when(bungieClient.getActivityHistory(membershipType, membershipId, characterId, 250, 4, 0))
-        .thenReturn(Mono.just(bungieResponse));
+    when(bungieAPIService.getRaidActivities(membershipType, membershipId, characterId, 0))
+        .thenReturn(Mono.just(activitiesResponse));
 
     // when: getting activities and the most recent call was 25 days ago
     var response = sut.getActivitiesUntil(membershipType, membershipId, characterId, timestamp);
@@ -424,9 +406,8 @@ public class UserRaidDetailsServiceTest {
           .toInstant(ZoneOffset.UTC);
       firstPageActivities.add(new Activity(completionDate, details, entryMap));
     }
-    var activitiesResponse = new ActivitiesResponse(firstPageActivities);
-    var firstPage = new BungieResponse<>(activitiesResponse);
-    when(bungieClient.getActivityHistory(membershipType, membershipId, characterId, 250, 4, 0))
+    var firstPage = new ActivitiesResponse(firstPageActivities);
+    when(bungieAPIService.getRaidActivities(membershipType, membershipId, characterId, 0))
         .thenReturn(Mono.just(firstPage));
 
     ArrayList<Activity> secondPageActivities = new ArrayList<>();
@@ -436,9 +417,8 @@ public class UserRaidDetailsServiceTest {
           .toInstant(ZoneOffset.UTC);
       secondPageActivities.add(new Activity(completionDate, details, entryMap));
     }
-    var secondResponse = new ActivitiesResponse(secondPageActivities);
-    var secondPage = new BungieResponse<>(secondResponse);
-    when(bungieClient.getActivityHistory(membershipType, membershipId, characterId, 250, 4, 1))
+    var secondPage = new ActivitiesResponse(secondPageActivities);
+    when(bungieAPIService.getRaidActivities(membershipType, membershipId, characterId, 1))
         .thenReturn(Mono.just(secondPage));
 
     // when: getting activities and the most recent call was 300 days ago
@@ -454,12 +434,12 @@ public class UserRaidDetailsServiceTest {
         }).verifyComplete();
 
     // and: verify that the activities endpoint was called for both pages and a third page was not called
-    verify(bungieClient, times(1))
-        .getActivityHistory(membershipType, membershipId, characterId, 250, 4, 0);
-    verify(bungieClient, times(1))
-        .getActivityHistory(membershipType, membershipId, characterId, 250, 4, 1);
-    verify(bungieClient, times(0))
-        .getActivityHistory(membershipType, membershipId, characterId, 250, 4, 2);
+    verify(bungieAPIService, times(1))
+        .getRaidActivities(membershipType, membershipId, characterId, 0);
+    verify(bungieAPIService, times(1))
+        .getRaidActivities(membershipType, membershipId, characterId, 1);
+    verify(bungieAPIService, times(0))
+        .getRaidActivities(membershipType, membershipId, characterId, 2);
   }
 
   @Test
@@ -486,9 +466,8 @@ public class UserRaidDetailsServiceTest {
           .toInstant(ZoneOffset.UTC);
       firstPageActivities.add(new Activity(completionDate, details, entryMap));
     }
-    var activitiesResponse = new ActivitiesResponse(firstPageActivities);
-    var firstPage = new BungieResponse<>(activitiesResponse);
-    when(bungieClient.getActivityHistory(membershipType, membershipId, characterId, 250, 4, 0))
+    var firstPage = new ActivitiesResponse(firstPageActivities);
+    when(bungieAPIService.getRaidActivities(membershipType, membershipId, characterId, 0))
         .thenReturn(Mono.just(firstPage));
 
     // when: getting activities and the most recent call was 300 days ago
@@ -502,10 +481,10 @@ public class UserRaidDetailsServiceTest {
         }).verifyComplete();
 
     // and: verify that the activities endpoint was called for only the first page
-    verify(bungieClient, times(1))
-        .getActivityHistory(membershipType, membershipId, characterId, 250, 4, 0);
-    verify(bungieClient, times(0))
-        .getActivityHistory(membershipType, membershipId, characterId, 250, 4, 1);
+    verify(bungieAPIService, times(1))
+        .getRaidActivities(membershipType, membershipId, characterId, 0);
+    verify(bungieAPIService, times(0))
+        .getRaidActivities(membershipType, membershipId, characterId, 1);
   }
 
   @Test
@@ -539,10 +518,8 @@ public class UserRaidDetailsServiceTest {
     when(userDetailsRepository.findById(userId)).thenReturn(Mono.just(existingUser));
 
     Map<String, UserCharacter> data = Map.of("1", new UserCharacter());
-    Characters characters = new Characters(data);
-    CharactersResponse charactersResponse = new CharactersResponse(characters);
-    when(bungieClient.getUserCharacters(membershipType, membershipId))
-        .thenReturn(Mono.just(new BungieResponse<>(charactersResponse)));
+    when(bungieAPIService.getUserCharacters(membershipType, membershipId))
+        .thenReturn(Mono.just(data));
 
     Map<String, ValueEntry> entryMap = Map.of(
         "deaths", new ValueEntry("deaths", new Basic(0.0, "0")),
@@ -561,14 +538,14 @@ public class UserRaidDetailsServiceTest {
         new Activity(threeDaysAgo, new ActivityDetails(2L, 4L, 4), Collections.emptyMap())
     );
     ActivitiesResponse activitiesResponse = new ActivitiesResponse(activities);
-    when(bungieClient.getActivityHistory(membershipType, membershipId, "1", 250, 4, 0))
-        .thenReturn(Mono.just(new BungieResponse<>(activitiesResponse)));
+    when(bungieAPIService.getRaidActivities(membershipType, membershipId, "1", 0))
+        .thenReturn(Mono.just(activitiesResponse));
 
-    ResponseFields firstActivity = ResponseFields.builder()
+    ManifestResponseFields firstActivity = ManifestResponseFields.builder()
         .displayProperties(new DisplayProperties("", "Last Wish: 50", "", "", false))
         .build();
-    when(bungieClientWrapper.getManifestEntity(ManifestEntity.ACTIVITY_DEFINITION, 1L))
-        .thenReturn(Mono.just(new BungieResponse<>(firstActivity)));
+    when(bungieAPIService.getManifestEntity(ManifestEntity.ACTIVITY_DEFINITION, 1L))
+        .thenReturn(Mono.just(firstActivity));
 
     PGCRDetails pgcr = new PGCRDetails(null, true, null);
     when(postGameCarnageService.retrievePGCR(any(Long.class)))
@@ -599,8 +576,8 @@ public class UserRaidDetailsServiceTest {
     response.verifyComplete();
 
     // and: the correct interactions occur
-    verify(bungieClient, times(1)).getUserCharacters(membershipType, membershipId);
-    verify(bungieClientWrapper, times(1)).getManifestEntity(any(), anyLong());
+    verify(bungieAPIService, times(1)).getUserCharacters(membershipType, membershipId);
+    verify(bungieAPIService, times(1)).getManifestEntity(any(), anyLong());
     verify(postGameCarnageService, atMost(1)).retrievePGCR(anyLong());
     verify(userDetailsRepository, times(1)).save(any());
   }

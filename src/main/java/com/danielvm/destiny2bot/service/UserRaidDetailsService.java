@@ -1,11 +1,8 @@
 package com.danielvm.destiny2bot.service;
 
-import com.danielvm.destiny2bot.client.BungieClient;
-import com.danielvm.destiny2bot.client.BungieClientWrapper;
 import com.danielvm.destiny2bot.dto.destiny.ActivitiesResponse;
 import com.danielvm.destiny2bot.dto.destiny.Activity;
 import com.danielvm.destiny2bot.dto.destiny.Basic;
-import com.danielvm.destiny2bot.dto.destiny.BungieResponse;
 import com.danielvm.destiny2bot.dto.destiny.ValueEntry;
 import com.danielvm.destiny2bot.entity.UserDetails;
 import com.danielvm.destiny2bot.entity.UserRaidDetails;
@@ -14,9 +11,9 @@ import com.danielvm.destiny2bot.enums.RaidDifficulty;
 import com.danielvm.destiny2bot.repository.UserDetailsRepository;
 import java.time.Instant;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.function.Function;
-import java.util.function.Predicate;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.stereotype.Service;
@@ -27,25 +24,24 @@ import reactor.core.publisher.Mono;
 @Slf4j
 public class UserRaidDetailsService {
 
-  private static final Integer MAX_SANE_AMOUNT_OF_RAID_PAGES = 100;
+  private static final Integer MAX_SANE_AMOUNT_OF_RAID_PAGES = 50;
   private static final Integer MAX_PAGE_COUNT = 250;
-  private static final Integer RAID_MODE = 4;
   private static final String EMPTY_RAID_NAME = "empty_name";
 
-  private final BungieClient defaultBungieClient;
+  private static final Integer MAX_MANIFEST_CONCURRENT_CALLS = 2;
+  private static final Integer MAX_CONCURRENT_ACTIVITY_HISTORY_CALLS = 3;
+
   private final UserDetailsRepository userDetailsRepository;
   private final PostGameCarnageService postGameCarnageService;
-  private final BungieClientWrapper bungieClientWrapper;
+  private final BungieAPIService bungieAPIService;
 
   public UserRaidDetailsService(
-      BungieClient defaultBungieClient,
       UserDetailsRepository userDetailsRepository,
       PostGameCarnageService postGameCarnageService,
-      BungieClientWrapper bungieClientWrapper) {
-    this.defaultBungieClient = defaultBungieClient;
+      BungieAPIService bungieAPIService) {
     this.userDetailsRepository = userDetailsRepository;
     this.postGameCarnageService = postGameCarnageService;
-    this.bungieClientWrapper = bungieClientWrapper;
+    this.bungieAPIService = bungieAPIService;
   }
 
   /**
@@ -69,12 +65,10 @@ public class UserRaidDetailsService {
    */
   public Mono<UserDetails> createUserDetails(Instant creationInstant, String uniqueUsername,
       String membershipId, Integer membershipType) {
-    return defaultBungieClient.getUserCharacters(membershipType, membershipId)
-        .flatMapMany(userCharacter -> Flux.fromIterable(
-            userCharacter.getResponse().getCharacters().getData().keySet()))
-        .flatMap(
-            characterId -> getActivitiesAll(membershipType, membershipId, characterId))
-        .flatMap(this::buildRaidDetails)
+    return bungieAPIService.getUserCharacters(membershipType, membershipId)
+        .flatMapMany(characters -> Flux.fromIterable(characters.keySet()))
+        .flatMap(characterId -> getActivitiesAll(membershipType, membershipId, characterId))
+        .flatMap(this::buildRaidDetails, MAX_MANIFEST_CONCURRENT_CALLS)
         .flatMap(this::addPGCRDetails)
         .collectList()
         .flatMap(raidDetails -> {
@@ -96,11 +90,11 @@ public class UserRaidDetailsService {
   public Mono<UserDetails> updateUserDetails(Instant updateTimestamp, String uniqueUsername,
       String membershipId, Integer membershipType) {
     return userDetailsRepository.findById(uniqueUsername)
-        .flatMap(userDetails -> defaultBungieClient.getUserCharacters(membershipType, membershipId)
-            .flatMapIterable(response -> response.getResponse().getCharacters().getData().keySet())
+        .flatMap(userDetails -> bungieAPIService.getUserCharacters(membershipType, membershipId)
+            .flatMapIterable(Map::keySet)
             .flatMap(characterId -> getActivitiesUntil(membershipType, membershipId,
                 characterId, userDetails.getLastRequestDateTime())
-                .flatMap(this::buildRaidDetails)
+                .flatMap(this::buildRaidDetails, MAX_MANIFEST_CONCURRENT_CALLS)
                 .flatMap(this::addPGCRDetails))
             .collectList()
             .flatMap(raidDetails -> {
@@ -130,31 +124,22 @@ public class UserRaidDetailsService {
    */
   public Flux<Activity> getActivitiesAll(Integer membershipType, String membershipId,
       String characterId) {
-    Predicate<BungieResponse<ActivitiesResponse>> takeUntilCondition = response ->
-        Objects.isNull(response.getResponse()) ||
-        CollectionUtils.isEmpty(response.getResponse().getActivities()) ||
-        response.getResponse().getActivities().size() < MAX_PAGE_COUNT;
-
-    // Filters if response is null and activities is null
-    Predicate<BungieResponse<ActivitiesResponse>> filterCondition = response ->
-        Objects.nonNull(response.getResponse()) &&
-        Objects.nonNull(response.getResponse().getActivities());
-
     return Flux.range(0, MAX_SANE_AMOUNT_OF_RAID_PAGES)
         .flatMapSequential(pageNumber ->
-            defaultBungieClient.getActivityHistory(membershipType, membershipId,
-                characterId, MAX_PAGE_COUNT, RAID_MODE, pageNumber))
-        .takeUntil(takeUntilCondition)
-        .filter(filterCondition)
-        .flatMapIterable(response -> response.getResponse().getActivities())
+            bungieAPIService.getRaidActivities(membershipType, membershipId,
+                characterId, pageNumber), MAX_CONCURRENT_ACTIVITY_HISTORY_CALLS)
+        .takeUntil(response ->
+            CollectionUtils.isEmpty(response.getActivities()) ||
+            response.getActivities().size() < MAX_PAGE_COUNT)
+        .filter(response -> Objects.nonNull(response.getActivities()))
+        .flatMapIterable(ActivitiesResponse::getActivities)
         .switchIfEmpty(Flux.empty());
-
   }
 
   /**
    * Gets all the activities from the user's character activity history until an instant in time.
-   * Like {@link #getActivitiesUntil} this operation is exhaustive and won't stop until the
-   * predicate is true.
+   * Like {@link #getActivitiesAll} this operation is exhaustive and won't stop until the predicate
+   * is true.
    *
    * @param membershipType The membershipType of the user
    * @param membershipId   The membershipId of the user
@@ -166,23 +151,21 @@ public class UserRaidDetailsService {
       String characterId, Instant until) {
     return Flux.range(0, MAX_SANE_AMOUNT_OF_RAID_PAGES)
         .flatMapSequential(pageNumber ->
-            defaultBungieClient.getActivityHistory(membershipType, membershipId, characterId,
-                MAX_PAGE_COUNT, RAID_MODE, pageNumber))
-        .filter(response ->
-            Objects.nonNull(response.getResponse()) &&
-            Objects.nonNull(response.getResponse().getActivities()))
+            bungieAPIService.getRaidActivities(membershipType, membershipId, characterId,
+                pageNumber), MAX_CONCURRENT_ACTIVITY_HISTORY_CALLS)
+        .filter(response -> Objects.nonNull(response) && Objects.nonNull(response.getActivities()))
         .takeUntil(response -> {
-          boolean nullResponse = Objects.isNull(response.getResponse());
-          boolean emptyActivities = CollectionUtils.isEmpty(response.getResponse().getActivities());
+          boolean nullResponse = Objects.isNull(response);
+          boolean emptyActivities = CollectionUtils.isEmpty(response.getActivities());
 
-          List<Activity> activities = response.getResponse().getActivities();
+          List<Activity> activities = response.getActivities();
           long newRaidCount = activities.stream()
               .filter(activity -> activity.getPeriod().isAfter(until))
               .count();
           boolean noMoreNewDataAvailable = newRaidCount < MAX_PAGE_COUNT;
           return nullResponse || emptyActivities || noMoreNewDataAvailable;
         })
-        .flatMapIterable(response -> response.getResponse().getActivities())
+        .flatMapIterable(ActivitiesResponse::getActivities)
         .filter(activity -> activity.getPeriod().isAfter(until))
         .switchIfEmpty(Flux.empty());
   }
@@ -196,17 +179,17 @@ public class UserRaidDetailsService {
   }
 
   private Mono<UserRaidDetails> buildRaidDetails(Activity activity) {
-    return bungieClientWrapper.getManifestEntity(ManifestEntity.ACTIVITY_DEFINITION,
+    return bungieAPIService.getManifestEntity(ManifestEntity.ACTIVITY_DEFINITION,
             activity.getActivityDetails().getDirectorActivityHash())
         .map(entity -> {
               boolean emptyRaidDetails =
-                  entity.getResponse().getDisplayProperties() == null ||
-                  entity.getResponse().getDisplayProperties().getName() == null;
+                  entity.getDisplayProperties() == null ||
+                  entity.getDisplayProperties().getName() == null;
 
               String raidName = emptyRaidDetails ? EMPTY_RAID_NAME :
-                  resolveRaidName(entity.getResponse().getDisplayProperties().getName());
+                  resolveRaidName(entity.getDisplayProperties().getName());
               RaidDifficulty raidDifficulty = emptyRaidDetails ? null :
-                  resolveRaidDifficult(entity.getResponse().getDisplayProperties().getName());
+                  resolveRaidDifficult(entity.getDisplayProperties().getName());
 
               var valuesMap = activity.getValues();
               var instanceId = activity.getActivityDetails().getInstanceId();

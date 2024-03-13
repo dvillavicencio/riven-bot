@@ -2,15 +2,18 @@ package com.danielvm.destiny2bot.client;
 
 import com.danielvm.destiny2bot.dto.destiny.ActivitiesResponse;
 import com.danielvm.destiny2bot.dto.destiny.BungieResponse;
+import com.danielvm.destiny2bot.dto.destiny.ExactUserSearchRequest;
+import com.danielvm.destiny2bot.dto.destiny.ExactUserSearchResponse;
 import com.danielvm.destiny2bot.dto.destiny.MemberGroupResponse;
 import com.danielvm.destiny2bot.dto.destiny.MembershipResponse;
 import com.danielvm.destiny2bot.dto.destiny.PostGameCarnageReport;
 import com.danielvm.destiny2bot.dto.destiny.SearchResult;
 import com.danielvm.destiny2bot.dto.destiny.UserGlobalSearchBody;
 import com.danielvm.destiny2bot.dto.destiny.characters.CharactersResponse;
-import com.danielvm.destiny2bot.dto.destiny.manifest.ResponseFields;
+import com.danielvm.destiny2bot.dto.destiny.manifest.ManifestResponseFields;
 import com.danielvm.destiny2bot.dto.destiny.milestone.MilestoneEntry;
 import com.danielvm.destiny2bot.enums.ManifestEntity;
+import java.util.List;
 import java.util.Map;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -40,10 +43,10 @@ public interface BungieClient {
    *
    * @param entityType     The entity type (see {@link ManifestEntity})
    * @param hashIdentifier The entity hash identifier
-   * @return {@link Mono} of {@link ResponseFields}
+   * @return {@link Mono} of {@link ManifestResponseFields}
    */
   @GetExchange("/Destiny2/Manifest/{entityType}/{hashIdentifier}/")
-  Mono<BungieResponse<ResponseFields>> getManifestEntity(
+  Mono<BungieResponse<ManifestResponseFields>> getManifestEntity(
       @PathVariable String entityType, @PathVariable Long hashIdentifier);
 
   /**
@@ -52,7 +55,7 @@ public interface BungieClient {
    * @return {@link Mono} of Map of {@link MilestoneEntry}
    */
   @GetExchange("/Destiny2/Milestones/")
-  Mono<BungieResponse<Map<String, MilestoneEntry>>> getPublicMilestonesRx();
+  Mono<BungieResponse<Map<String, MilestoneEntry>>> getPublicMilestones();
 
   /**
    * Get a user characters
@@ -120,5 +123,16 @@ public interface BungieClient {
   @GetExchange("/Destiny2/Stats/PostGameCarnageReport/{activityId}/")
   Mono<BungieResponse<PostGameCarnageReport>> getPostGameCarnageReport(
       @PathVariable Long activityId
+  );
+
+  /**
+   * Search for a Destiny 2 membership using exact parameters, that is, name and code
+   *
+   * @param request The request to make to Bungie for an exact user search
+   * @return {@link ExactUserSearchRequest}
+   */
+  @PostExchange("/Destiny2/SearchDestinyPlayerByBungieName/-1/")
+  Mono<BungieResponse<List<ExactUserSearchResponse>>> searchUserByExactNameAndCode(
+      @RequestBody ExactUserSearchRequest request
   );
 }

@@ -1,13 +1,27 @@
 package com.danielvm.destiny2bot.handler;
 
+import static com.danielvm.destiny2bot.enums.InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE;
+import static org.assertj.core.api.Assertions.assertThat;
+
 import com.danielvm.destiny2bot.TestUtils;
-import com.danielvm.destiny2bot.dto.discord.*;
+import com.danielvm.destiny2bot.dto.discord.Attachment;
+import com.danielvm.destiny2bot.dto.discord.Choice;
+import com.danielvm.destiny2bot.dto.discord.Embedded;
+import com.danielvm.destiny2bot.dto.discord.EmbeddedImage;
+import com.danielvm.destiny2bot.dto.discord.Interaction;
+import com.danielvm.destiny2bot.dto.discord.InteractionData;
+import com.danielvm.destiny2bot.dto.discord.InteractionResponse;
+import com.danielvm.destiny2bot.dto.discord.InteractionResponseData;
+import com.danielvm.destiny2bot.dto.discord.Option;
 import com.danielvm.destiny2bot.enums.InteractionResponseType;
 import com.danielvm.destiny2bot.enums.InteractionType;
 import com.danielvm.destiny2bot.enums.Raid;
 import com.danielvm.destiny2bot.enums.RaidEncounter;
-import com.danielvm.destiny2bot.handler.RaidMapHandler;
 import com.danielvm.destiny2bot.service.RaidInfographicsService;
+import java.io.IOException;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -18,13 +32,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.core.io.Resource;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
-
-import java.io.IOException;
-import java.util.List;
-import java.util.Map;
-
-import static com.danielvm.destiny2bot.enums.InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE;
-import static org.assertj.core.api.Assertions.assertThat;
 
 @ExtendWith(MockitoExtension.class)
 public class RaidMapHandlerTest {
@@ -39,7 +46,8 @@ public class RaidMapHandlerTest {
   @DisplayName("Creating autocomplete response works correctly")
   public void creatingAutocompleteResponseWorksCorrectly() {
     // given: an interaction with a 'raid' option value present
-    List<Option> options = List.of(new Option("raid", 3, "last_wish", false));
+    List<Option> options = List.of(
+        new Option("raid", 3, "last_wish", false, Collections.emptyList()));
     InteractionData data = InteractionData.builder()
         .id(1).name("raid_map").options(options).type(1)
         .build();
@@ -72,8 +80,8 @@ public class RaidMapHandlerTest {
   public void creatingApplicationCommandResponseWorksCorrectly() throws IOException {
     // given: an interaction with a 'raid' option value present
     List<Option> options = List.of(
-        new Option("raid", 3, "last_wish", false),
-        new Option("encounter", 3, "kalli", false));
+        new Option("raid", 3, "last_wish", false, Collections.emptyList()),
+        new Option("encounter", 3, "kalli", false, Collections.emptyList()));
     InteractionData data = InteractionData.builder()
         .id(1).name("raid_map").options(options).type(1)
         .build();

@@ -26,6 +26,7 @@ public class SignatureFilterFunction implements
 
   private static final String SIGNATURE_HEADER_NAME = "X-Signature-Ed25519";
   private static final String TIMESTAMP_HEADER_NAME = "X-Signature-Timestamp";
+
   private final DiscordConfiguration discordConfiguration;
 
   public SignatureFilterFunction(DiscordConfiguration discordConfiguration) {

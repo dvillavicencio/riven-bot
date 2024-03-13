@@ -28,6 +28,7 @@ import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import java.io.File;
 import java.io.IOException;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -261,7 +262,8 @@ public class InteractionControllerTest extends BaseIntegrationTest {
         .isBadRequest()
         .expectBody()
         .jsonPath("$.detail").value(json -> assertJsonLenient(errorJson, json))
-        .jsonPath("$.status").isEqualTo(HttpStatus.BAD_REQUEST.value());
+        .jsonPath("$.status").isEqualTo(HttpStatus.BAD_REQUEST.value())
+        .returnResult();
   }
 
   @Test
@@ -325,8 +327,8 @@ public class InteractionControllerTest extends BaseIntegrationTest {
       throws DecoderException, IOException {
     // given: an interaction for autocomplete for the /raid_map command
     List<Option> options = List.of(
-        new Option("raid", 3, "last_wish", false),
-        new Option("raid", 3, "k", true)
+        new Option("raid", 3, "last_wish", false, Collections.emptyList()),
+        new Option("raid", 3, "k", true, Collections.emptyList())
     );
     InteractionData data = InteractionData.builder()
         .id("someID")
@@ -366,8 +368,8 @@ public class InteractionControllerTest extends BaseIntegrationTest {
       throws DecoderException, IOException {
     // given: an interaction for autocomplete for the /raid_map command
     List<Option> options = List.of(
-        new Option("raid", 3, "last_wish", false),
-        new Option("encounter", 3, "kalli", false)
+        new Option("raid", 3, "last_wish", false, Collections.emptyList()),
+        new Option("encounter", 3, "kalli", false, Collections.emptyList())
     );
     InteractionData data = InteractionData.builder()
         .id("someID")
