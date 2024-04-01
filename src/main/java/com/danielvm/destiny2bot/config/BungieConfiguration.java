@@ -101,7 +101,7 @@ public class BungieConfiguration {
         .defaultHeader(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
         .defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
         .codecs(clientCodecConfigurer -> clientCodecConfigurer.defaultCodecs()
-            .maxInMemorySize(1024 * 20))
+            .maxInMemorySize(1024 * 1024 * 10))
         .build();
     return HttpServiceProxyFactory.builder()
         .exchangeAdapter(WebClientAdapter.create(webClient))

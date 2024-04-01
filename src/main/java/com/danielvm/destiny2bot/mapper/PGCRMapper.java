@@ -11,7 +11,7 @@ import org.mapstruct.Mapping;
 @Mapper(componentModel = "spring")
 public interface PGCRMapper {
 
-  @Mapping(target = "fromBeginning", source = "report.activityWasStartedFromBeginning")
+  @Mapping(target = "fromBeginning", expression = "java(report.getActivityWasStartedFromBeginning() ? true : false)")
   @Mapping(target = "players", source = "report.entries")
   PGCRDetails dtoToEntity(PostGameCarnageReport report, Long instanceId);
 
