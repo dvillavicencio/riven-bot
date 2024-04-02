@@ -10,7 +10,6 @@ import io.github.resilience4j.ratelimiter.RateLimiterConfig;
 import io.github.resilience4j.reactor.ratelimiter.operator.RateLimiterOperator;
 import io.netty.handler.codec.DecoderException;
 import java.time.Duration;
-import java.util.Collections;
 import java.util.concurrent.atomic.AtomicInteger;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.ParameterizedTypeReference;
@@ -31,8 +30,8 @@ public class PostGameCarnageService {
 
   private static final RateLimiter PGCR_RATE_LIMITER = RateLimiter.of("pgcr-rate-limiter",
       RateLimiterConfig.custom()
-          .limitForPeriod(25)
-          .limitRefreshPeriod(Duration.ofSeconds(1))
+          .limitForPeriod(23)
+          .limitRefreshPeriod(Duration.ofMillis(1500))
           .timeoutDuration(Duration.ofSeconds(30))
           .build());
 
@@ -58,8 +57,6 @@ public class PostGameCarnageService {
    */
   public Mono<PGCRDetails> retrievePGCR(Long activityInstanceId) {
     WebClient webClient = builder.build();
-    PostGameCarnageReport errorFallbackResponse = new PostGameCarnageReport(null, false,
-        Collections.emptyList());
 
     Flux<DataBuffer> dataChunks = webClient.get()
         .uri("/Destiny2/Stats/PostGameCarnageReport/{activityId}/", activityInstanceId)
@@ -67,7 +64,7 @@ public class PostGameCarnageService {
             .concatMap(dataBuffer -> {
               AtomicInteger currentSize = new AtomicInteger(0);
               int chunkSize = dataBuffer.readableByteCount();
-              if (chunkSize + currentSize.get() > 18_000) {
+              if (chunkSize + currentSize.get() > 16_000) {
                 return Mono.empty();
               } else {
                 currentSize.addAndGet(chunkSize);
@@ -94,16 +91,6 @@ public class PostGameCarnageService {
         .flatMap(
             response -> pgcrRepository.save(pgcrMapper.dtoToEntity(response, activityInstanceId)))
         .doOnDiscard(DataBuffer.class, DataBufferUtils::release);
-
-//    Mono<PGCRDetails> retrievePGCR = bungieClient.getPostGameCarnageReport(activityInstanceId)
-//        .transformDeferred(RateLimiterOperator.of(PGCR_RATE_LIMITER))
-//        .onErrorResume(DataBufferLimitException.class, err -> {
-//          log.debug("Response too big to parse, ignoring and falling back to default value", err);
-//          return Mono.just(new BungieResponse<>(errorFallbackResponse));
-//        })
-//        .map(BungieResponse::getResponse)
-//        .flatMap(
-//            response -> pgcrRepository.save(pgcrMapper.dtoToEntity(response, activityInstanceId)));
 
     Mono<PGCRDetails> cachedPGCR = pgcrRepository.findById(activityInstanceId);
 
