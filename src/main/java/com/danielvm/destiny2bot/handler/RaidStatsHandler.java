@@ -34,6 +34,7 @@ import reactor.core.scheduler.Schedulers;
 public class RaidStatsHandler implements AutocompleteSource, ApplicationCommandSource {
 
   private static final String STATS_TITLE = "Raid Stats for %s";
+  private static final String ICON_BASE_URL = "https://www.bungie.net/";
   private static final String CHOICE_FORMAT = "%s:%s";
   private static final String USER_TAG_OPTION_NAME = "usertag";
   private static final String USERNAME_OPTION_NAME = "username";
@@ -117,7 +118,7 @@ public class RaidStatsHandler implements AutocompleteSource, ApplicationCommandS
         String[] values = ((String) optionValue).split(":");
         Integer membershipType = Integer.valueOf(values[0]);
         String membershipId = values[1];
-        return createResponse(membershipType, membershipId);
+        return createRaidStatsResponse(membershipType, membershipId);
       } else {
         String username = (String) i.getData().getOptions().get(0).getOptions().stream()
             .filter(option -> option.getName().equalsIgnoreCase(USERNAME_OPTION_NAME))
@@ -130,17 +131,22 @@ public class RaidStatsHandler implements AutocompleteSource, ApplicationCommandS
             .displayNameCode(userTag)
             .build();
         return defaultBungieClient.searchUserByExactNameAndCode(request)
-            .flatMap(response -> createResponse(response.getResponse().get(0).getMembershipType(),
-                response.getResponse().get(0).getMembershipId()));
+            .flatMap(response -> {
+              Integer membershipType = response.getResponse().get(0).getMembershipType();
+              String membershipId = response.getResponse().get(0).getMembershipId();
+              return createRaidStatsResponse(membershipType, membershipId);
+            });
       }
     });
   }
 
-  private Mono<InteractionResponseData> createResponse(Integer membershipType,
+  private Mono<InteractionResponseData> createRaidStatsResponse(Integer membershipType,
       String membershipId) {
     return defaultBungieClient.getMembershipInfoById(membershipId, membershipType)
         .flatMap(bungieUser -> {
           String uniqueUsername = bungieUser.getResponse().getBungieNetUser().getUniqueName();
+          String usernameIcon = ICON_BASE_URL + bungieUser.getResponse().getBungieNetUser()
+              .getProfilePicturePath();
           return raidStatsService.calculateRaidStats(uniqueUsername, membershipId, membershipType)
               .collectMap(RaidStatistics::get_id)
               .map(response -> response.entrySet().stream()
@@ -154,9 +160,8 @@ public class RaidStatsHandler implements AutocompleteSource, ApplicationCommandS
                   .embeds(List.of(
                       Embedded.builder()
                           .author(EmbeddedAuthor.builder()
-                              .name("Riven of a Thousand Servers")
-                              .iconUrl(
-                                  "https://ih1.redbubble.net/image.2953200665.7291/st,small,507x507-pad,600x600,f8f8f8.jpg")
+                              .name(uniqueUsername)
+                              .iconUrl(usernameIcon)
                               .build())
                           .title(STATS_TITLE.formatted(uniqueUsername))
                           .description("""

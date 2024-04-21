@@ -18,4 +18,6 @@ public class BungieNetMembership {
   private Boolean isDeleted;
 
   private String locale;
+
+  private String profilePicturePath;
 }
