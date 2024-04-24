@@ -14,5 +14,5 @@ public class PGCREntry {
 
   private PlayerPGCREntry player;
 
-  private Map<String, ActivityValue> values;
+  private Map<String, ValueEntry> values;
 }

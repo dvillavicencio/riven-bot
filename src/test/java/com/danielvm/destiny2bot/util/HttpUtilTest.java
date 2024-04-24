@@ -50,7 +50,7 @@ public class HttpUtilTest {
         .build();
 
     // when: prepareMultipartResponse is called
-    var response = HttpUtil.prepareMultipartPayload(interactionResponse, resources);
+    var response = HttpResponseUtils.filesResponse(interactionResponse, resources);
 
     // then: the MultiValueMap created has the appropriate parameters and headers
     Condition<HttpEntity<?>> correctJsonPayloadHeaders = new Condition<>(
@@ -125,7 +125,7 @@ public class HttpUtilTest {
 
     // when: prepare multipart payload is called
     // then: the appropriate ImageProcessingException is thrown
-    assertThatThrownBy(() -> HttpUtil.prepareMultipartPayload(interactionResponse, resources))
+    assertThatThrownBy(() -> HttpResponseUtils.filesResponse(interactionResponse, resources))
         .isInstanceOf(ImageProcessingException.class);
   }
 }

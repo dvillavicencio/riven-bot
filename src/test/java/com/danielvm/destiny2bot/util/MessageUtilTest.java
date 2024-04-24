@@ -18,7 +18,7 @@ public class MessageUtilTest {
     LocalDate localDate = LocalDate.of(2023, 1, 1);
 
     // when: format date is called
-    String date = MessageUtil.formatDate(localDate);
+    String date = MessageUtils.formatDate(localDate);
 
     // then: the formatted string is correct
     assertThat(date)
@@ -34,7 +34,7 @@ public class MessageUtilTest {
     Pattern pattern = Pattern.compile("(\\w*) %sth, January 2023".formatted(dayNumber));
 
     // when: format date is called
-    String date = MessageUtil.formatDate(localDate);
+    String date = MessageUtils.formatDate(localDate);
 
     // then: the formatted string is correct
     assertThat(date).matches(pattern);
@@ -49,7 +49,7 @@ public class MessageUtilTest {
     Pattern pattern = Pattern.compile("(\\w*) %sst, January 2023".formatted(dayNumber));
 
     // when: format date is called
-    String date = MessageUtil.formatDate(localDate);
+    String date = MessageUtils.formatDate(localDate);
 
     // then: the formatted string is correct
     assertThat(date).matches(pattern);
@@ -64,7 +64,7 @@ public class MessageUtilTest {
     Pattern pattern = Pattern.compile("(\\w*) %srd, January 2023".formatted(dayNumber));
 
     // when: format date is called
-    String date = MessageUtil.formatDate(localDate);
+    String date = MessageUtils.formatDate(localDate);
 
     // then: the formatted string is correct
     assertThat(date).matches(pattern);

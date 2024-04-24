@@ -2,9 +2,9 @@ package com.danielvm.destiny2bot.factory;
 
 import com.danielvm.destiny2bot.enums.SlashCommand;
 import com.danielvm.destiny2bot.exception.ResourceNotFoundException;
-import com.danielvm.destiny2bot.factory.handler.AutocompleteSource;
-import com.danielvm.destiny2bot.factory.handler.RaidMapHandler;
-import com.danielvm.destiny2bot.factory.handler.RaidStatsHandler;
+import com.danielvm.destiny2bot.handler.AutocompleteSource;
+import com.danielvm.destiny2bot.handler.RaidMapHandler;
+import com.danielvm.destiny2bot.handler.RaidStatsHandler;
 import java.util.Map;
 import java.util.Objects;
 import org.springframework.stereotype.Component;

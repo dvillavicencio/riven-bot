@@ -1,20 +1,20 @@
 package com.danielvm.destiny2bot.service;
 
-import com.danielvm.destiny2bot.client.BungieClient;
-import com.danielvm.destiny2bot.client.BungieClientWrapper;
-import com.danielvm.destiny2bot.dto.RaidEntry;
-import com.danielvm.destiny2bot.dto.destiny.Activity;
-import com.danielvm.destiny2bot.dto.destiny.BungieResponse;
-import com.danielvm.destiny2bot.dto.destiny.PostGameCarnageReport;
-import com.danielvm.destiny2bot.dto.destiny.RaidStatistics;
-import com.danielvm.destiny2bot.dto.discord.Interaction;
-import com.danielvm.destiny2bot.enums.ManifestEntity;
-import java.util.Collections;
-import java.util.Map;
+import com.danielvm.destiny2bot.entity.RaidStatistics;
+import com.danielvm.destiny2bot.entity.UserDetails;
+import com.danielvm.destiny2bot.enums.RaidDifficulty;
+import java.time.Instant;
+import java.util.Set;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.collections4.CollectionUtils;
+import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
+import org.springframework.data.mongodb.core.aggregation.Aggregation;
+import org.springframework.data.mongodb.core.aggregation.ConditionalOperators;
+import org.springframework.data.mongodb.core.aggregation.Fields;
+import org.springframework.data.mongodb.core.aggregation.GroupOperation;
+import org.springframework.data.mongodb.core.aggregation.MatchOperation;
+import org.springframework.data.mongodb.core.aggregation.UnwindOperation;
+import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.stereotype.Service;
-import org.springframework.web.reactive.function.client.WebClientException;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -22,114 +22,142 @@ import reactor.core.publisher.Mono;
 @Slf4j
 public class RaidStatsService {
 
-  private static final Integer MAX_PAGE_COUNT = 250;
-  private static final Integer RAID_MODE = 4;
+  private static final Set<String> RAIDS_WITH_MASTER_MODE = Set.of(
+      "Vault of Glass", "Vow of the Disciple", "King's Fall", "Root of Nightmares", "Crota's End"
+  );
+  private static final String RAID_NAME = "userRaidDetails.raidName";
+  private static final String IS_COMPLETED = "userRaidDetails.isCompleted";
+  private static final String RAID_DIFFICULTY = "userRaidDetails.raidDifficulty";
+  private static final String TOTAL_KILLS = "userRaidDetails.totalKills";
+  private static final String TOTAL_DEATHS = "userRaidDetails.totalDeaths";
+  private static final String FROM_BEGINNING = "userRaidDetails.fromBeginning";
 
-  private final BungieClient defaultBungieClient;
-  private final BungieClient pgcrBungieClient;
-  private final BungieClientWrapper bungieClientWrapper;
+  private final UserRaidDetailsService userRaidDetailsService;
+  private final ReactiveMongoTemplate reactiveMongoTemplate;
 
   public RaidStatsService(
-      BungieClient defaultBungieClient,
-      BungieClient pgcrBungieClient,
-      BungieClientWrapper bungieClientWrapper) {
-    this.defaultBungieClient = defaultBungieClient;
-    this.pgcrBungieClient = pgcrBungieClient;
-    this.bungieClientWrapper = bungieClientWrapper;
+      UserRaidDetailsService userRaidDetailsService,
+      ReactiveMongoTemplate reactiveMongoTemplate) {
+    this.userRaidDetailsService = userRaidDetailsService;
+    this.reactiveMongoTemplate = reactiveMongoTemplate;
   }
 
-  private static RaidStatistics createRaidStatistics(RaidStatistics stats, RaidEntry raidEntry) {
-    stats.setTotalKills(stats.getTotalKills() + raidEntry.getTotalKills());
-    stats.setTotalDeaths(stats.getTotalDeaths() + raidEntry.getTotalDeaths());
-    if (raidEntry.getIsCompleted()) {
-      stats.setTotalClears(stats.getTotalClears() + 1);
-      if (raidEntry.getIsFromBeginning()) {
-        stats.setFastestTime(Math.min(stats.getFastestTime(), raidEntry.getDuration()));
-        stats.setFullClears(stats.getFullClears() + 1);
-      }
-    }
-    return stats;
+  private static Aggregation raidStatisticsAggregationPipeline(String userId) {
+    MatchOperation userIdMatch = Aggregation.match(Criteria.where("_id").is(userId));
+
+    UnwindOperation unwindRaids = new UnwindOperation(Fields.field("userRaidDetails"));
+
+    Criteria fastestTimeCriteria = new Criteria();
+    fastestTimeCriteria.andOperator(
+        Criteria.where(FROM_BEGINNING).is(true),
+        Criteria.where(IS_COMPLETED).is(true)
+    );
+
+    Criteria normalModeClearsCriteria = new Criteria();
+    normalModeClearsCriteria.andOperator(
+        Criteria.where(RAID_NAME).in(RAIDS_WITH_MASTER_MODE),
+        Criteria.where(IS_COMPLETED).is(true),
+        Criteria.where(RAID_DIFFICULTY).is(RaidDifficulty.NORMAL.name())
+    );
+
+    Criteria masterModeClearsCriteria = new Criteria();
+    masterModeClearsCriteria.andOperator(
+        Criteria.where(RAID_NAME).in(RAIDS_WITH_MASTER_MODE),
+        Criteria.where(IS_COMPLETED).is(true),
+        Criteria.where(RAID_DIFFICULTY).is(RaidDifficulty.MASTER.name())
+    );
+
+    Criteria raidClearCriteria = Criteria.where(IS_COMPLETED).is(true);
+
+    Criteria fullRaidClearCriteria = new Criteria();
+    fullRaidClearCriteria.andOperator(
+        Criteria.where(IS_COMPLETED).is(true),
+        Criteria.where(FROM_BEGINNING).is(true)
+    );
+
+    Criteria partialRaidClearCriteria = new Criteria();
+    partialRaidClearCriteria.andOperator(
+        Criteria.where(IS_COMPLETED).is(true),
+        Criteria.where(FROM_BEGINNING).is(false)
+    );
+    GroupOperation groupByRaidName = Aggregation.group(RAID_NAME)
+        .sum(TOTAL_KILLS).as("totalKills")
+        .sum(TOTAL_DEATHS).as("totalDeaths")
+        .min(ConditionalOperators
+            .when(fastestTimeCriteria)
+            .then("$userRaidDetails.durationSeconds")
+            .otherwise("0")).as("fastestTime")
+        .sum(ConditionalOperators
+            .when(raidClearCriteria)
+            .then(1)
+            .otherwise(0)).as("totalClears")
+        .sum(ConditionalOperators
+            .when(partialRaidClearCriteria)
+            .then(1)
+            .otherwise(0)).as("partialClears")
+        .sum(ConditionalOperators
+            .when(fullRaidClearCriteria)
+            .then(1)
+            .otherwise(0)).as("fullClears")
+        .sum(ConditionalOperators
+            .when(normalModeClearsCriteria)
+            .then(1)
+            .otherwise(0)).as("normalClears")
+        .sum(ConditionalOperators
+            .when(masterModeClearsCriteria)
+            .then(1)
+            .otherwise(0)).as("masterClears");
+
+    return Aggregation.newAggregation(userIdMatch, unwindRaids, groupByRaidName);
   }
 
   /**
-   * Retrieve user raid statistics based on the given interaction data
+   * Calculate user raid statistics based on the parsed data from a Discord option value. This
+   * method returns a map of the raid stats grouped by the raid name.
    *
-   * @param interaction The Discord command interaction
-   * @return Map of Raid Statistics, the key will be the raid you want stats for
+   * @param uniqueUsername The parsed data needed to retrieve Raid Statistics for a player
+   * @param membershipId   The membershipId of the Destiny 2 user
+   * @param membershipType The membership type of the Destiny 2 user
+   * @return Map of Raid Statistics grouped by raid name
    */
-  public Mono<Map<String, RaidStatistics>> calculateRaidLevelStats(
-      Interaction interaction) {
-    var parsedData = ((String) interaction.getData().getOptions().get(0).getValue()).split(":");
-    String membershipId = parsedData[0];
-    Integer membershipType = Integer.valueOf(parsedData[1]);
+  public Flux<RaidStatistics> calculateRaidStats(String uniqueUsername, String membershipId,
+      Integer membershipType) {
+    Instant now = Instant.now(); // Timestamp for this action
+    Mono<UserDetails> createAction = createUser(
+        now, uniqueUsername, membershipType, membershipId);
+    Mono<UserDetails> updateAction = updateUser(
+        now, uniqueUsername, membershipType, membershipId);
 
-    return defaultBungieClient.getUserCharacters(membershipType, membershipId)
-        .flatMapMany(userCharacter -> Flux.fromIterable(
-            userCharacter.getResponse().getCharacters().getData().keySet()))
-        .flatMap(characterId -> getActivities(membershipType, membershipId, characterId))
-        .flatMap(this::createRaidEntry)
-        .flatMap(this::addPGCRDetails, 5)
-        .groupBy(RaidEntry::getRaidName)
-        .flatMap(group -> group.reduce(new RaidStatistics(group.key()),
-            RaidStatsService::createRaidStatistics))
-        .collectMap(RaidStatistics::getRaidName, raidStatistics -> {
-          if (raidStatistics.getFastestTime() == Integer.MAX_VALUE) {
-            raidStatistics.setFastestTime(0);
-          }
-          return raidStatistics;
-        })
-        .doOnSubscribe(c -> log.info("Calculating raid statistics for user [{}]", parsedData[2]))
-        .doOnSuccess(
-            c -> log.info("Finished calculating raid statistics for user [{}]", parsedData[2]));
+    Aggregation aggregation = raidStatisticsAggregationPipeline(uniqueUsername);
+
+    return userRaidDetailsService.existsById(uniqueUsername)
+        .flatMap(exists -> exists ? updateAction : createAction)
+        .flatMapMany(userDetails -> reactiveMongoTemplate.aggregate(aggregation,
+            UserDetails.class, RaidStatistics.class));
   }
 
-  private Mono<RaidEntry> addPGCRDetails(RaidEntry raidEntry) {
-    return pgcrBungieClient.getPostGameCarnageReport(raidEntry.getInstanceId())
-        .onErrorResume(WebClientException.class, err -> {
-          log.warn("Response too big to parse, ignoring and falling back to default value");
-          return Mono.just(new BungieResponse<>(
-              new PostGameCarnageReport(null, false, Collections.emptyList())));
-        })
-        .map(pgcr -> {
-          raidEntry.setIsFromBeginning(pgcr.getResponse().getActivityWasStartedFromBeginning());
-          return raidEntry;
-        });
+  private Mono<UserDetails> updateUser(Instant now, String uniqueUsername, Integer membershipType,
+      String membershipId) {
+    return userRaidDetailsService.updateUserDetails(now, uniqueUsername, membershipId,
+            membershipType)
+        .doOnSubscribe(subscription ->
+            log.info("Update action initiated for user [{}] with ID [{}] and membership type: [{}]",
+                uniqueUsername, membershipId, membershipType))
+        .doOnSuccess(userDetails ->
+            log.info("Update action finished for user [{}] with ID: [{}] and membership type: [{}]",
+                uniqueUsername, membershipId, membershipType));
   }
 
-  private Flux<Activity> getActivities(Integer membershipType, String membershipId,
-      String characterId) {
-    return Flux.range(0, 25)
-        .flatMapSequential(
-            page -> defaultBungieClient.getActivityHistory(membershipType, membershipId,
-                characterId, MAX_PAGE_COUNT, RAID_MODE, page))
-        .filter(activities -> CollectionUtils.isNotEmpty(activities.getResponse().getActivities()))
-        .takeUntil(activities -> activities.getResponse().getActivities().size() < MAX_PAGE_COUNT)
-        .flatMapIterable(response -> response.getResponse().getActivities());
-  }
+  private Mono<UserDetails> createUser(Instant now, String uniqueUsername,
+      Integer membershipType, String membershipId) {
 
-  private Mono<RaidEntry> createRaidEntry(Activity activity) {
-    return bungieClientWrapper.getManifestEntityRx(ManifestEntity.ACTIVITY_DEFINITION,
-            String.valueOf(activity.getActivityDetails().getDirectorActivityHash()))
-        .map(entity -> {
-          if (entity.getResponse() == null || entity.getResponse().getDisplayProperties() == null
-              || entity.getResponse().getDisplayProperties().getName() == null) {
-            return "";
-          }
-          return resolveRaidName(entity.getResponse().getDisplayProperties().getName());
-        })
-        .map(raidName -> new RaidEntry(raidName,
-            activity.getActivityDetails().getInstanceId(),
-            activity.getValues().get("deaths").getBasic().getValue().intValue(),
-            activity.getValues().get("kills").getBasic().getValue().intValue(),
-            activity.getValues().get("killsDeathsAssists").getBasic().getValue(),
-            activity.getValues().get("activityDurationSeconds").getBasic().getValue().intValue(),
-            activity.getValues().get("completed").getBasic().getValue() != 0,
-            null
-        ));
-  }
-
-  private String resolveRaidName(String name) {
-    String[] tokens = name.split(":");
-    return tokens[0].trim();
+    return userRaidDetailsService.createUserDetails(now, uniqueUsername, membershipId,
+            membershipType)
+        .doOnSubscribe(subscription -> log.info(
+            "Creation action initiated for user [{}] with ID: [{}] and membership type: [{}]",
+            uniqueUsername, membershipId, membershipType))
+        .doOnSuccess(userDetails -> log.info(
+            "Creation action finished for user [{}] with ID: [{}] and membership type: [{}]",
+            uniqueUsername, membershipId, membershipType));
   }
 }

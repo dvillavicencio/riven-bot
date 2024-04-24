@@ -1,7 +1,0 @@
-{
-  "ErrorCode": 2102,
-  "ThrottleSeconds": 0,
-  "ErrorStatus": "ApiKeyMissingFromRequest",
-  "Message": "Please add valid X-API-Key header to request.  Visit https://www.bungie.net/developer for details.",
-  "MessageData": {}
-}

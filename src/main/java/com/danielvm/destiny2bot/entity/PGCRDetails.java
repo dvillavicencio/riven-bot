@@ -25,5 +25,5 @@ public class PGCRDetails {
   /**
    * List of players and some relevant information
    */
-  private List<PlayerEntry> players;
+  private List<PlayerEntryDetails> players;
 }

@@ -4,18 +4,15 @@ import static com.danielvm.destiny2bot.enums.ManifestEntity.ACTIVITY_DEFINITION;
 import static com.danielvm.destiny2bot.enums.ManifestEntity.ACTIVITY_TYPE_DEFINITION;
 import static com.danielvm.destiny2bot.enums.ManifestEntity.MILESTONE_DEFINITION;
 
-import com.danielvm.destiny2bot.client.BungieClient;
-import com.danielvm.destiny2bot.client.BungieClientWrapper;
 import com.danielvm.destiny2bot.dto.MilestoneResponse;
 import com.danielvm.destiny2bot.dto.WeeklyActivity;
-import com.danielvm.destiny2bot.dto.destiny.BungieResponse;
+import com.danielvm.destiny2bot.dto.destiny.manifest.ManifestResponseFields;
 import com.danielvm.destiny2bot.dto.destiny.milestone.ActivitiesDto;
 import com.danielvm.destiny2bot.dto.destiny.milestone.MilestoneEntry;
 import com.danielvm.destiny2bot.enums.ActivityMode;
 import com.danielvm.destiny2bot.exception.ResourceNotFoundException;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.stereotype.Service;
@@ -26,14 +23,10 @@ import reactor.core.publisher.Mono;
 @Slf4j
 public class WeeklyActivitiesService {
 
-  private final BungieClient defaultBungieClient;
-  private final BungieClientWrapper bungieClientWrapper;
+  private final BungieAPIService bungieAPIService;
 
-  public WeeklyActivitiesService(
-      BungieClient defaultBungieClient,
-      BungieClientWrapper bungieClientWrapper) {
-    this.defaultBungieClient = defaultBungieClient;
-    this.bungieClientWrapper = bungieClientWrapper;
+  public WeeklyActivitiesService(BungieAPIService bungieAPIService) {
+    this.bungieAPIService = bungieAPIService;
   }
 
   /**
@@ -43,22 +36,21 @@ public class WeeklyActivitiesService {
    * @return {@link MilestoneResponse}
    */
   public Mono<WeeklyActivity> getWeeklyActivity(ActivityMode activityMode) {
-    return defaultBungieClient.getPublicMilestonesRx()
-        .map(BungieResponse::getResponse)
+    return bungieAPIService.getPublicMilestones()
         .flatMapIterable(Map::values)
         .filter(this::hasWeeklyObjectives)
         .filterWhen(milestoneEntry -> activityModeMatches(milestoneEntry, activityMode))
+        .switchIfEmpty(Mono.error(new ResourceNotFoundException(
+            "No weekly activity found for activity type [%s]".formatted(activityMode))))
         .flatMap(this::createWeeklyActivity)
-        .next() // ideally there should only be one weekly activity
-        .switchIfEmpty(Mono.error(
-            new ResourceNotFoundException("No weekly activity found for activity type [%s]"
-                .formatted(activityMode))));
+        .next(); // ideally there should only be one weekly activity
+
   }
 
   private Mono<WeeklyActivity> createWeeklyActivity(MilestoneEntry milestoneEntry) {
-    return bungieClientWrapper.getManifestEntityRx(MILESTONE_DEFINITION,
+    return bungieAPIService.getManifestEntity(MILESTONE_DEFINITION,
             milestoneEntry.getMilestoneHash())
-        .map(milestoneEntity -> milestoneEntity.getResponse().getDisplayProperties())
+        .map(ManifestResponseFields::getDisplayProperties)
         .map(displayProperties ->
             WeeklyActivity.builder()
                 .name(displayProperties.getName())
@@ -73,17 +65,15 @@ public class WeeklyActivitiesService {
       return Mono.just(false);
     }
     return Flux.fromIterable(entry.getActivities())
-        .flatMap(activity -> bungieClientWrapper.getManifestEntityRx(
+        .flatMap(activity -> bungieAPIService.getManifestEntity(
             ACTIVITY_DEFINITION, activity.getActivityHash()))
-        .filter(activityDefinition -> Objects.nonNull(
-            activityDefinition.getResponse().getActivityTypeHash()))
-        .flatMap(activityDefinition -> bungieClientWrapper.getManifestEntityRx(
-            ACTIVITY_TYPE_DEFINITION, activityDefinition.getResponse().getActivityTypeHash()))
-        .filter(activityTypeDefinition -> Objects.nonNull(
-            activityTypeDefinition.getResponse()) && Objects.nonNull(
-            activityTypeDefinition.getResponse().getDisplayProperties()))
-        .any(activityTypeDefinition -> activityTypeDefinition.getResponse().getDisplayProperties()
-            .getName().equalsIgnoreCase(activityMode.getLabel()));
+        .filter(activity -> activity.getActivityTypeHash() != null)
+        .flatMap(activityDefinition -> bungieAPIService.getManifestEntity(
+            ACTIVITY_TYPE_DEFINITION, activityDefinition.getActivityTypeHash()))
+        .filter(activityType -> activityType != null &&
+                                activityType.getDisplayProperties() != null)
+        .any(activityTypeDefinition -> activityTypeDefinition.getDisplayProperties().getName()
+            .equalsIgnoreCase(activityMode.getLabel()));
   }
 
   private boolean hasWeeklyObjectives(MilestoneEntry entry) {

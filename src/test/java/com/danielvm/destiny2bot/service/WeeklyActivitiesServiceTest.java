@@ -2,12 +2,9 @@ package com.danielvm.destiny2bot.service;
 
 import static org.mockito.Mockito.when;
 
-import com.danielvm.destiny2bot.client.BungieClient;
-import com.danielvm.destiny2bot.client.BungieClientWrapper;
 import com.danielvm.destiny2bot.dto.WeeklyActivity;
-import com.danielvm.destiny2bot.dto.destiny.BungieResponse;
 import com.danielvm.destiny2bot.dto.destiny.manifest.DisplayProperties;
-import com.danielvm.destiny2bot.dto.destiny.manifest.ResponseFields;
+import com.danielvm.destiny2bot.dto.destiny.manifest.ManifestResponseFields;
 import com.danielvm.destiny2bot.dto.destiny.milestone.ActivitiesDto;
 import com.danielvm.destiny2bot.dto.destiny.milestone.MilestoneEntry;
 import com.danielvm.destiny2bot.enums.ActivityMode;
@@ -30,9 +27,8 @@ import reactor.test.StepVerifier;
 public class WeeklyActivitiesServiceTest {
 
   @Mock
-  private BungieClient bungieClient;
-  @Mock
-  private BungieClientWrapper bungieClientWrapper;
+  BungieAPIService bungieAPIService;
+
   @InjectMocks
   private WeeklyActivitiesService sut;
 
@@ -44,50 +40,45 @@ public class WeeklyActivitiesServiceTest {
 
     var startTime = ZonedDateTime.now();
     var endTime = ZonedDateTime.now().plusDays(2L);
-    var activitiesNoWeekly = List.of(new ActivitiesDto("1262462921", Collections.emptyList()));
-    var activitiesWeekly = List.of(new ActivitiesDto("2823159265", List.of("897950155")));
-    var milestoneResponse = new BungieResponse<>(
-        Map.of(
-            "526718853", new MilestoneEntry("526718853",
-                startTime, endTime, activitiesNoWeekly),
+    var activitiesNoWeekly = List.of(new ActivitiesDto(1262462921L, Collections.emptyList()));
+    var activitiesWeekly = List.of(new ActivitiesDto(2823159265L, List.of("897950155")));
+    var milestoneResponse = Map.of(
+        "526718853", new MilestoneEntry(526718853L,
+            startTime, endTime, activitiesNoWeekly),
 
-            "3618845105", new MilestoneEntry("3618845105",
-                startTime, endTime, activitiesWeekly),
+        "3618845105", new MilestoneEntry(3618845105L,
+            startTime, endTime, activitiesWeekly),
 
-            "2029743966", new MilestoneEntry("2029743966",
-                startTime, endTime, null)
-        )
+        "2029743966", new MilestoneEntry(2029743966L,
+            startTime, endTime, null)
     );
 
-    when(bungieClient.getPublicMilestonesRx())
+    when(bungieAPIService.getPublicMilestones())
         .thenReturn(Mono.just(milestoneResponse));
 
-    var activityWithType = new ResponseFields();
-    activityWithType.setActivityTypeHash("608898761");
-    var raidActivityEntity = new BungieResponse<>(activityWithType);
+    var activityWithType = new ManifestResponseFields();
+    activityWithType.setActivityTypeHash(608898761L);
 
     when(
-        bungieClientWrapper.getManifestEntityRx(ManifestEntity.ACTIVITY_DEFINITION, "2823159265"))
-        .thenReturn(Mono.just(raidActivityEntity));
+        bungieAPIService.getManifestEntity(ManifestEntity.ACTIVITY_DEFINITION, 2823159265L))
+        .thenReturn(Mono.just(activityWithType));
 
-    var raidResponseFields = new ResponseFields();
+    var raidResponseFields = new ManifestResponseFields();
     raidResponseFields.setDisplayProperties(
         new DisplayProperties("someDescription", "Raid", null, null, false));
-    var activityTypeEntity = new BungieResponse<>(raidResponseFields);
 
-    when(bungieClientWrapper.getManifestEntityRx(ManifestEntity.ACTIVITY_TYPE_DEFINITION,
-        "608898761"))
-        .thenReturn(Mono.just(activityTypeEntity));
+    when(bungieAPIService.getManifestEntity(ManifestEntity.ACTIVITY_TYPE_DEFINITION,
+        608898761L))
+        .thenReturn(Mono.just(raidResponseFields));
 
-    var milestoneResponseFields = new ResponseFields();
+    var milestoneResponseFields = new ManifestResponseFields();
     var lastWishDisplayProperties = new DisplayProperties("Delve into the Last Wish raid",
         "The Last Wish", null, null, false);
     milestoneResponseFields.setDisplayProperties(lastWishDisplayProperties);
-    var milestoneEntity = new BungieResponse<>(milestoneResponseFields);
 
     when(
-        bungieClientWrapper.getManifestEntityRx(ManifestEntity.MILESTONE_DEFINITION, "3618845105"))
-        .thenReturn(Mono.just(milestoneEntity));
+        bungieAPIService.getManifestEntity(ManifestEntity.MILESTONE_DEFINITION, 3618845105L))
+        .thenReturn(Mono.just(milestoneResponseFields));
 
     WeeklyActivity expectedResponse = new WeeklyActivity("The Last Wish",
         "Delve into the Last Wish raid", startTime, endTime);
@@ -109,48 +100,43 @@ public class WeeklyActivitiesServiceTest {
 
     var startTime = ZonedDateTime.now();
     var endTime = ZonedDateTime.now().plusDays(2L);
-    var activitiesNoWeekly = List.of(new ActivitiesDto("1262462921", Collections.emptyList()));
-    var activitiesWeekly = List.of(new ActivitiesDto("2823159265", List.of("897950155")));
-    var milestoneResponse = new BungieResponse<>(
-        Map.of(
-            "526718853", new MilestoneEntry("526718853",
-                startTime, endTime, activitiesNoWeekly),
+    var activitiesNoWeekly = List.of(new ActivitiesDto(1262462921L, Collections.emptyList()));
+    var activitiesWeekly = List.of(new ActivitiesDto(2823159265L, List.of("897950155")));
+    var milestoneResponse = Map.of(
+        "526718853", new MilestoneEntry(526718853L,
+            startTime, endTime, activitiesNoWeekly),
 
-            "3618845105", new MilestoneEntry("3618845105",
-                startTime, endTime, activitiesWeekly),
+        "3618845105", new MilestoneEntry(3618845105L,
+            startTime, endTime, activitiesWeekly),
 
-            "2029743966", new MilestoneEntry("2029743966",
-                startTime, endTime, null)
-        )
+        "2029743966", new MilestoneEntry(2029743966L,
+            startTime, endTime, null)
     );
 
-    when(bungieClient.getPublicMilestonesRx())
+    when(bungieAPIService.getPublicMilestones())
         .thenReturn(Mono.just(milestoneResponse));
 
-    var activityWithType = new ResponseFields();
-    activityWithType.setActivityTypeHash("608898761");
-    var raidActivityEntity = new BungieResponse<>(activityWithType);
+    var activityWithType = new ManifestResponseFields();
+    activityWithType.setActivityTypeHash(608898761L);
 
-    when(bungieClientWrapper.getManifestEntityRx(ManifestEntity.ACTIVITY_DEFINITION, "2823159265"))
-        .thenReturn(Mono.just(raidActivityEntity));
+    when(bungieAPIService.getManifestEntity(ManifestEntity.ACTIVITY_DEFINITION, 2823159265L))
+        .thenReturn(Mono.just(activityWithType));
 
-    var dungeonResponseFields = new ResponseFields();
+    var dungeonResponseFields = new ManifestResponseFields();
     dungeonResponseFields.setDisplayProperties(
         new DisplayProperties("someDescription", "Dungeon", null, null, false));
-    var activityTypeEntity = new BungieResponse<>(dungeonResponseFields);
 
-    when(bungieClientWrapper.getManifestEntityRx(ManifestEntity.ACTIVITY_TYPE_DEFINITION,
-        "608898761"))
-        .thenReturn(Mono.just(activityTypeEntity));
+    when(bungieAPIService.getManifestEntity(ManifestEntity.ACTIVITY_TYPE_DEFINITION,
+        608898761L))
+        .thenReturn(Mono.just(dungeonResponseFields));
 
-    var milestoneResponseFields = new ResponseFields();
+    var milestoneResponseFields = new ManifestResponseFields();
     var dualityDisplayProperties = new DisplayProperties("Calus' mind as a dungeon lol",
         "Duality", null, null, false);
     milestoneResponseFields.setDisplayProperties(dualityDisplayProperties);
-    var milestoneEntity = new BungieResponse<>(milestoneResponseFields);
 
-    when(bungieClientWrapper.getManifestEntityRx(ManifestEntity.MILESTONE_DEFINITION, "3618845105"))
-        .thenReturn(Mono.just(milestoneEntity));
+    when(bungieAPIService.getManifestEntity(ManifestEntity.MILESTONE_DEFINITION, 3618845105L))
+        .thenReturn(Mono.just(milestoneResponseFields));
 
     WeeklyActivity expectedResponse = new WeeklyActivity(dualityDisplayProperties.getName(),
         dualityDisplayProperties.getDescription(), startTime, endTime);
@@ -172,18 +158,16 @@ public class WeeklyActivitiesServiceTest {
 
     var startTime = ZonedDateTime.now();
     var endTime = ZonedDateTime.now().plusDays(2L);
-    var activitiesNoWeekly = List.of(new ActivitiesDto("1262462921", Collections.emptyList()));
-    var milestoneResponse = new BungieResponse<>(
-        Map.of(
-            "526718853", new MilestoneEntry("526718853",
-                startTime, endTime, activitiesNoWeekly),
+    var activitiesNoWeekly = List.of(new ActivitiesDto(1262462921L, Collections.emptyList()));
+    var milestoneResponse = Map.of(
+        "526718853", new MilestoneEntry(526718853L,
+            startTime, endTime, activitiesNoWeekly),
 
-            "2029743966", new MilestoneEntry("2029743966",
-                startTime, endTime, null)
-        )
+        "2029743966", new MilestoneEntry(2029743966L,
+            startTime, endTime, null)
     );
 
-    when(bungieClient.getPublicMilestonesRx())
+    when(bungieAPIService.getPublicMilestones())
         .thenReturn(Mono.just(milestoneResponse));
 
     // when: getWeeklyActivity is called

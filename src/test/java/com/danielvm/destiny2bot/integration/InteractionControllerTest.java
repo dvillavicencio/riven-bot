@@ -19,7 +19,7 @@ import com.danielvm.destiny2bot.enums.InteractionType;
 import com.danielvm.destiny2bot.enums.ManifestEntity;
 import com.danielvm.destiny2bot.enums.Raid;
 import com.danielvm.destiny2bot.enums.RaidEncounter;
-import com.danielvm.destiny2bot.util.MessageUtil;
+import com.danielvm.destiny2bot.util.MessageUtils;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationFeature;
@@ -28,20 +28,30 @@ import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import java.io.File;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.security.KeyPair;
+import java.security.PublicKey;
+import java.time.Instant;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import org.apache.commons.codec.DecoderException;
+import org.apache.commons.codec.binary.Hex;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.springframework.core.io.ClassPathResource;
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.test.web.reactive.server.WebTestClient;
 import org.springframework.test.web.reactive.server.WebTestClient.ResponseSpec;
+import org.springframework.web.reactive.function.BodyInserters;
+import software.pando.crypto.nacl.Crypto;
 
 public class InteractionControllerTest extends BaseIntegrationTest {
+
+  private static final String MALICIOUS_PRIVATE_KEY = "CE4517095255B0C92D586AF9EEC27B998D68775363F9FE74341483FB3A657CEC";
+  private static final String VALID_PRIVATE_KEY = "F0EA3A0516695324C03ED552CD5A08A58CA1248172E8816C3BF235E52E75A7BF";
 
   // Static mapper to be used on the @BeforeAll static method
   private static final ObjectMapper OBJECT_MAPPER = new JsonMapper.Builder(new JsonMapper())
@@ -78,12 +88,84 @@ public class InteractionControllerTest extends BaseIntegrationTest {
           var startDate = entry.getValue().getStartDate();
           var endDate = entry.getValue().getEndDate();
           if (Objects.nonNull(startDate)) {
-            entry.getValue().setStartDate(MessageUtil.PREVIOUS_TUESDAY);
+            entry.getValue().setStartDate(MessageUtils.PREVIOUS_TUESDAY);
           }
           if (Objects.nonNull(endDate)) {
-            entry.getValue().setEndDate(MessageUtil.NEXT_TUESDAY);
+            entry.getValue().setEndDate(MessageUtils.NEXT_TUESDAY);
           }
         });
+  }
+
+  /**
+   * Sends a partial WebTestClient request to the specified route with a valid signature
+   *
+   * @param endpoint    The /endpoint to call
+   * @param interaction The interaction body that the user will send along this request
+   * @return {@link WebTestClient.RequestHeadersSpec}
+   * @throws DecoderException        If something goes wrong with the Crypto library
+   * @throws JsonProcessingException If Jackson is unable to parse the body to Json for signing
+   */
+  public ResponseSpec sendValidSignatureRequest(String endpoint, Interaction interaction)
+      throws DecoderException, JsonProcessingException {
+    String timestamp = String.valueOf(Instant.now().getEpochSecond());
+    String signature = createValidSignature(interaction, timestamp);
+    return this.webTestClient.post().uri(endpoint)
+        .accept(MediaType.APPLICATION_JSON, MediaType.MULTIPART_FORM_DATA)
+        .contentType(MediaType.APPLICATION_JSON)
+        .header("X-Signature-Ed25519", signature)
+        .header("X-Signature-Timestamp", timestamp)
+        .body(BodyInserters.fromValue(interaction))
+        .exchange();
+  }
+
+  /**
+   * Sends a WebTestClient request with the appropriate headers but with an invalid signature
+   *
+   * @param endpoint    The /endpoint to call
+   * @param interaction The interaction body that the user will send along this request
+   * @return {@link WebTestClient.ResponseSpec}
+   * @throws DecoderException        If something goes wrong with the Crypto library
+   * @throws JsonProcessingException If Jackson is unable to parse the body to Json for signing
+   */
+  public ResponseSpec sendInvalidSignatureRequest(String endpoint, Interaction interaction)
+      throws DecoderException, JsonProcessingException {
+    String timestamp = String.valueOf(Instant.now().getEpochSecond());
+    String signature = createInvalidSignature(interaction, timestamp);
+    return this.webTestClient.post().uri(endpoint)
+        .accept(MediaType.APPLICATION_JSON)
+        .contentType(MediaType.APPLICATION_JSON)
+        .header("X-Signature-Ed25519", signature)
+        .header("X-Signature-Timestamp", timestamp)
+        .body(BodyInserters.fromValue(interaction))
+        .exchange();
+  }
+
+  private String createValidSignature(Interaction body, String timestamp)
+      throws JsonProcessingException, DecoderException {
+    KeyPair signingKeys = Crypto.seedSigningKeyPair(Hex.decodeHex(VALID_PRIVATE_KEY.toCharArray()));
+    discordConfiguration.setBotPublicKey(
+        Hex.encodeHexString(
+            signingKeys.getPublic().getEncoded())); // change the public key in the config class
+
+    var signatureBytes = Crypto.sign(signingKeys.getPrivate(),
+        (timestamp + objectMapper.writeValueAsString(body)).getBytes(StandardCharsets.UTF_8));
+    return Hex.encodeHexString(signatureBytes);
+  }
+
+  private String createInvalidSignature(Interaction body, String timestamp)
+      throws JsonProcessingException, DecoderException {
+    KeyPair invalidSigningKeyPair = Crypto.seedSigningKeyPair(
+        Hex.decodeHex(MALICIOUS_PRIVATE_KEY.toCharArray()));
+
+    PublicKey validPublicKey = Crypto.seedSigningKeyPair(
+        Hex.decodeHex(VALID_PRIVATE_KEY.toCharArray())).getPublic();
+
+    discordConfiguration.setBotPublicKey(
+        Hex.encodeHexString(validPublicKey.getEncoded()));
+
+    var signatureBytes = Crypto.sign(invalidSigningKeyPair.getPrivate(),
+        (timestamp + objectMapper.writeValueAsString(body)).getBytes(StandardCharsets.UTF_8));
+    return Hex.encodeHexString(signatureBytes);
   }
 
   @Test
@@ -158,7 +240,7 @@ public class InteractionControllerTest extends BaseIntegrationTest {
             """
                 This week's dungeon is: Spire of the Watcher.
                 You have until %s to complete it before the next dungeon in the rotation.
-                """.formatted(MessageUtil.formatDate(MessageUtil.NEXT_TUESDAY.toLocalDate())));
+                """.formatted(MessageUtils.formatDate(MessageUtils.NEXT_TUESDAY.toLocalDate())));
   }
 
   @Test
@@ -223,7 +305,7 @@ public class InteractionControllerTest extends BaseIntegrationTest {
             """
                 This week's raid is: Garden of Salvation.
                 You have until %s to complete it before the next raid comes along.
-                """.formatted(MessageUtil.formatDate(MessageUtil.NEXT_TUESDAY.toLocalDate())));
+                """.formatted(MessageUtils.formatDate(MessageUtils.NEXT_TUESDAY.toLocalDate())));
   }
 
   @Test
@@ -239,29 +321,20 @@ public class InteractionControllerTest extends BaseIntegrationTest {
     stubFor(get(urlPathEqualTo("/bungie/Destiny2/Milestones/"))
         .withHeader("x-api-key", equalTo(bungieConfiguration.getKey()))
         .willReturn(aResponse()
-            .withStatus(400)
+            .withStatus(200)
             .withHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
-            .withBodyFile("bungie/missing-api-key.json")));
+            .withBodyFile("bungie/no-weekly-data.json")));
 
     // when: the request is sent
     var response = sendValidSignatureRequest("/interactions", body);
 
     // then: the response JSON is correct
-    String errorJson;
-    try {
-      errorJson = objectMapper.writeValueAsString(
-          objectMapper.readValue(
-              new ClassPathResource("__files/bungie/missing-api-key.json").getInputStream(),
-              Object.class));
-    } catch (IOException e) {
-      throw new RuntimeException(e);
-    }
-
     response.expectStatus()
-        .isBadRequest()
+        .is5xxServerError()
         .expectBody()
-        .jsonPath("$.detail").value(json -> assertJsonLenient(errorJson, json))
-        .jsonPath("$.status").isEqualTo(HttpStatus.BAD_REQUEST.value());
+        .jsonPath("$.status").isEqualTo(500)
+        .jsonPath("$.detail").isEqualTo("No available milestone data was available for processing")
+        .returnResult();
   }
 
   @Test
@@ -279,11 +352,24 @@ public class InteractionControllerTest extends BaseIntegrationTest {
         .data(data).build();
 
     // when: the request is sent
-    ResponseSpec response = sendInvalidSignatureRequest("/interactions", body);
+    String timestamp = String.valueOf(Instant.now().getEpochSecond());
+    String signature = createInvalidSignature(body, timestamp);
+    var response = webTestClient.post().uri("/interactions")
+        .accept(MediaType.APPLICATION_JSON)
+        .contentType(MediaType.APPLICATION_JSON)
+        .header("X-Signature-Ed25519", signature)
+        .header("X-Signature-Timestamp", timestamp)
+        .body(BodyInserters.fromValue(body))
+        .exchange();
 
     // then: the response JSON has the correct error message
     response.expectStatus()
-        .isBadRequest();
+        .isBadRequest()
+        .expectBody()
+        .jsonPath("$.status").isEqualTo(400)
+        .jsonPath("$.detail")
+        .isEqualTo("The signature passed in was invalid. Timestamp: [%s], Signature [%s]"
+            .formatted(timestamp, signature));
   }
 
   @Test
@@ -312,11 +398,24 @@ public class InteractionControllerTest extends BaseIntegrationTest {
         .build();
 
     // when: the request is sent
-    var response = sendInvalidSignatureRequest("/interactions", body);
+    String timestamp = String.valueOf(Instant.now().getEpochSecond());
+    String signature = createInvalidSignature(body, timestamp);
+    var response = webTestClient.post().uri("/interactions")
+        .accept(MediaType.APPLICATION_JSON)
+        .contentType(MediaType.APPLICATION_JSON)
+        .header("X-Signature-Ed25519", signature)
+        .header("X-Signature-Timestamp", timestamp)
+        .body(BodyInserters.fromValue(body))
+        .exchange();
 
     // then: the response JSON has the correct error message
     response.expectStatus()
-        .isBadRequest();
+        .isBadRequest()
+        .expectBody()
+        .jsonPath("$.status").isEqualTo(400)
+        .jsonPath("$.detail")
+        .isEqualTo("The signature passed in was invalid. Timestamp: [%s], Signature [%s]".formatted(
+            timestamp, signature));
   }
 
   @Test
@@ -325,8 +424,8 @@ public class InteractionControllerTest extends BaseIntegrationTest {
       throws DecoderException, IOException {
     // given: an interaction for autocomplete for the /raid_map command
     List<Option> options = List.of(
-        new Option("raid", 3, "last_wish", false),
-        new Option("raid", 3, "k", true)
+        new Option("raid", 3, "last_wish", false, Collections.emptyList()),
+        new Option("raid", 3, "k", true, Collections.emptyList())
     );
     InteractionData data = InteractionData.builder()
         .id("someID")
@@ -366,8 +465,8 @@ public class InteractionControllerTest extends BaseIntegrationTest {
       throws DecoderException, IOException {
     // given: an interaction for autocomplete for the /raid_map command
     List<Option> options = List.of(
-        new Option("raid", 3, "last_wish", false),
-        new Option("encounter", 3, "kalli", false)
+        new Option("raid", 3, "last_wish", false, Collections.emptyList()),
+        new Option("encounter", 3, "kalli", false, Collections.emptyList())
     );
     InteractionData data = InteractionData.builder()
         .id("someID")
