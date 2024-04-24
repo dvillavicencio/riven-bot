@@ -28,6 +28,7 @@ import reactor.core.publisher.Mono;
 @Slf4j
 public class PostGameCarnageService {
 
+  private static final String PGCR_ENDPOINT_URL = "/Destiny2/Stats/PostGameCarnageReport/{activityId}/";
   private static final RateLimiter PGCR_RATE_LIMITER = RateLimiter.of("pgcr-rate-limiter",
       RateLimiterConfig.custom()
           .limitForPeriod(23)
@@ -59,7 +60,7 @@ public class PostGameCarnageService {
     WebClient webClient = builder.build();
 
     Flux<DataBuffer> dataChunks = webClient.get()
-        .uri("/Destiny2/Stats/PostGameCarnageReport/{activityId}/", activityInstanceId)
+        .uri(PGCR_ENDPOINT_URL, activityInstanceId)
         .exchangeToFlux(clientResponse -> clientResponse.body(BodyExtractors.toDataBuffers())
             .concatMap(dataBuffer -> {
               AtomicInteger currentSize = new AtomicInteger(0);

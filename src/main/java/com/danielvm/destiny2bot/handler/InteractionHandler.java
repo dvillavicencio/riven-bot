@@ -59,7 +59,10 @@ public class InteractionHandler {
           ParameterizedTypeReference<MultiValueMap<String, HttpEntity<?>>> multiValueReference =
               new ParameterizedTypeReference<>() {
               };
-          return resolveResponse(interaction, interactionType)
+
+          Mono<InteractionResponse> interactionResponse = resolveResponse(interaction,
+              interactionType);
+          return interactionResponse
               .flatMap(response -> {
                 boolean hasAttachments =
                     !Objects.equals(response.getType(), InteractionResponseType.PONG.getType())
@@ -71,10 +74,10 @@ public class InteractionHandler {
                     BodyInserters.fromValue(response));
               })
               .onErrorResume(BaseException.class,
-                  ex -> {
-                    ProblemDetail problemDetail = ProblemDetail.forStatus(ex.getStatus());
-                    problemDetail.setDetail(ex.getMessage());
-                    return ServerResponse.status(ex.getStatus())
+                  error -> {
+                    ProblemDetail problemDetail = ProblemDetail.forStatus(error.getStatus());
+                    problemDetail.setDetail(error.getMessage());
+                    return ServerResponse.status(error.getStatus())
                         .body(BodyInserters.fromValue(problemDetail));
                   }
               );

@@ -1,13 +1,9 @@
 package com.danielvm.destiny2bot.client;
 
-import com.danielvm.destiny2bot.dto.discord.DiscordUserResponse;
 import com.danielvm.destiny2bot.dto.discord.InteractionResponseData;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestHeader;
-import org.springframework.web.service.annotation.GetExchange;
 import org.springframework.web.service.annotation.PatchExchange;
 import reactor.core.publisher.Mono;
 
@@ -15,16 +11,6 @@ import reactor.core.publisher.Mono;
  * This client is responsible for making calls to Discord's API
  */
 public interface DiscordClient {
-
-  /**
-   * Gets the current Discord user details
-   *
-   * @param bearerToken The bearer token of the Discord user
-   * @return {@link DiscordUserResponse}
-   */
-  @GetExchange("/users/@me")
-  Mono<DiscordUserResponse> getUser(
-      @RequestHeader(HttpHeaders.AUTHORIZATION) String bearerToken);
 
   /**
    * Edit an interaction that was sent already
