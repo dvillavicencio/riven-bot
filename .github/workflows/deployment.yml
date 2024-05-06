@@ -1,4 +1,4 @@
-name: Deployment to EC2 Instance
+name: Deploy Application to Digial Ocean Droplet
 
 on: workflow_dispatch
 
