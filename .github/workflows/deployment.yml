@@ -64,7 +64,7 @@ jobs:
 
       - name: Set variable with docker image name
         run: |
-          content=$(cat ./imageName.txt)
+          content=$(cat ./image_name.txt)
           echo "DOCKER_IMAGE_NAME=$content" >> $GITHUB_ENV
         shell: bash
 
@@ -101,7 +101,7 @@ jobs:
 
       - name: Set variable with docker image name
         run: |
-          content=$(cat ./imageName.txt)
+          content=$(cat ./image_name.txt)
           echo "DOCKER_IMAGE_NAME=$content" >> $GITHUB_ENV
         shell: bash
 
