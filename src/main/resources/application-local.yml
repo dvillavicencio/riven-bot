@@ -1,3 +1,10 @@
+spring:
+  data:
+    redis:
+      host: localhost
+    mongodb:
+      host: localhost
+
 application:
   callback:
     # Replace with your own callback url masking port 8080 to run locally

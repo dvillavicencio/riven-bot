@@ -1,3 +1,10 @@
+spring:
+  data:
+    redis:
+      host: redis
+    mongodb:
+      host: mongo
+
 application:
   callback:
-    url: https://d2discord.app
+    url: https://rivenbot.app

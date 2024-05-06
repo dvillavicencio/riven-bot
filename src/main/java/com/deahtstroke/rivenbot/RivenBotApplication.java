@@ -23,10 +23,10 @@ import org.springframework.web.reactive.function.server.ServerResponse;
 @EnableCaching
 @SpringBootApplication
 @EnableAspectJAutoProxy
-public class Destiny2botApplication {
+public class RivenBotApplication {
 
   public static void main(String[] args) {
-    SpringApplication.run(Destiny2botApplication.class, args);
+    SpringApplication.run(RivenBotApplication.class, args);
   }
 
   @Bean
