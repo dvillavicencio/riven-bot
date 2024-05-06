@@ -110,7 +110,7 @@ jobs:
         with:
           host: ${{ secrets.DROPLET_HOST }}
           username: ${{ secrets.DROPLET_USERNAME }}
-          key: ${{ secrets.DROPLET_PRIVATE_KEY }}
+          key: ${{ secrets.DROPLET_PRIVATE_TOKEN }}
           script: |
             # Change to working directory
             cd riven_of_a_thousand_servers/
