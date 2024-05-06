@@ -115,9 +115,6 @@ jobs:
             # Change to working directory
             cd riven_of_a_thousand_servers/
             
-            # Stop current Docker Compose
-            docker compose down
-            
             # Login to Docker
             docker login -u ${{ secrets.DOCKERHUB_USERNAME }} -p ${{ secrets.DOCKERHUB_TOKEN }}
             
@@ -139,6 +136,9 @@ jobs:
             echo "REDIS_HOST=${{ secrets.REDIS_HOST }}" >> .env
             
             chmod 600 .env
+
+            # Stop current Docker Compose
+            docker compose down
             
             # Start Docker Compose
             docker compose up
