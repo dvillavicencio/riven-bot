@@ -71,7 +71,7 @@ jobs:
       - name: Find and set JAR file
         id: SET_JAR_FILE
         run: |
-          JAR_FILE=$(find ./build/libs -type f -name "destiny2bot-*.jar")
+          JAR_FILE=$(find ./build/libs -type f -name "rivenOfAThousandServers-*.jar")
 
           if [ -z "$JAR_FILE" ]; then
             echo "::debug::No JAR file found in build/libs with the specified pattern"
