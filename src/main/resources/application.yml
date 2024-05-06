@@ -2,21 +2,14 @@ spring:
   data:
     redis:
       port: 6379
-      host: redis
+      host: ${REDIS_HOST}
     mongodb:
       username: ${MONGO_DB_ROOT_USERNAME}
       password: ${MONGO_DB_ROOT_PASSWORD}
       authentication-database: admin
       database: riven_of_a_thousand_servers
-      host: mongo
+      host: ${MONGO_DB_HOST}
       port: 27017
-
-server:
-  port: 443
-  ssl:
-    key-store: keystore.pfx
-    key-store-type: PKCS12
-    key-store-password: ${KEYSTORE_PASSWORD}
 
 bungie:
   api:
@@ -46,7 +39,3 @@ discord:
     clientId: ${DISCORD_CLIENT_ID}
     clientSecret: ${DISCORD_CLIENT_SECRET}
     scopes: identify
-
-application:
-  callback:
-    url: https://d2discord.app

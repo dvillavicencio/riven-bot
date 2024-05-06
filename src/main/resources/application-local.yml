@@ -1,30 +1,4 @@
-spring:
-  data:
-    redis:
-      port: 6379
-      host: localhost
-    mongodb:
-      username: root
-      password: root
-      database: riven_of_a_thousand_servers
-      host: localhost
-      port: 27017
-      authentication-database: admin
-
-bungie:
-  api:
-    callbackUrl: ${application.callback.url}/bungie/callback
-
-discord:
-  api:
-    callbackUrl: ${application.callback.url}/discord/callback
-
-server:
-  port: 8080
-  ssl:
-    enabled: false
-
 application:
   callback:
     # Replace with your own callback url masking port 8080 to run locally
-    url: https://c3ee-2600-1700-4390-a930-19b5-f155-e766-6d6.ngrok-free.app
+    url: https://d093-2600-1700-4390-a930-cdfb-2be0-9169-d68b.ngrok-free.app

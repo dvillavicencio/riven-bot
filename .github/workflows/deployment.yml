@@ -8,7 +8,7 @@ jobs:
     steps:
       - name: Checkout the project
         uses: actions/checkout@v4
-        
+
       - name: Set up JDK 21 for x64
         uses: actions/setup-java@v3
         with:
@@ -23,23 +23,31 @@ jobs:
 
       - name: Set Project name and version as environment variables
         run: |
-          echo "${{ secrets.DOCKERHUB_USERNAME}}/$(./gradlew -q projectName):$(./gradlew -q version)" > imageName.txt
-          cat imageName.txt
-            
+          echo "${{ secrets.DOCKERHUB_USERNAME}}/$(./gradlew -q projectName):$(./gradlew -q version)" > image_name.txt
+          cat image_name.txt
+
       - name: Upload Artifacts
         uses: actions/upload-artifact@v3
         with:
           name: docker-image-name
           path: |
-            imageName.txt
-            build/libs/**
-            dockerfile
+            build/libs/*.jar
+            image_name.txt          
 
-  Docker-Upload:
+  docker-image-upload:
     needs: build-and-test
-    
+
     runs-on: ubuntu-latest
+
     steps:
+      - name: Checkout the project
+        uses: actions/checkout@v4
+
+      - name: Pull cached artifact
+        uses: actions/download-artifact@v3
+        with:
+          name: docker-image-name
+
       - name: Login to Docker
         uses: docker/login-action@v3
         with:
@@ -59,12 +67,12 @@ jobs:
           content=$(cat ./imageName.txt)
           echo "DOCKER_IMAGE_NAME=$content" >> $GITHUB_ENV
         shell: bash
-      
+
       - name: Find and set JAR file
-        id: find_jar_file
+        id: SET_JAR_FILE
         run: |
           JAR_FILE=$(find ./build/libs -type f -name "destiny2bot-*.jar")
-          
+
           if [ -z "$JAR_FILE" ]; then
             echo "::debug::No JAR file found in build/libs with the specified pattern"
             exit 1
@@ -74,41 +82,63 @@ jobs:
 
       - name: Build and Push
         uses: docker/build-push-action@v5
-        with:  
+        with:
           push: true
           platforms: linux/amd64,linux/arm64
           tags: ${{ env.DOCKER_IMAGE_NAME }}
-          build-args: JAR_FILE=${{ steps.find_jar_file.outputs.JAR_FILE }}
+          build-args: JAR_FILE=${{ steps.SET_JAR_FILE.outputs.JAR_FILE }}
           context: .
 
-  Deployment:
-    needs: Docker-Upload
+  deploy:
+    needs: docker-image-upload
+
     runs-on: ubuntu-latest
     steps:
       - name: Pull Saved Artifacts
         uses: actions/download-artifact@v3
         with:
           name: docker-image-name
-          
+
       - name: Set variable with docker image name
         run: |
           content=$(cat ./imageName.txt)
           echo "DOCKER_IMAGE_NAME=$content" >> $GITHUB_ENV
         shell: bash
-        
-      - name: Excute Commands in EC2 instance
+
+      - name: Deploy to existing Docker Compose
         uses: appleboy/ssh-action@v1.0.0
-        with: 
-          host: ${{ secrets.AWS_EC2_HOST }}
-          username: ${{ secrets.AWS_EC2_USERNAME }}
-          key: ${{ secrets.AWS_PRIVATE_KEY }}
+        with:
+          host: ${{ secrets.DROPLET_HOST }}
+          username: ${{ secrets.DROPLET_USERNAME }}
+          key: ${{ secrets.DROPLET_PRIVATE_KEY }}
           script: |
-            # Change to correct directory
-            cd Projects/destiny2bot/
+            # Change to working directory
+            cd riven_of_a_thousand_servers/
             
-            # Pull latest image
-            sudo docker login -u ${{ secrets.DOCKERHUB_USERNAME }} -p ${{ secrets.DOCKERHUB_TOKEN }}
-            sudo docker pull ${{ env.DOCKER_IMAGE_NAME }} # Pull latest Destiny2Bot image
+            # Stop current Docker Compose
+            docker compose down
             
-            # Start up the docker compose app
-            sudo docker compose up -d
+            # Login to Docker
+            docker login -u ${{ secrets.DOCKERHUB_USERNAME }} -p ${{ secrets.DOCKERHUB_TOKEN }}
+            
+            # Setup .env file
+            rm -f .env
+            echo "BUNGIE_API_KEY=${{ secrets.BUNGIE_API_KEY }}" > .env
+            echo "BUNGIE_CLIENT_ID=${{ secrets.BUNGIE_CLIENT_ID }}" >> .env
+            echo "BUNGIE_CLIENT_SECRET=${{ secrets.BUNGIE_CLIENT_SECRET }}" >> .env
+            echo "DOCKER_IMAGE_NAME=${{ env.DOCKER_IMAGE_NAME }}" >> .env
+            echo "DISCORD_BOT_PUBLIC_KEY=${{ secrets.DISCORD_BOT_PUBLIC_KEY }}" >> .env
+            echo "DISCORD_BOT_TOKEN=${{ secrets.DISCORD_BOT_TOKEN }}" >> .env
+            echo "DISCORD_CLIENT_ID=${{ secrets.DISCORD_CLIENT_ID }}" >> .env
+            echo "DISCORD_CLIENT_SECRET=${{ secrets.DISCORD_CLIENT_SECRET }}" >> .env
+            echo "DISCORD_APPLICATION_ID=${{ secrets.DISCORD_APPLICATION_ID }} >> .env
+            echo "DISCORD_BOT_PUBLIC_KEY=${{ secrets.DISCORD_BOT_PUBLIC_KEY }}" >> .env
+            echo "MONGO_DB_ROOT_USERNAME=${{ secrets.MONGO_INITDB_ROOT_USERNAME }}" >> .env
+            echo "MONGO_DB_ROOT_PASSWORD=${{ secrets.MONGO_INITDB_ROOT_PASSWORD }}" >> .env
+            echo "MONGO_DB_HOST=${{ secrets.MONGO_DB_HOST }}" >> .env
+            echo "REDIS_HOST=${{ secrets.REDIS_HOST }}" >> .env
+            
+            chmod 600 .env
+            
+            # Start Docker Compose
+            docker compose up
