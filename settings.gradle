@@ -4,4 +4,4 @@ pluginManagement {
         gradlePluginPortal()
     }
 }
-rootProject.name = 'destiny2bot'
+rootProject.name = 'rivenOfAThousandServers'
