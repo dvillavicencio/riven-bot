@@ -1,4 +1,4 @@
-name: Deploy Application to Digial Ocean Droplet
+name: Deploy Application
 
 on: workflow_dispatch
 
