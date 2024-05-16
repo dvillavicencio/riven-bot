@@ -7,7 +7,7 @@ import com.deahtstroke.rivenbot.TestUtils;
 import com.deahtstroke.rivenbot.dto.discord.Attachment;
 import com.deahtstroke.rivenbot.dto.discord.InteractionResponseData;
 import com.deahtstroke.rivenbot.enums.InteractionResponseType;
-import com.deahtstroke.rivenbot.exception.ImageProcessingException;
+import com.deahtstroke.rivenbot.exception.ImageRetrievalException;
 import com.deahtstroke.rivenbot.dto.discord.InteractionResponse;
 import java.io.IOException;
 import java.util.List;
@@ -127,6 +127,6 @@ public class HttpUtilTest {
     // when: prepare multipart payload is called
     // then: the appropriate ImageProcessingException is thrown
     assertThatThrownBy(() -> HttpResponseUtils.filesResponse(interactionResponse, resources))
-        .isInstanceOf(ImageProcessingException.class);
+        .isInstanceOf(ImageRetrievalException.class);
   }
 }

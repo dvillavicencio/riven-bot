@@ -4,7 +4,9 @@ import com.deahtstroke.rivenbot.dto.discord.Attachment;
 import com.deahtstroke.rivenbot.dto.discord.Choice;
 import com.deahtstroke.rivenbot.dto.discord.Component;
 import com.deahtstroke.rivenbot.dto.discord.Embedded;
+import com.deahtstroke.rivenbot.dto.discord.EmbeddedFooter;
 import com.deahtstroke.rivenbot.dto.discord.EmbeddedImage;
+import com.deahtstroke.rivenbot.dto.discord.Emoji;
 import com.deahtstroke.rivenbot.dto.discord.Interaction;
 import com.deahtstroke.rivenbot.dto.discord.InteractionResponse;
 import com.deahtstroke.rivenbot.dto.discord.InteractionResponseData;
@@ -32,8 +34,12 @@ import reactor.core.publisher.Mono;
 public class RaidMapHandler implements ApplicationCommandSource, AutocompleteSource {
 
   private static final String EMBED_BINDING_URL = "https://www.youtube.com/watch?v=dQw4w9WgXcQ";
+  private static final String EMBED_TITLE = "%s at %s";
   private static final String RAID_OPTION_NAME = "raid";
+  private static final String EMBED_IMAGE_TYPE = "image";
   private static final String ENCOUNTER_OPTION_NAME = "encounter";
+  private static final String ARTIST_CREDIT_FOOTER_FORMAT = "Infographics by %s!";
+  private static final String SOCIAL_LINK_LABEL_FORMAT = "%s's %s";
 
   private final RaidInfographicsService raidInfographicsService;
 
@@ -57,27 +63,33 @@ public class RaidMapHandler implements ApplicationCommandSource, AutocompleteSou
 
     RaidEncounter raidEncounter = RaidEncounter.findEncounter(raid, encounterDirectory);
 
-    String embedTitle = """
-        Encounter maps for: %s at %s""".formatted(raid.getRaidName(), raidEncounter.getName());
     List<Embedded> embeds = attachments.stream()
         .map(attachment -> Embedded.builder()
-            .title(embedTitle)
+            .title(EMBED_TITLE.formatted(raid.getRaidName(), raidEncounter.getName()))
             .url(EMBED_BINDING_URL)
-            .type("image")
+            .type(EMBED_IMAGE_TYPE)
             .image(EmbeddedImage.builder()
                 .url("attachment://" + attachment.getFilename())
+                .build())
+            .footer(EmbeddedFooter.builder()
+                .text(ARTIST_CREDIT_FOOTER_FORMAT.formatted(raid.getArtistName()))
                 .build())
             .build())
         .toList();
     InteractionResponseData data = InteractionResponseData.builder()
         .components(List.of(Component.builder()
             .type(1)
-            .components(List.of(Component.builder()
-                .label("Infographics by A-Phantom-Moon!")
-                .type(2)
-                .style(5)
-                .url("https://www.deviantart.com/a-phantom-moon")
-                .build()))
+            .components(raid.getArtistSocials().stream()
+                .map(socialLink -> Component.builder()
+                    .type(2)
+                    .style(5)
+                    .url(socialLink.getSocialLink())
+                    .label(SOCIAL_LINK_LABEL_FORMAT.formatted(raid.getArtistName(),
+                        socialLink.getSocialPlatform().getPlatformName()))
+                    .emoji(new Emoji(socialLink.getSocialPlatform().getEmojiId(),
+                        socialLink.getSocialPlatform().getEmojiName(), false))
+                    .build())
+                .toList())
             .build()))
         .attachments(attachments)
         .embeds(embeds)
@@ -108,19 +120,17 @@ public class RaidMapHandler implements ApplicationCommandSource, AutocompleteSou
 
   @Override
   public Mono<InteractionResponse> createResponse(Interaction interaction) {
-    try {
-      return raidInfographicsService.retrieveEncounterImages(interaction)
-          .map(RaidMapHandler::extractAttachments)
-          .map(attachments -> formatInteractionResponse(interaction, attachments));
-    } catch (IOException e) {
-      String raidName = InteractionUtils.retrieveInteractionOption(interaction.getData()
-          .getOptions(), ENCOUNTER_OPTION_NAME);
-      String errorMessage =
-          "Something wrong happened while retrieving encounter images for raid [%s]".formatted(
-              raidName);
-      log.error(errorMessage, e);
-      throw new InternalServerException(errorMessage, e);
-    }
+    return raidInfographicsService.retrieveEncounterImages(interaction)
+        .map(RaidMapHandler::extractAttachments)
+        .map(attachments -> formatInteractionResponse(interaction, attachments))
+        .onErrorResume(IOException.class, err -> {
+          String raidName = InteractionUtils.retrieveInteractionOption(interaction.getData()
+              .getOptions(), ENCOUNTER_OPTION_NAME);
+          String errorMessage = "Something wrong happened while retrieving encounter images for raid [%s]"
+              .formatted(raidName);
+          log.error(errorMessage, err);
+          return Mono.error(new InternalServerException(errorMessage, err));
+        });
   }
 
   @Override

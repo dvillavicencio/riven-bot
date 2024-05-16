@@ -6,6 +6,7 @@ import com.deahtstroke.rivenbot.TestUtils;
 import com.deahtstroke.rivenbot.dto.discord.Attachment;
 import com.deahtstroke.rivenbot.dto.discord.Choice;
 import com.deahtstroke.rivenbot.dto.discord.Embedded;
+import com.deahtstroke.rivenbot.dto.discord.EmbeddedFooter;
 import com.deahtstroke.rivenbot.dto.discord.EmbeddedImage;
 import com.deahtstroke.rivenbot.dto.discord.Interaction;
 import com.deahtstroke.rivenbot.dto.discord.InteractionData;
@@ -75,7 +76,7 @@ public class RaidMapHandlerTest {
   }
 
   @Test
-  @DisplayName("Creating application command response works correctly")
+  @DisplayName("Creating response to /raid_map returns the correct object")
   public void creatingApplicationCommandResponseWorksCorrectly() throws IOException {
     // given: an interaction with a 'raid' option value present
     List<Option> options = List.of(
@@ -95,7 +96,7 @@ public class RaidMapHandlerTest {
 
     String raidName = "Last Wish";
     String raidEncounter = "Kalli, the Corrupted";
-    String embedTitle = "Encounter maps for: %s at %s".formatted(raidName, raidEncounter);
+    String embedTitle = "%s at %s".formatted(raidName, raidEncounter);
 
     List<Embedded> expectedEmbeds = List.of(
         Embedded.builder()
@@ -104,12 +105,18 @@ public class RaidMapHandlerTest {
             .image(EmbeddedImage.builder()
                 .url("attachment://kalli-action-phase.jpg")
                 .build())
+            .footer(EmbeddedFooter.builder()
+                .text("Infographics by %s!".formatted(Raid.findRaid(raidName).getArtistName()))
+                .build())
             .type("image").build(),
         Embedded.builder()
             .title(embedTitle)
             .url("https://www.youtube.com/watch?v=dQw4w9WgXcQ")
             .image(EmbeddedImage.builder()
                 .url("attachment://kalli-dps-phase.jpg")
+                .build())
+            .footer(EmbeddedFooter.builder()
+                .text("Infographics by %s!".formatted(Raid.findRaid(raidName).getArtistName()))
                 .build())
             .type("image").build()
     );
@@ -135,7 +142,8 @@ public class RaidMapHandlerTest {
 
     // then: the choices presented are correct according to the Raid
     response.assertNext(output -> {
-      assertThat(output.getType()).isEqualTo(InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE.getType());
+      assertThat(output.getType()).isEqualTo(
+          InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE.getType());
       assertThat(output.getData().getEmbeds()).containsAll(expectedEmbeds);
       assertThat(output.getData().getAttachments()).containsAll(expectedAttachments);
     }).verifyComplete();

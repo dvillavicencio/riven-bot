@@ -7,7 +7,7 @@ import com.deahtstroke.rivenbot.TestUtils;
 import com.deahtstroke.rivenbot.dto.discord.Interaction;
 import com.deahtstroke.rivenbot.dto.discord.InteractionData;
 import com.deahtstroke.rivenbot.dto.discord.Option;
-import com.deahtstroke.rivenbot.exception.ImageProcessingException;
+import com.deahtstroke.rivenbot.exception.ImageRetrievalException;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
@@ -89,7 +89,7 @@ public class RaidInfographicsServiceTest {
 
     // when: retrieveEncounterImages is called
     Assertions.assertThatThrownBy(() -> sut.retrieveEncounterImages(interaction).block())
-        .isInstanceOf(ImageProcessingException.class);
+        .isInstanceOf(ImageRetrievalException.class);
 
     Assertions.assertThatThrownBy(() -> sut.retrieveEncounterImages(interaction).block())
         .hasMessage(

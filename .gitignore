@@ -5,6 +5,7 @@ build/
 !**/src/test/**/build/
 \\
 \\.pub
+compose.yml
 
 ### STS ###
 .apt_generated

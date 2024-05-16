@@ -106,12 +106,8 @@ public class InteractionHandler {
 
   private Mono<MultiValueMap<String, HttpEntity<?>>> attachmentsResponse(
       Interaction interaction, InteractionResponse interactionResponse) {
-    try {
-      return raidInfographicsService.retrieveEncounterImages(interaction)
-          .map(assets -> HttpResponseUtils.filesResponse(interactionResponse, assets));
-    } catch (IOException e) {
-      return Mono.error(new RuntimeException(e));
-    }
+    return raidInfographicsService.retrieveEncounterImages(interaction)
+        .map(assets -> HttpResponseUtils.filesResponse(interactionResponse, assets));
   }
 
 }

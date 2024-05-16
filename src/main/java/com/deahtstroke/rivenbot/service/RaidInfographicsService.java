@@ -2,9 +2,10 @@ package com.deahtstroke.rivenbot.service;
 
 import com.deahtstroke.rivenbot.dto.discord.Interaction;
 import com.deahtstroke.rivenbot.dto.discord.Option;
-import com.deahtstroke.rivenbot.exception.ImageProcessingException;
+import com.deahtstroke.rivenbot.exception.ImageRetrievalException;
 import com.deahtstroke.rivenbot.util.InteractionUtils;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import lombok.extern.slf4j.Slf4j;
@@ -36,25 +37,26 @@ public class RaidInfographicsService {
    * @return HashMap with an indexed key and a value of the corresponding classpath resource
    * @throws IOException In case something unexpected happens when retrieving the files in memory
    */
-  public Mono<Map<Long, Resource>> retrieveEncounterImages(Interaction interaction)
-      throws IOException {
+  public Mono<Map<Long, Resource>> retrieveEncounterImages(Interaction interaction) {
     List<Option> options = interaction.getData().getOptions();
     String raidDirectory = InteractionUtils.retrieveInteractionOption(options, RAID_OPTION_NAME);
-    String encounterDirectory = InteractionUtils.retrieveInteractionOption(options, ENCOUNTER_OPTION_NAME);
+    String encounterDirectory = InteractionUtils.retrieveInteractionOption(options,
+        ENCOUNTER_OPTION_NAME);
 
     String basePath = ASSETS_BASE_PATH.formatted(raidDirectory, encounterDirectory);
-    Resource[] resources;
-    try {
-      resources = resourcePatternResolver.getResources(basePath);
-    } catch (IOException e) {
-      log.error("Something unexpected happened when fetching [{}]", basePath, e);
-      throw new ImageProcessingException(
-          "Something unexpected happened when fetching resources for raid [%s] and encounter [%s]".formatted(
-              raidDirectory, encounterDirectory), e);
-    }
-    return Flux.fromArray(resources)
-        .index()
-        .collectMap(Tuple2::getT1, Tuple2::getT2);
+    return Mono.defer(() -> {
+      try {
+        Resource[] resources = resourcePatternResolver.getResources(basePath);
+        return Flux.fromIterable(Arrays.asList(resources))
+            .index()
+            .collectMap(Tuple2::getT1, Tuple2::getT2);
+      } catch (IOException e) {
+        log.error("There was an error retrieving images for raid [{}] at encounter [{}]",
+            raidDirectory, encounterDirectory);
+        return Mono.error(new ImageRetrievalException(
+            "Something unexpected happened when fetching resources for raid [%s] and encounter [%s]"
+                .formatted(raidDirectory, encounterDirectory), e));
+      }
+    });
   }
-
 }
