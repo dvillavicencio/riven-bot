@@ -1,7 +1,7 @@
 package com.deahtstroke.rivenbot.util;
 
 import com.deahtstroke.rivenbot.dto.discord.InteractionResponse;
-import com.deahtstroke.rivenbot.exception.ImageProcessingException;
+import com.deahtstroke.rivenbot.exception.ImageRetrievalException;
 import java.io.IOException;
 import java.util.Map;
 import lombok.extern.slf4j.Slf4j;
@@ -55,7 +55,7 @@ public class HttpResponseUtils {
               .filename(resource.getFilename());
         }
       } catch (IOException e) {
-        throw new ImageProcessingException(
+        throw new ImageRetrievalException(
             "Unable to find image at index [%s]".formatted(fileIndex), e);
       }
     });
