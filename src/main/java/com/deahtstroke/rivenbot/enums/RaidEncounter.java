@@ -38,7 +38,6 @@ public enum RaidEncounter {
   TANIKS_THE_ABOMNITAION(Raid.DEEP_STONE_CRYPT, "Taniks, the Abomination", "taniks_the_abomination"),
 
   // Vault of Glass
-  OPEN_THE_VAULT(Raid.VAULT_OF_GLASS, "Opening the Vault", "the_vault"),
   CONFLUXES(Raid.VAULT_OF_GLASS, "Confluxes", "confluxes"),
   ORACLES(Raid.VAULT_OF_GLASS, "Oracles", "oracles"),
   THE_TEMPLAR(Raid.VAULT_OF_GLASS, "The Templar", "templar"),

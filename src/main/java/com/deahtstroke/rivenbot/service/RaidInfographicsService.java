@@ -53,7 +53,9 @@ public class RaidInfographicsService {
       } catch (IOException e) {
         log.error("There was an error retrieving images for raid [{}] at encounter [{}]",
             raidDirectory, encounterDirectory);
-        return Mono.error(new ImageRetrievalException("Retrieving images failed", e));
+        return Mono.error(new ImageRetrievalException(
+            "Something unexpected happened when fetching resources for raid [%s] and encounter [%s]"
+                .formatted(raidDirectory, encounterDirectory), e));
       }
     });
   }
