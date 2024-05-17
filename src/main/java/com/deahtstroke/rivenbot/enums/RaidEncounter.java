@@ -44,6 +44,7 @@ public enum RaidEncounter {
   ATHEON(Raid.VAULT_OF_GLASS, "Atheon, Time's Conflux", "atheon"),
 
   // Vow of the Disciple
+  SYMBOLS(Raid.VOW_OF_THE_DISCIPLE, "Symbols", "symbols"),
   ACQUISITION(Raid.VOW_OF_THE_DISCIPLE, "Acquisition", "acquisition"),
   CARETAKER(Raid.VOW_OF_THE_DISCIPLE, "The Caretaker", "caretaker"),
   EXHIBITION(Raid.VOW_OF_THE_DISCIPLE, "Exhibition", "exhibition"),
