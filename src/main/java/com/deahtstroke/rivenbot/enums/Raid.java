@@ -12,13 +12,19 @@ public enum Raid {
       List.of(
           new SocialLink(SocialPlatform.DEVIANTART, "https://www.deviantart.com/a-phantom-moon"))),
   GARDEN_OF_SALVATION("Garden of Salvation", "garden_of_salvation", null, null),
-  DEEP_STONE_CRYPT("Deep Stone Crypt", "deep_stone_crypt", null, null),
+  DEEP_STONE_CRYPT("Deep Stone Crypt", "deep_stone_crypt", "a-phantom-moon",
+      List.of(
+          new SocialLink(SocialPlatform.DEVIANTART, "https://www.deviantart.com/a-phantom-moon"))),
   VAULT_OF_GLASS("Vault of Glass", "vault_of_glass", "SCA",
       List.of(
           new SocialLink(SocialPlatform.STEAM, "https://steamcommunity.com/id/scaro25"))),
   VOW_OF_THE_DISCIPLE("Vow of the Disciple", "vow_of_the_disciple", null, null),
   KINGS_FALL("King's Fall", "kings_fall", null, null),
-  ROOT_OF_NIGHTMARES("Root of Nightmares", "root_of_nightmares", null, null),
+  ROOT_OF_NIGHTMARES("Root of Nightmares", "root_of_nightmares", "Pyranie",
+      List.of(
+          new SocialLink(SocialPlatform.TWITTER, "https://twitter.com/pryanie"),
+          new SocialLink(SocialPlatform.REDDIT, "https://www.reddit.com/user/pryanie/"))
+  ),
   CROTAS_END("Crota's End", "crotas_end", null, null);
 
   @Getter

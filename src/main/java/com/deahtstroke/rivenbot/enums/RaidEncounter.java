@@ -1,18 +1,16 @@
 package com.deahtstroke.rivenbot.enums;
 
-import lombok.Getter;
-import reactor.core.publisher.Flux;
-
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
+import lombok.Getter;
+import reactor.core.publisher.Flux;
 
 public enum RaidEncounter {
 
   // Root of Nightmares
   CATACLYSM(Raid.ROOT_OF_NIGHTMARES, "Cataclysm", "cataclysm"),
   SCISSION(Raid.ROOT_OF_NIGHTMARES, "Scission", "scission"),
-  CHASM(Raid.ROOT_OF_NIGHTMARES, "Chasm", "chasm"),
   ZO_AURC(Raid.ROOT_OF_NIGHTMARES, "Zo'Aurc, Explicator of Planets", "zoaurc"),
   NEZAREC(Raid.ROOT_OF_NIGHTMARES, "Nezarec, the Final God of Pain", "nezarec"),
 
@@ -22,7 +20,6 @@ public enum RaidEncounter {
   MORGETH(Raid.LAST_WISH, "Morgeth, the Spirekeeper", "morgeth"),
   VAULT_SECURITY_MECHANISM(Raid.LAST_WISH, "Vault Security Mechanism", "vault_security"),
   RIVEN_OF_A_THOUSAND_VOICES(Raid.LAST_WISH, "Riven of a Thousand Voices", "riven"),
-  QUEENSWALK(Raid.LAST_WISH, "Queenswalk", "queenswalk"),
 
   // Garden of Salvation
   EMBRACE(Raid.GARDEN_OF_SALVATION, "Embrace", "embrace"),
@@ -35,7 +32,8 @@ public enum RaidEncounter {
   CRYPT_SECURITY(Raid.DEEP_STONE_CRYPT, "Crypt Security", "crypt_security"),
   ATRAKS_1(Raid.DEEP_STONE_CRYPT, "Atraks-1", "atraks_1"),
   TANIKS_REBORN(Raid.DEEP_STONE_CRYPT, "Taniks-Reborn/Nuclear Descent", "taniks_reborn"),
-  TANIKS_THE_ABOMNITAION(Raid.DEEP_STONE_CRYPT, "Taniks, the Abomination", "taniks_the_abomination"),
+  TANIKS_THE_ABOMNITAION(Raid.DEEP_STONE_CRYPT, "Taniks, the Abomination",
+      "taniks_the_abomination"),
 
   // Vault of Glass
   CONFLUXES(Raid.VAULT_OF_GLASS, "Confluxes", "confluxes"),
