@@ -449,7 +449,7 @@ public class InteractionControllerTest extends BaseIntegrationTest {
         .expectBody()
         .consumeWith(System.out::println)
         .jsonPath("$.type").isEqualTo(8)
-        .jsonPath("$.data.choices.size()").isEqualTo(6)
+        .jsonPath("$.data.choices.size()").isEqualTo(5)
         .jsonPath("$.data.choices").isArray()
         .returnResult().getResponseBody();
 
