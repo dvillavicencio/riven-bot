@@ -23,6 +23,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.core.io.Resource;
 import org.springframework.util.Assert;
 import reactor.core.publisher.Flux;
@@ -63,6 +64,23 @@ public class RaidMapHandler implements ApplicationCommandSource, AutocompleteSou
 
     RaidEncounter raidEncounter = RaidEncounter.findEncounter(raid, encounterDirectory);
 
+    List<Component> socials;
+    if (CollectionUtils.isNotEmpty(raid.getArtistSocials())) {
+      socials = raid.getArtistSocials().stream()
+          .map(socialLink -> Component.builder()
+              .type(2)
+              .style(5)
+              .url(socialLink.getSocialLink())
+              .label(SOCIAL_LINK_LABEL_FORMAT.formatted(raid.getArtistName(),
+                  socialLink.getSocialPlatform().getPlatformName()))
+              .emoji(new Emoji(socialLink.getSocialPlatform().getEmojiId(),
+                  socialLink.getSocialPlatform().getEmojiName(), false))
+              .build())
+          .toList();
+    } else {
+      socials = null;
+    }
+
     List<Embedded> embeds = attachments.stream()
         .map(attachment -> Embedded.builder()
             .title(EMBED_TITLE.formatted(raid.getRaidName(), raidEncounter.getName()))
@@ -79,17 +97,7 @@ public class RaidMapHandler implements ApplicationCommandSource, AutocompleteSou
     InteractionResponseData data = InteractionResponseData.builder()
         .components(List.of(Component.builder()
             .type(1)
-            .components(raid.getArtistSocials().stream()
-                .map(socialLink -> Component.builder()
-                    .type(2)
-                    .style(5)
-                    .url(socialLink.getSocialLink())
-                    .label(SOCIAL_LINK_LABEL_FORMAT.formatted(raid.getArtistName(),
-                        socialLink.getSocialPlatform().getPlatformName()))
-                    .emoji(new Emoji(socialLink.getSocialPlatform().getEmojiId(),
-                        socialLink.getSocialPlatform().getEmojiName(), false))
-                    .build())
-                .toList())
+            .components(socials)
             .build()))
         .attachments(attachments)
         .embeds(embeds)
