@@ -45,6 +45,7 @@ ext {
     set('mapStructVersion', '1.5.5.Final')
     set('resilienceReactorVersion', '1.6.1')
     set('resilienceRateLimiterVersion', '1.6.1')
+    set('lokiLogbackAppenderVersion', '1.5.1')
 }
 
 jar {
@@ -69,6 +70,7 @@ dependencies {
     implementation "commons-codec:commons-codec:${commonsCodecVersion}"
     implementation "software.pando.crypto:salty-coffee:${pandoCryptoVersion}"
     implementation "org.apache.commons:commons-collections4:${apacheCollectionsVersion}"
+    implementation "com.github.loki4j:loki-logback-appender:${lokiLogbackAppenderVersion}"
     implementation 'org.springframework.boot:spring-boot-starter-actuator'
     compileOnly 'org.projectlombok:lombok'
     annotationProcessor 'org.projectlombok:lombok'

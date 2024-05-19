@@ -1,5 +1,6 @@
 services:
   riven-of-a-thousand-servers:
+    container_name: rivenbot
     image: ${DOCKER_IMAGE_NAME}
     env_file:
       - .env
@@ -20,11 +21,13 @@ services:
       - bungie_client_id
       - bungie_client_secret
   redis:
+    container_name: redis
     hostname: redis
     image: "redis:7.0.11"
     ports:
       - "6379:6379"
   mongodb:
+    container_name: mongodb
     hostname: mongo
     image: "mongo:7.0.3"
     ports:
@@ -36,6 +39,40 @@ services:
     secrets:
       - "mongo_username"
       - "mongo_password"
+  loki:
+    container_name: loki
+    image: grafana/loki:2.9.0
+    ports:
+      - "3100:3100"
+    command: -config.file=/etc/loki/local-config.yaml
+  grafana:
+    container_name: grafana
+    environment:
+      - GF_PATHS_PROVISIONING=/etc/grafana/provisioning
+      - GF_AUTH_ANONYMOUS_ENABLED=true
+      - GF_AUTH_ANONYMOUS_ORG_ROLE=Admin
+    entrypoint:
+      - sh
+      - -euc
+      - |
+        mkdir -p /etc/grafana/provisioning/datasources
+        cat <<EOF > /etc/grafana/provisioning/datasources/ds.yaml
+        apiVersion: 1
+        datasources:
+        - name: Loki
+          type: loki
+          access: proxy
+          orgId: 1
+          url: http://loki:3100
+          basicAuth: false
+          isDefault: true
+          version: 1
+          editable: false
+        EOF
+        /run.sh
+    image: grafana/grafana-oss:latest
+    ports:
+      - "3000:3000"
 
 secrets:
   mongo_username:
