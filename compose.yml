@@ -48,16 +48,14 @@ services:
   grafana:
     container_name: grafana
     environment:
-      - GF_PATHS_PROVISIONING=/etc/grafana/provisioning
-      - GF_AUTH_ANONYMOUS_ENABLED=true
-      - GF_AUTH_ANONYMOUS_ORG_ROLE=Admin
+      GF_SECURITY_ADMIN_USER__FILE: /run/secrets/grafana_admin_username
+      GF_SECURITY_ADMIN_PASSWORD__FILE: /run/secrets/grafana_admin_password
     entrypoint:
       - sh
       - -euc
       - |
         mkdir -p /etc/grafana/provisioning/datasources
         cat <<EOF > /etc/grafana/provisioning/datasources/ds.yaml
-        apiVersion: 1
         datasources:
         - name: Loki
           type: loki
@@ -73,6 +71,9 @@ services:
     image: grafana/grafana-oss:latest
     ports:
       - "3000:3000"
+    secrets:
+      - "grafana_admin_username"
+      - "grafana_admin_password"
 
 secrets:
   mongo_username:
@@ -95,3 +96,7 @@ secrets:
     environment: "BUNGIE_CLIENT_ID"
   bungie_client_secret:
     environment: "BUNGIE_CLIENT_SECRET"
+  grafana_admin_username:
+    environment: "GRAFANA_ADMIN_USERNAME"
+  grafana_admin_password:
+    environment: "GRAFANA_ADMIN_PASSWORD"
