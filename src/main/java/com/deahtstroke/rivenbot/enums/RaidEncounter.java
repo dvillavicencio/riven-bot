@@ -67,19 +67,6 @@ public enum RaidEncounter {
   IR_YUT(Raid.CROTAS_END, "Ir Yut, the Deathsinger", "ir_yut"),
   CROTA(Raid.CROTAS_END, "Crota, Son of Oryx", "crota");
 
-//  static final Set<SocialLink> A_PHANTOM_MOONS_LINKS = Set.of(
-//      new SocialLink("A-phantom-moon", SocialPlatform.DEVIANTART,
-//          "https://www.deviantart.com/a-phantom-moon"));
-//  static final Set<SocialLink> SCAS_LINKS = Set.of(
-//      new SocialLink("SCA", SocialPlatform.STEAM, "https://steamcommunity.com/id/scaro25"));
-//  static final Set<SocialLink> PYRANIES_LINKS = Set.of(
-//      new SocialLink("Pyranie", SocialPlatform.TWITTER, "https://twitter.com/pryanie"),
-//      new SocialLink("Pyranie", SocialPlatform.REDDIT, "https://reddit.com/pryanie"));
-//  static final Set<SocialLink> TENROUKENS_LINKS = Set.of(
-//      new SocialLink("tenrouken", SocialPlatform.TWITTER, "https://twitter.com/tenrouken"));
-//  static final Set<SocialLink> NERDORADOS_LINKS = Set.of(
-//      new SocialLink("Nerdorado", SocialPlatform.REDDIT, "https://reddit.com/nerdorado"));
-
   @Getter
   private final String name;
   @Getter
