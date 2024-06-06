@@ -105,18 +105,12 @@ public class RaidMapHandlerTest {
             .image(EmbeddedImage.builder()
                 .url("attachment://kalli-action-phase.jpg")
                 .build())
-            .footer(EmbeddedFooter.builder()
-                .text("Infographics by %s!")
-                .build())
             .type("image").build(),
         Embedded.builder()
             .title(embedTitle)
             .url("https://www.youtube.com/watch?v=dQw4w9WgXcQ")
             .image(EmbeddedImage.builder()
                 .url("attachment://kalli-dps-phase.jpg")
-                .build())
-            .footer(EmbeddedFooter.builder()
-                .text("Infographics by %s!")
                 .build())
             .type("image").build()
     );

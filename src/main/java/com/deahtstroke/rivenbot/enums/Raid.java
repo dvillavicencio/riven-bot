@@ -1,13 +1,8 @@
 package com.deahtstroke.rivenbot.enums;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
 import java.util.Objects;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import lombok.Getter;
-import org.springframework.data.util.Pair;
 
 public enum Raid {
 
@@ -26,17 +21,9 @@ public enum Raid {
   @Getter
   private final String raidDirectory;
 
-  @Getter
-  private final Map<Raid, List<RaidEncounter>> raidEncountersMap;
-
   Raid(String raidName, String raidDirectory) {
     this.raidName = raidName;
     this.raidDirectory = raidDirectory;
-    this.raidEncountersMap = Stream.of(Raid.values())
-        .map(raid -> Pair.of(raid, Arrays.stream(RaidEncounter.values())
-            .filter(raidEncounter -> Objects.equals(raidEncounter.getRaid(), raid))
-            .toList()))
-        .collect(Collectors.toMap(Pair::getFirst, Pair::getSecond));
   }
 
   /**
