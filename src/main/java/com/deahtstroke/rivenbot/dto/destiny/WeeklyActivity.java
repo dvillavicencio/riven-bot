@@ -1,4 +1,4 @@
-package com.deahtstroke.rivenbot.dto;
+package com.deahtstroke.rivenbot.dto.destiny;
 
 import java.time.ZonedDateTime;
 import lombok.AllArgsConstructor;

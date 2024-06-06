@@ -2,7 +2,7 @@ package com.deahtstroke.rivenbot.handler;
 
 import static org.mockito.Mockito.when;
 
-import com.deahtstroke.rivenbot.dto.WeeklyActivity;
+import com.deahtstroke.rivenbot.dto.destiny.WeeklyActivity;
 import com.deahtstroke.rivenbot.dto.discord.InteractionResponse;
 import com.deahtstroke.rivenbot.enums.ActivityMode;
 import com.deahtstroke.rivenbot.enums.InteractionResponseType;

@@ -1,7 +1,7 @@
 package com.deahtstroke.rivenbot.service;
 
-import com.deahtstroke.rivenbot.dto.MilestoneResponse;
-import com.deahtstroke.rivenbot.dto.WeeklyActivity;
+import com.deahtstroke.rivenbot.dto.destiny.MilestoneResponse;
+import com.deahtstroke.rivenbot.dto.destiny.WeeklyActivity;
 import com.deahtstroke.rivenbot.dto.destiny.manifest.ManifestResponseFields;
 import com.deahtstroke.rivenbot.dto.destiny.milestone.ActivitiesDto;
 import com.deahtstroke.rivenbot.dto.destiny.milestone.MilestoneEntry;

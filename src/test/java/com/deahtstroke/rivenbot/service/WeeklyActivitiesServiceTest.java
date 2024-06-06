@@ -2,7 +2,7 @@ package com.deahtstroke.rivenbot.service;
 
 import static org.mockito.Mockito.when;
 
-import com.deahtstroke.rivenbot.dto.WeeklyActivity;
+import com.deahtstroke.rivenbot.dto.destiny.WeeklyActivity;
 import com.deahtstroke.rivenbot.dto.destiny.manifest.DisplayProperties;
 import com.deahtstroke.rivenbot.dto.destiny.manifest.ManifestResponseFields;
 import com.deahtstroke.rivenbot.dto.destiny.milestone.ActivitiesDto;
