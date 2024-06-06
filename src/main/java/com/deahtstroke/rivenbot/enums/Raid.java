@@ -1,31 +1,24 @@
 package com.deahtstroke.rivenbot.enums;
 
-import com.deahtstroke.rivenbot.dto.SocialLink;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import lombok.Getter;
+import org.springframework.data.util.Pair;
 
 public enum Raid {
-  LAST_WISH("Last Wish", "last_wish",
-      "a-phantom-moon",
-      List.of(
-          new SocialLink(SocialPlatform.DEVIANTART, "https://www.deviantart.com/a-phantom-moon"))),
-  GARDEN_OF_SALVATION("Garden of Salvation", "garden_of_salvation", null, null),
-  DEEP_STONE_CRYPT("Deep Stone Crypt", "deep_stone_crypt", "a-phantom-moon",
-      List.of(
-          new SocialLink(SocialPlatform.DEVIANTART, "https://www.deviantart.com/a-phantom-moon"))),
-  VAULT_OF_GLASS("Vault of Glass", "vault_of_glass", "SCA",
-      List.of(
-          new SocialLink(SocialPlatform.STEAM, "https://steamcommunity.com/id/scaro25"))),
-  VOW_OF_THE_DISCIPLE("Vow of the Disciple", "vow_of_the_disciple", null, null),
-  KINGS_FALL("King's Fall", "kings_fall", null, null),
-  ROOT_OF_NIGHTMARES("Root of Nightmares", "root_of_nightmares", "Pyranie",
-      List.of(
-          new SocialLink(SocialPlatform.TWITTER, "https://twitter.com/pryanie"),
-          new SocialLink(SocialPlatform.REDDIT, "https://www.reddit.com/user/pryanie/"))
-  ),
-  CROTAS_END("Crota's End", "crotas_end", null, null);
+
+  LAST_WISH("Last Wish", "last_wish"),
+  GARDEN_OF_SALVATION("Garden of Salvation", "garden_of_salvation"),
+  DEEP_STONE_CRYPT("Deep Stone Crypt", "deep_stone_crypt"),
+  VAULT_OF_GLASS("Vault of Glass", "vault_of_glass"),
+  VOW_OF_THE_DISCIPLE("Vow of the Disciple", "vow_of_the_disciple"),
+  KINGS_FALL("King's Fall", "kings_fall"),
+  ROOT_OF_NIGHTMARES("Root of Nightmares", "root_of_nightmares"),
+  CROTAS_END("Crota's End", "crotas_end");
 
   @Getter
   private final String raidName;
@@ -34,16 +27,16 @@ public enum Raid {
   private final String raidDirectory;
 
   @Getter
-  private final String artistName;
+  private final Map<Raid, List<RaidEncounter>> raidEncountersMap;
 
-  @Getter
-  private final List<SocialLink> artistSocials;
-
-  Raid(String raidName, String raidDirectory, String artistName, List<SocialLink> artistSocials) {
+  Raid(String raidName, String raidDirectory) {
     this.raidName = raidName;
     this.raidDirectory = raidDirectory;
-    this.artistName = artistName;
-    this.artistSocials = artistSocials;
+    this.raidEncountersMap = Stream.of(Raid.values())
+        .map(raid -> Pair.of(raid, Arrays.stream(RaidEncounter.values())
+            .filter(raidEncounter -> Objects.equals(raidEncounter.getRaid(), raid))
+            .toList()))
+        .collect(Collectors.toMap(Pair::getFirst, Pair::getSecond));
   }
 
   /**

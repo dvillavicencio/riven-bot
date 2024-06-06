@@ -106,7 +106,7 @@ public class RaidMapHandlerTest {
                 .url("attachment://kalli-action-phase.jpg")
                 .build())
             .footer(EmbeddedFooter.builder()
-                .text("Infographics by %s!".formatted(Raid.findRaid(raidName).getArtistName()))
+                .text("Infographics by %s!")
                 .build())
             .type("image").build(),
         Embedded.builder()
@@ -116,7 +116,7 @@ public class RaidMapHandlerTest {
                 .url("attachment://kalli-dps-phase.jpg")
                 .build())
             .footer(EmbeddedFooter.builder()
-                .text("Infographics by %s!".formatted(Raid.findRaid(raidName).getArtistName()))
+                .text("Infographics by %s!")
                 .build())
             .type("image").build()
     );
