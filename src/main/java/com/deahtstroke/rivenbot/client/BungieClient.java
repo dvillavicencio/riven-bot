@@ -25,7 +25,7 @@ import reactor.core.publisher.Mono;
 /**
  * This client is responsible for making calls to the Bungie API
  */
-public interface BungieClient {
+public interface  BungieClient {
 
   /**
    * Gets the membership info for a user using their membershipId and their membershipType

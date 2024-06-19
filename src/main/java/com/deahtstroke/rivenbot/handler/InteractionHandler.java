@@ -11,7 +11,6 @@ import com.deahtstroke.rivenbot.factory.AutocompleteFactory;
 import com.deahtstroke.rivenbot.factory.MessageComponentFactory;
 import com.deahtstroke.rivenbot.service.RaidInfographicsService;
 import com.deahtstroke.rivenbot.util.HttpResponseUtils;
-import java.io.IOException;
 import java.util.Objects;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
@@ -55,24 +54,17 @@ public class InteractionHandler {
   public Mono<ServerResponse> handle(ServerRequest request) {
     return request.bodyToMono(Interaction.class)
         .flatMap(interaction -> {
-          InteractionType interactionType = InteractionType.findByValue(interaction.getType());
           ParameterizedTypeReference<MultiValueMap<String, HttpEntity<?>>> multiValueReference =
               new ParameterizedTypeReference<>() {
               };
-
-          Mono<InteractionResponse> interactionResponse = resolveResponse(interaction,
-              interactionType);
-          return interactionResponse
-              .flatMap(response -> {
-                boolean hasAttachments =
-                    !Objects.equals(response.getType(), InteractionResponseType.PONG.getType())
-                    && CollectionUtils.isNotEmpty(response.getData().getAttachments());
-
-                return ServerResponse.ok().body(hasAttachments ?
-                    BodyInserters.fromProducer(attachmentsResponse(interaction, response),
-                        multiValueReference) :
-                    BodyInserters.fromValue(response));
-              })
+          return resolveResponse(interaction)
+              .flatMap(response -> ServerResponse.ok()
+                  .body(
+                      !Objects.equals(response.getType(), InteractionResponseType.PONG.getType())
+                      && CollectionUtils.isNotEmpty(response.getData().getAttachments()) ?
+                          BodyInserters.fromProducer(attachmentsResponse(interaction, response),
+                              multiValueReference) :
+                          BodyInserters.fromValue(response)))
               .onErrorResume(BaseException.class,
                   error -> {
                     ProblemDetail problemDetail = ProblemDetail.forStatus(error.getStatus());
@@ -84,8 +76,8 @@ public class InteractionHandler {
         });
   }
 
-  private Mono<InteractionResponse> resolveResponse(Interaction interaction,
-      InteractionType interactionType) {
+  private Mono<InteractionResponse> resolveResponse(Interaction interaction) {
+    InteractionType interactionType = InteractionType.findByValue(interaction.getType());
     return switch (interactionType) {
       case MESSAGE_COMPONENT -> {
         String componentId = interaction.getData().getCustomId();
