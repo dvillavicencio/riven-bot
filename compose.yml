@@ -41,6 +41,7 @@ services:
       - "mongo_password"
   loki:
     container_name: loki
+    hostname: loki
     image: grafana/loki:2.9.0
     ports:
       - "3100:3100"
