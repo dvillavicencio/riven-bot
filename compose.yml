@@ -1,5 +1,6 @@
 services:
   riven-of-a-thousand-servers:
+    container_name: rivenbot
     image: ${DOCKER_IMAGE_NAME}
     env_file:
       - .env
@@ -20,11 +21,13 @@ services:
       - bungie_client_id
       - bungie_client_secret
   redis:
+    container_name: redis
     hostname: redis
     image: "redis:7.0.11"
     ports:
       - "6379:6379"
   mongodb:
+    container_name: mongodb
     hostname: mongo
     image: "mongo:7.0.3"
     ports:
@@ -36,6 +39,43 @@ services:
     secrets:
       - "mongo_username"
       - "mongo_password"
+  loki:
+    container_name: loki
+    hostname: loki
+    image: grafana/loki:2.9.0
+    ports:
+      - "3100:3100"
+  grafana:
+    container_name: grafana
+    environment:
+      GF_SECURITY_ADMIN_USER__FILE: /run/secrets/grafana_admin_username
+      GF_SECURITY_ADMIN_PASSWORD__FILE: /run/secrets/grafana_admin_password
+    entrypoint:
+      - sh
+      - -euc
+      - |
+        mkdir -p /etc/grafana/provisioning/datasources
+        cat <<EOF > /etc/grafana/provisioning/datasources/ds.yaml
+        datasources:
+        - name: Loki
+          type: loki
+          access: proxy
+          orgId: 1
+          url: http://loki:3100
+          basicAuth: false
+          isDefault: true
+          version: 1
+          editable: false
+        EOF
+        /run.sh
+    image: grafana/grafana-oss:latest
+    ports:
+      - "3000:3000"
+    secrets:
+      - "grafana_admin_username"
+      - "grafana_admin_password"
+    volumes:
+      - grafana-storage:/var/lib/grafana
 
 secrets:
   mongo_username:
@@ -58,3 +98,10 @@ secrets:
     environment: "BUNGIE_CLIENT_ID"
   bungie_client_secret:
     environment: "BUNGIE_CLIENT_SECRET"
+  grafana_admin_username:
+    environment: "GRAFANA_ADMIN_USERNAME"
+  grafana_admin_password:
+    environment: "GRAFANA_ADMIN_PASSWORD"
+
+volumes:
+  grafana-storage: { }

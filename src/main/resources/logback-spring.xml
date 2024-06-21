@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+  <!-- Local configuration -->
+  <SpringProfile name="local">
+    <appender name="LOKI" class="com.github.loki4j.logback.Loki4jAppender">
+      <http>
+        <url>http://localhost:3100/loki/api/v1/push</url>
+      </http>
+      <format>
+        <label>
+          <pattern>level=%level</pattern>
+          <readMarkers>true</readMarkers>
+        </label>
+        <message>
+          <pattern>%-5level [%.5(${HOSTNAME})] %.10thread %logger{20} | %msg %ex</pattern>
+        </message>
+      </format>
+    </appender>
+    <root level="INFO">
+      <appender-ref ref="LOKI"/>
+    </root>
+  </SpringProfile>
+
+  <!-- Production configuration -->
+  <SpringProfile name="prod">
+    <appender name="LOKI" class="com.github.loki4j.logback.Loki4jAppender">
+      <http>
+        <url>http://loki:3100/loki/api/v1/push</url>
+      </http>
+      <format>
+        <label>
+          <pattern>level=%level</pattern>
+          <readMarkers>true</readMarkers>
+        </label>
+        <message>
+          <pattern>%-5level [%.5(${HOSTNAME})] %.10thread %logger{20} | %msg %ex</pattern>
+        </message>
+      </format>
+    </appender>
+    <root level="INFO">
+      <appender-ref ref="LOKI"/>
+    </root>
+  </SpringProfile>
+</configuration>
