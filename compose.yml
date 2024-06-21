@@ -44,7 +44,6 @@ services:
     image: grafana/loki:2.9.0
     ports:
       - "3100:3100"
-    command: -config.file=/etc/loki/local-config.yaml
   grafana:
     container_name: grafana
     environment:
@@ -74,6 +73,8 @@ services:
     secrets:
       - "grafana_admin_username"
       - "grafana_admin_password"
+    volumes:
+      - grafana-storage:/var/lib/grafana
 
 secrets:
   mongo_username:
@@ -100,3 +101,6 @@ secrets:
     environment: "GRAFANA_ADMIN_USERNAME"
   grafana_admin_password:
     environment: "GRAFANA_ADMIN_PASSWORD"
+
+volumes:
+  grafana-storage: { }
