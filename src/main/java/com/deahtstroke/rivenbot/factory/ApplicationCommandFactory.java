@@ -3,7 +3,6 @@ package com.deahtstroke.rivenbot.factory;
 import com.deahtstroke.rivenbot.enums.SlashCommand;
 import com.deahtstroke.rivenbot.exception.ResourceNotFoundException;
 import com.deahtstroke.rivenbot.handler.ApplicationCommandSource;
-import com.deahtstroke.rivenbot.handler.RaidMapHandler;
 import com.deahtstroke.rivenbot.handler.RaidStatsHandler;
 import com.deahtstroke.rivenbot.handler.WeeklyDungeonHandler;
 import com.deahtstroke.rivenbot.handler.WeeklyRaidHandler;
@@ -21,14 +20,12 @@ public class ApplicationCommandFactory implements SlashCommandHandler<Applicatio
   private final Map<SlashCommand, ApplicationCommandSource> messageFactory;
 
   public ApplicationCommandFactory(
-      RaidMapHandler raidMapHandler,
       WeeklyRaidHandler weeklyRaidHandler,
       WeeklyDungeonHandler weeklyDungeonHandler,
       RaidStatsHandler raidStatsHandler) {
     this.messageFactory = Map.of(
         SlashCommand.WEEKLY_RAID, weeklyRaidHandler,
         SlashCommand.WEEKLY_DUNGEON, weeklyDungeonHandler,
-        SlashCommand.RAID_MAP, raidMapHandler,
         SlashCommand.RAID_STATS, raidStatsHandler);
   }
 

@@ -5,20 +5,13 @@ import static com.github.tomakehurst.wiremock.client.WireMock.equalTo;
 import static com.github.tomakehurst.wiremock.client.WireMock.get;
 import static com.github.tomakehurst.wiremock.client.WireMock.stubFor;
 import static com.github.tomakehurst.wiremock.client.WireMock.urlPathEqualTo;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.hamcrest.Matchers.containsString;
 
 import com.deahtstroke.rivenbot.dto.destiny.BungieResponse;
 import com.deahtstroke.rivenbot.dto.destiny.milestone.MilestoneEntry;
-import com.deahtstroke.rivenbot.dto.discord.Choice;
 import com.deahtstroke.rivenbot.dto.discord.Interaction;
 import com.deahtstroke.rivenbot.dto.discord.InteractionData;
-import com.deahtstroke.rivenbot.dto.discord.InteractionResponse;
-import com.deahtstroke.rivenbot.dto.discord.Option;
 import com.deahtstroke.rivenbot.enums.InteractionType;
 import com.deahtstroke.rivenbot.enums.ManifestEntity;
-import com.deahtstroke.rivenbot.enums.Raid;
-import com.deahtstroke.rivenbot.enums.RaidEncounter;
 import com.deahtstroke.rivenbot.util.MessageUtils;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -32,8 +25,6 @@ import java.nio.charset.StandardCharsets;
 import java.security.KeyPair;
 import java.security.PublicKey;
 import java.time.Instant;
-import java.util.Collections;
-import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import org.apache.commons.codec.DecoderException;
@@ -416,76 +407,6 @@ public class InteractionControllerTest extends BaseIntegrationTest {
         .jsonPath("$.detail")
         .isEqualTo("The signature passed in was invalid. Timestamp: [%s], Signature [%s]".formatted(
             timestamp, signature));
-  }
-
-  @Test
-  @DisplayName("Autocomplete requests for a raid map request is successful")
-  public void autocompleteRequestsForRaidMapAreSuccessful()
-      throws DecoderException, IOException {
-    // given: an interaction for autocomplete for the /raid_map command
-    List<Option> options = List.of(
-        new Option("raid", 3, "last_wish", false, Collections.emptyList()),
-        new Option("raid", 3, "k", true, Collections.emptyList())
-    );
-    InteractionData data = InteractionData.builder()
-        .id("someID")
-        .name("raid_map")
-        .options(options).build();
-    Interaction body = Interaction.builder()
-        .id(1L)
-        .data(data)
-        .type(InteractionType.APPLICATION_COMMAND_AUTOCOMPLETE.getType())
-        .build();
-
-    // when: the raid_map autocomplete interaction is requested
-    var response = sendValidSignatureRequest("/interactions", body);
-
-    // then: the correct raid encounters options are returned
-    List<Choice> expectedChoices = RaidEncounter.getRaidEncounters(Raid.LAST_WISH)
-        .map(raidEncounter -> new Choice(raidEncounter.getName(), raidEncounter.getDirectory()))
-        .toStream().toList();
-
-    byte[] responseBody = response.expectStatus().is2xxSuccessful()
-        .expectBody()
-        .consumeWith(System.out::println)
-        .jsonPath("$.type").isEqualTo(8)
-        .jsonPath("$.data.choices.size()").isEqualTo(5)
-        .jsonPath("$.data.choices").isArray()
-        .returnResult().getResponseBody();
-
-    InteractionResponse interactionResponse = objectMapper.readValue(responseBody,
-        InteractionResponse.class);
-
-    assertThat(interactionResponse.getData().getChoices()).containsAll(expectedChoices);
-  }
-
-  @Test
-  @DisplayName("Command request for raid map request is for 1 image")
-  public void commandRequestsForRaidMapAreSuccessful()
-      throws DecoderException, IOException {
-    // given: an interaction for autocomplete for the /raid_map command
-    List<Option> options = List.of(
-        new Option("raid", 3, "last_wish", false, Collections.emptyList()),
-        new Option("encounter", 3, "kalli", false, Collections.emptyList())
-    );
-    InteractionData data = InteractionData.builder()
-        .id("someID")
-        .name("raid_map")
-        .options(options).build();
-    Interaction body = Interaction.builder()
-        .id(1L)
-        .data(data)
-        .type(InteractionType.APPLICATION_COMMAND.getType())
-        .build();
-
-    // when: the raid_map autocomplete interaction is requested
-    var response = sendValidSignatureRequest("/interactions", body);
-
-    // TODO: Revisit this integration test for assertions on the multipart parts
-    // then: the correct raid encounters options are returned
-    response.expectStatus().is2xxSuccessful()
-        .expectHeader().value("Content-Type", containsString("multipart/form-data"));
-
   }
 
 }

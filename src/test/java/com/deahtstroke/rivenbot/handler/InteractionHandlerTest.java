@@ -10,13 +10,12 @@ import com.deahtstroke.rivenbot.dto.discord.InteractionData;
 import com.deahtstroke.rivenbot.dto.discord.InteractionResponse;
 import com.deahtstroke.rivenbot.dto.discord.InteractionResponseData;
 import com.deahtstroke.rivenbot.dto.discord.Member;
+import com.deahtstroke.rivenbot.enums.InteractionResponseType;
 import com.deahtstroke.rivenbot.enums.SlashCommand;
 import com.deahtstroke.rivenbot.factory.ApplicationCommandFactory;
 import com.deahtstroke.rivenbot.factory.AutocompleteFactory;
 import com.deahtstroke.rivenbot.factory.MessageComponentFactory;
-import com.deahtstroke.rivenbot.service.RaidInfographicsService;
 import com.deahtstroke.rivenbot.util.MessageUtils;
-import com.deahtstroke.rivenbot.enums.InteractionResponseType;
 import java.time.LocalDate;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -31,7 +30,7 @@ import org.springframework.web.reactive.function.server.RouterFunctions;
 import reactor.core.publisher.Mono;
 
 @ExtendWith(MockitoExtension.class)
-public class InteractionHandlerTest {
+class InteractionHandlerTest {
 
   WebTestClient webTestClient;
 
@@ -42,15 +41,12 @@ public class InteractionHandlerTest {
   AutocompleteFactory autocompleteFactory;
 
   @Mock
-  RaidInfographicsService raidInfographicsService;
-
-  @Mock
   MessageComponentFactory messageComponentFactory;
 
   @BeforeEach
   public void setup() {
     InteractionHandler handler = new InteractionHandler(applicationCommandFactory,
-        autocompleteFactory, messageComponentFactory, raidInfographicsService);
+        autocompleteFactory, messageComponentFactory);
     RouterFunction<?> route = RouterFunctions.route()
         .route(POST("/interactions"), handler::handle).build();
     webTestClient = WebTestClient.bindToRouterFunction(route).build();
@@ -58,7 +54,7 @@ public class InteractionHandlerTest {
 
   @Test
   @DisplayName("Create response is successful for PING interaction request")
-  public void handleInteractionForPingRequest() {
+  void handleInteractionForPingRequest() {
     // given: interaction data
     Interaction interaction = Interaction.builder()
         .applicationId("myApplicationId").type(1)
@@ -77,7 +73,7 @@ public class InteractionHandlerTest {
 
   @Test
   @DisplayName("Create response is successful for weekly_dungeon slash-command")
-  public void handleInteractionForWeeklyDungeon() {
+  void handleInteractionForWeeklyDungeon() {
     // given: interaction data from an application command (slash command)
     InteractionData data = InteractionData.builder().id("someId").name("weekly_dungeon").type(1)
         .build();

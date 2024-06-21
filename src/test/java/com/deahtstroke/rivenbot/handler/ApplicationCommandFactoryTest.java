@@ -19,8 +19,6 @@ public class ApplicationCommandFactoryTest {
   @Mock
   private WeeklyDungeonHandler weeklyDungeonHandler;
   @Mock
-  private RaidMapHandler raidMapHandler;
-  @Mock
   private RaidStatsHandler raidStatsHandler;
   @InjectMocks
   private ApplicationCommandFactory sut;
