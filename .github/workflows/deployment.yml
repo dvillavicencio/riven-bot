@@ -155,6 +155,9 @@ jobs:
           username: ${{ secrets.DROPLET_USERNAME }}
           key: ${{ secrets.DROPLET_PRIVATE_TOKEN }}
           script: |
+            # Checkout working directory
+            cd riven_of_a_thousand_servers/
+            
             # Stop current Docker compose
             docker compose down
             
