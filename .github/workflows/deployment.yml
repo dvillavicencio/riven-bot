@@ -159,4 +159,4 @@ jobs:
             docker compose down
             
             # Start Docker compose
-            docker compose up
+            docker compose -f compose.yml -f compose.prod.yml up
