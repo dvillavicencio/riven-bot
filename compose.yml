@@ -1,5 +1,5 @@
 services:
-  riven-of-a-thousand-servers:
+  rivenbot:
     container_name: rivenbot
     image: ${DOCKER_IMAGE_NAME}
     env_file:
@@ -43,6 +43,8 @@ services:
     container_name: loki
     hostname: loki
     image: grafana/loki:2.9.0
+    depends_on:
+      - rivenbot
     ports:
       - "3100:3100"
   grafana:
@@ -50,24 +52,6 @@ services:
     environment:
       GF_SECURITY_ADMIN_USER__FILE: /run/secrets/grafana_admin_username
       GF_SECURITY_ADMIN_PASSWORD__FILE: /run/secrets/grafana_admin_password
-    entrypoint:
-      - sh
-      - -euc
-      - |
-        mkdir -p /etc/grafana/provisioning/datasources
-        cat <<EOF > /etc/grafana/provisioning/datasources/ds.yaml
-        datasources:
-        - name: Loki
-          type: loki
-          access: proxy
-          orgId: 1
-          url: http://loki:3100
-          basicAuth: false
-          isDefault: true
-          version: 1
-          editable: false
-        EOF
-        /run.sh
     image: grafana/grafana-oss:latest
     ports:
       - "3000:3000"
@@ -75,7 +59,9 @@ services:
       - "grafana_admin_username"
       - "grafana_admin_password"
     volumes:
+      - ./grafana/custom-config.ini:/etc/grafana/grafana.ini
       - grafana-storage:/var/lib/grafana
+      - ./grafana/ds.yaml:/etc/grafana/provisioning/datasources/ds.yaml
 
 secrets:
   mongo_username:

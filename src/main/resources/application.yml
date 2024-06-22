@@ -8,6 +8,8 @@ spring:
       authentication-database: admin
       database: riven_of_a_thousand_servers
       port: 27017
+  main:
+    banner-mode: log
 
 bungie:
   api:
