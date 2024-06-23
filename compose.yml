@@ -9,6 +9,7 @@ services:
     depends_on:
       - redis
       - mongodb
+      - loki
     secrets:
       - mongo_username
       - mongo_password
