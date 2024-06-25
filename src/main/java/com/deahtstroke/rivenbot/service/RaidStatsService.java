@@ -3,7 +3,9 @@ package com.deahtstroke.rivenbot.service;
 import com.deahtstroke.rivenbot.entity.RaidStatistics;
 import com.deahtstroke.rivenbot.entity.UserDetails;
 import com.deahtstroke.rivenbot.enums.RaidDifficulty;
+import java.time.Clock;
 import java.time.Instant;
+import java.time.ZoneId;
 import java.util.Set;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
@@ -122,16 +124,14 @@ public class RaidStatsService {
    */
   public Flux<RaidStatistics> calculateRaidStats(String uniqueUsername, String membershipId,
       Integer membershipType) {
-    Instant now = Instant.now(); // Timestamp for this action
-    Mono<UserDetails> createAction = createUser(
-        now, uniqueUsername, membershipType, membershipId);
-    Mono<UserDetails> updateAction = updateUser(
-        now, uniqueUsername, membershipType, membershipId);
+    Instant now = Instant.now(Clock.system(ZoneId.of("PST")));
+    Mono<UserDetails> createAction = createUser(now, uniqueUsername, membershipType, membershipId);
+    Mono<UserDetails> updateAction = updateUser(now, uniqueUsername, membershipType, membershipId);
 
     Aggregation aggregation = raidStatisticsAggregationPipeline(uniqueUsername);
 
     return userRaidDetailsService.existsById(uniqueUsername)
-        .flatMap(exists -> exists ? updateAction : createAction)
+        .flatMap(exists -> Boolean.TRUE.equals(exists) ? updateAction : createAction)
         .flatMapMany(userDetails -> reactiveMongoTemplate.aggregate(aggregation,
             UserDetails.class, RaidStatistics.class));
   }
