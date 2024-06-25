@@ -34,6 +34,8 @@ public class RaidStatsService {
   private static final String TOTAL_DEATHS = "userRaidDetails.totalDeaths";
   private static final String FROM_BEGINNING = "userRaidDetails.fromBeginning";
 
+  private static final ZoneId AMERICA_LOS_ANGELES = ZoneId.of("America/Los_Angeles");
+
   private final UserRaidDetailsService userRaidDetailsService;
   private final ReactiveMongoTemplate reactiveMongoTemplate;
 
@@ -124,7 +126,7 @@ public class RaidStatsService {
    */
   public Flux<RaidStatistics> calculateRaidStats(String uniqueUsername, String membershipId,
       Integer membershipType) {
-    Instant now = Instant.now(Clock.system(ZoneId.of("PST")));
+    Instant now = Instant.now(Clock.system(AMERICA_LOS_ANGELES));
     Mono<UserDetails> createAction = createUser(now, uniqueUsername, membershipType, membershipId);
     Mono<UserDetails> updateAction = updateUser(now, uniqueUsername, membershipType, membershipId);
 
