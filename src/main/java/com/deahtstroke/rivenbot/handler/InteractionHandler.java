@@ -69,11 +69,11 @@ public class InteractionHandler {
       case MODAL_SUBMIT -> Mono.just(new InteractionResponse());
       case APPLICATION_COMMAND_AUTOCOMPLETE -> {
         SlashCommand command = SlashCommand.findByName(interaction.getData().getName());
-        yield autocompleteFactory.messageCreator(command).autocompleteResponse(interaction);
+        yield autocompleteFactory.getHandler(command).autocomplete(interaction);
       }
       case APPLICATION_COMMAND -> {
         SlashCommand command = SlashCommand.findByName(interaction.getData().getName());
-        yield applicationCommandFactory.messageCreator(command).createResponse(interaction);
+        yield applicationCommandFactory.getHandler(command).resolve(interaction);
       }
       case PING -> Mono.just(InteractionResponse.PING());
     };

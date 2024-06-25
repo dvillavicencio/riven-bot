@@ -24,7 +24,7 @@ public class WeeklyDungeonHandler implements ApplicationCommandSource {
   }
 
   @Override
-  public Mono<InteractionResponse> createResponse(Interaction interaction) {
+  public Mono<InteractionResponse> resolve(Interaction interaction) {
     return weeklyActivitiesService.getWeeklyActivity(ActivityMode.DUNGEON)
         .map(weeklyDungeon -> {
           var endDay = MessageUtils.formatDate(weeklyDungeon.getEndDate().toLocalDate());

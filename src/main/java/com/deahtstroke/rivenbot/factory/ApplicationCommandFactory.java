@@ -30,7 +30,7 @@ public class ApplicationCommandFactory implements SlashCommandHandler<Applicatio
   }
 
   @Override
-  public ApplicationCommandSource messageCreator(SlashCommand command) {
+  public ApplicationCommandSource getHandler(SlashCommand command) {
     ApplicationCommandSource creator = messageFactory.get(command);
     if (Objects.isNull(creator)) {
       throw new ResourceNotFoundException(

@@ -34,6 +34,7 @@ public class PostGameCarnageService {
           .limitForPeriod(23)
           .limitRefreshPeriod(Duration.ofMillis(1500))
           .timeoutDuration(Duration.ofSeconds(30))
+          .writableStackTraceEnabled(true)
           .build());
 
   private final WebClient.Builder builder;

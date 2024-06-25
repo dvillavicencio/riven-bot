@@ -85,7 +85,7 @@ class InteractionHandlerTest {
         .build();
 
     WeeklyRaidHandler weeklyRaidHandler = mock(WeeklyRaidHandler.class);
-    when(applicationCommandFactory.messageCreator(SlashCommand.WEEKLY_DUNGEON))
+    when(applicationCommandFactory.getHandler(SlashCommand.WEEKLY_DUNGEON))
         .thenReturn(weeklyRaidHandler);
 
     String endDate = MessageUtils.formatDate(LocalDate.now());
@@ -99,7 +99,7 @@ class InteractionHandlerTest {
             .build())
         .build();
 
-    when(weeklyRaidHandler.createResponse(interaction))
+    when(weeklyRaidHandler.resolve(interaction))
         .thenReturn(Mono.just(message));
 
     // when: the interaction is received

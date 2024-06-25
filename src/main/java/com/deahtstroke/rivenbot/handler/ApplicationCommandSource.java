@@ -11,10 +11,10 @@ import reactor.core.publisher.Mono;
 public interface ApplicationCommandSource {
 
   /**
-   * Creates an Interaction Response for a slash-command
+   * Resolves an Interaction for a slash-command
    *
    * @param interaction The interaction data, this parameter is included in case the
    * @return {@link InteractionResponse}
    */
-  Mono<InteractionResponse> createResponse(Interaction interaction);
+  Mono<InteractionResponse> resolve(Interaction interaction);
 }

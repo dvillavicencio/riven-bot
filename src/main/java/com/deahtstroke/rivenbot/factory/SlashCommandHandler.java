@@ -10,5 +10,5 @@ public interface SlashCommandHandler<T> {
    * @param slashCommand The slash command that is invoked
    * @return Message creator of type T
    */
-  T messageCreator(SlashCommand slashCommand);
+  T getHandler(SlashCommand slashCommand);
 }
