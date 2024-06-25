@@ -46,6 +46,7 @@ ext {
     set('resilienceReactorVersion', '1.6.1')
     set('resilienceRateLimiterVersion', '1.6.1')
     set('lokiLogbackAppenderVersion', '1.5.1')
+    set('micrometerCoreVersion', '1.12.2')
 }
 
 jar {
@@ -71,7 +72,7 @@ dependencies {
     implementation "software.pando.crypto:salty-coffee:${pandoCryptoVersion}"
     implementation "org.apache.commons:commons-collections4:${apacheCollectionsVersion}"
     implementation "com.github.loki4j:loki-logback-appender:${lokiLogbackAppenderVersion}"
-    implementation 'org.springframework.boot:spring-boot-starter-actuator'
+    implementation "io.micrometer:micrometer-core:${micrometerCoreVersion}"
     compileOnly 'org.projectlombok:lombok'
     annotationProcessor 'org.projectlombok:lombok'
     annotationProcessor "org.mapstruct:mapstruct-processor:${mapStructVersion}"
