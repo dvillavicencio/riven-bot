@@ -1,44 +1,63 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <configuration>
   <!-- Local configuration -->
-  <SpringProfile name="local">
-    <appender name="LOKI" class="com.github.loki4j.logback.Loki4jAppender">
-      <http>
-        <url>http://localhost:3100/loki/api/v1/push</url>
-      </http>
-      <format>
-        <label>
-          <pattern>level=%level</pattern>
-          <readMarkers>true</readMarkers>
-        </label>
-        <message>
-          <pattern>%-5level [%.5(${HOSTNAME})] %.10thread %logger{20} | %msg %ex</pattern>
-        </message>
-      </format>
-    </appender>
+  <appender name="LOKI_LOCAL" class="com.github.loki4j.logback.Loki4jAppender">
+    <http>
+      <url>http://localhost:3100/loki/api/v1/push</url>
+      <connectionTimeoutMs>60000</connectionTimeoutMs>
+      <requestTimeoutMs>10000</requestTimeoutMs>
+    </http>
+    <format>
+      <label>
+        <pattern>level=%level</pattern>
+        <readMarkers>true</readMarkers>
+      </label>
+      <message>
+        <pattern>%-5level [%.5(${HOSTNAME})] %.10thread %logger{20} | %msg %ex</pattern>
+      </message>
+    </format>
+  </appender>
+  <root level="INFO">
+    <appender-ref ref="LOKI"/>
+  </root>
+
+  <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+    <encoder>
+      <pattern>%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n</pattern>
+    </encoder>
+  </appender>
+
+  <!-- Production configuration -->
+  <appender name="LOKI_PROD" class="com.github.loki4j.logback.Loki4jAppender">
+    <http>
+      <url>http://loki:3100/loki/api/v1/push</url>
+      <connectionTimeoutMs>60000</connectionTimeoutMs>
+      <requestTimeoutMs>10000</requestTimeoutMs>
+    </http>
+    <format>
+      <label>
+        <pattern>level=%level</pattern>
+        <readMarkers>true</readMarkers>
+      </label>
+      <message>
+        <pattern>%-5level [%.5(${HOSTNAME})] %.10thread %logger{20} | %msg %ex</pattern>
+      </message>
+    </format>
+    <verbose>true</verbose>
+    <metricsEnabled>true</metricsEnabled>
+  </appender>
+
+  <SpringProfile name="prod">
     <root level="INFO">
-      <appender-ref ref="LOKI"/>
+      <appender-ref ref="LOKI_PROD"/>
+      <appender-ref ref="STDOUT"/>
     </root>
   </SpringProfile>
 
-  <!-- Production configuration -->
-  <SpringProfile name="prod">
-    <appender name="LOKI" class="com.github.loki4j.logback.Loki4jAppender">
-      <http>
-        <url>http://rivenbot.app:3100/loki/api/v1/push</url>
-      </http>
-      <format>
-        <label>
-          <pattern>level=%level</pattern>
-          <readMarkers>true</readMarkers>
-        </label>
-        <message>
-          <pattern>%-5level [%.5(${HOSTNAME})] %.10thread %logger{20} | %msg %ex</pattern>
-        </message>
-      </format>
-    </appender>
+  <SpringProfile name="local">
     <root level="INFO">
-      <appender-ref ref="LOKI"/>
+      <appender-ref ref="LOKI_LOCAL"/>
+      <appender-ref ref="STDOUT"/>
     </root>
   </SpringProfile>
 </configuration>

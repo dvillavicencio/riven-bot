@@ -8,7 +8,3 @@ spring:
 application:
   callback:
     url: https://rivenbot.app
-
-logging:
-  level:
-    root: DEBUG
