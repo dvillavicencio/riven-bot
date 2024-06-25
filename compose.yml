@@ -7,9 +7,12 @@ services:
     ports:
       - "8080:8080"
     depends_on:
-      - redis
-      - mongodb
-      - loki
+      loki:
+        condition: service_healthy
+      redis:
+        condition: service_started
+      mongodb:
+        condition: service_started
     secrets:
       - mongo_username
       - mongo_password
@@ -46,6 +49,11 @@ services:
     image: grafana/loki:2.9.0
     ports:
       - "3100:3100"
+    healthcheck:
+      test: ["CMD-SHELL", "wget --spider --quiet http://localhost:3100/ready || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
   grafana:
     container_name: grafana
     environment:
