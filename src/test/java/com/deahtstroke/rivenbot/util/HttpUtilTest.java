@@ -20,11 +20,11 @@ import org.springframework.core.io.Resource;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.MediaType;
 
-public class HttpUtilTest {
+class HttpUtilTest {
 
   @Test
   @DisplayName("Prepare multipart payload has all correct parts for /raid_map")
-  public void prepareMultipartPayloadIsCorrectForRaidMapCommand() throws IOException {
+  void prepareMultipartPayloadIsCorrectForRaidMapCommand() throws IOException {
     // given: An interaction response and an indexed map of classpath resources
     Map<Long, Resource> resources = Map.of(
         0L, TestUtils.createPartialResource("kalli-plates.jpg", 1024L * 1024L, false),
@@ -99,7 +99,7 @@ public class HttpUtilTest {
 
   @Test
   @DisplayName("Prepare multipart payload should throw the appropriate exception in case of I/O problems")
-  public void shouldThrowAppropriateExceptionsInIOErrors() throws IOException {
+  void shouldThrowAppropriateExceptionsInIOErrors() throws IOException {
     // given: an InteractionResponse and faulty files which might cause I/O processing errors
     var firstResource = TestUtils.createPartialResource("kalli-plates.jpg", 1024L * 1024L, true);
     var secondResource = TestUtils.createPartialResource("kalli-dmg-phase.jpg", 1024L, true);

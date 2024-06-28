@@ -37,3 +37,7 @@ discord:
     clientId: ${DISCORD_CLIENT_ID}
     clientSecret: ${DISCORD_CLIENT_SECRET}
     scopes: identify
+
+logging:
+  level:
+    web: debug

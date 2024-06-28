@@ -1,9 +1,9 @@
 package com.deahtstroke.rivenbot.handler;
 
 import com.deahtstroke.rivenbot.client.BungieClient;
-import com.deahtstroke.rivenbot.client.DiscordClient;
-import com.deahtstroke.rivenbot.config.DiscordConfiguration;
+import com.deahtstroke.rivenbot.dto.destiny.BungieResponse;
 import com.deahtstroke.rivenbot.dto.destiny.MemberGroupResponse;
+import com.deahtstroke.rivenbot.dto.destiny.SearchResult;
 import com.deahtstroke.rivenbot.dto.destiny.UserGlobalSearchBody;
 import com.deahtstroke.rivenbot.dto.destiny.UserSearchResult;
 import com.deahtstroke.rivenbot.dto.discord.Choice;
@@ -18,12 +18,18 @@ import com.deahtstroke.rivenbot.dto.discord.InteractionResponseData;
 import com.deahtstroke.rivenbot.dto.discord.Option;
 import com.deahtstroke.rivenbot.entity.RaidStatistics;
 import com.deahtstroke.rivenbot.enums.InteractionResponseType;
+import com.deahtstroke.rivenbot.exception.ResourceNotFoundException;
+import com.deahtstroke.rivenbot.service.DiscordAPIService;
 import com.deahtstroke.rivenbot.service.RaidStatsService;
 import com.deahtstroke.rivenbot.util.NumberUtils;
+import java.net.URI;
 import java.time.Instant;
 import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
+import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.web.reactive.function.BodyInserters;
+import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
@@ -37,7 +43,8 @@ public class RaidStatsHandler implements AutocompleteSource, ApplicationCommandS
   private static final String USERNAME_OPTION_NAME = "username";
   private static final Integer CLAN_GROUP_TYPE = 1;
   private static final Integer CLAN_SIZE_FILTER = 0;
-  private static final Integer MAX_NUMBER_OF_USER_PAGES = 25;
+  private static final Integer MAX_NUMBER_OF_USER_PAGES = 15;
+  private static final Integer NO_USERS_FOUND_ERROR_CODE = 217;
   private static final String HASHTAG = "#";
   private static final String LEFT_BRACKET = "[";
   private static final String RIGHT_BRACKET = "]";
@@ -50,28 +57,29 @@ public class RaidStatsHandler implements AutocompleteSource, ApplicationCommandS
       Riven and finish the raid in under ~10 minutes, the bot would still count that as your fastest clear.""";
 
   private final BungieClient defaultBungieClient;
-  private final DiscordClient discordClient;
   private final RaidStatsService raidStatsService;
-  private final DiscordConfiguration discordConfiguration;
+  private final WebClient webClient;
+  private final DiscordAPIService discordAPIService;
 
   public RaidStatsHandler(
       BungieClient defaultBungieClient,
-      DiscordClient discordClient,
       RaidStatsService raidStatsService,
-      DiscordConfiguration discordConfiguration) {
+      WebClient userBungieClient,
+      DiscordAPIService discordAPIService) {
     this.defaultBungieClient = defaultBungieClient;
-    this.discordClient = discordClient;
     this.raidStatsService = raidStatsService;
-    this.discordConfiguration = discordConfiguration;
+    this.webClient = userBungieClient;
+    this.discordAPIService = discordAPIService;
   }
 
   @Override
   public Mono<InteractionResponse> autocomplete(Interaction interaction) {
-    String usernameOption = (String) interaction.getData().getOptions().stream()
+    Option usernameOption = interaction.getData().getOptions().stream()
         .filter(option -> option.getName().equalsIgnoreCase(USERNAME_OPTION_NAME))
-        .findAny().orElse(new Option()).getValue();
-    String[] tokens = usernameOption.split(HASHTAG);
-    int tag;
+        .findAny().orElse(new Option());
+    String usernameInput = (String) usernameOption.getValue();
+    String[] tokens = usernameInput.split(HASHTAG);
+    Integer tag;
     String username;
     if (tokens.length > 1) {
       if (NumberUtils.isInteger(tokens[0])) {
@@ -83,15 +91,17 @@ public class RaidStatsHandler implements AutocompleteSource, ApplicationCommandS
       }
     } else if (tokens.length == 1) {
       username = tokens[0];
+      tag = null;
     } else {
       username = "";
       tag = 0;
     }
     return Flux.range(0, MAX_NUMBER_OF_USER_PAGES)
-        .flatMapSequential(pageNumber ->
-            defaultBungieClient.searchByGlobalName(new UserGlobalSearchBody(username), pageNumber))
+        .concatMap(pageNumber -> retrievePlayers(new UserGlobalSearchBody(username), pageNumber))
         .flatMapIterable(response -> response.getResponse().getSearchResults())
         .filter(result -> CollectionUtils.isNotEmpty(result.getDestinyMemberships()))
+        .filter(result -> tag == null || NumberUtils.containsDigit(
+            result.getBungieGlobalDisplayNameCode(), tag))
         .flatMap(this::createUserChoices)
         .collectList()
         .map(choices -> new InteractionResponse(
@@ -114,20 +124,39 @@ public class RaidStatsHandler implements AutocompleteSource, ApplicationCommandS
         });
   }
 
+  private Mono<BungieResponse<SearchResult>> retrievePlayers(UserGlobalSearchBody searchBody,
+      Integer page) {
+    URI playersUri = URI.create("/User/Search/GlobalName/" + page + "/");
+    return this.webClient.post().uri(playersUri)
+        .body(BodyInserters.fromValue(searchBody))
+        .exchangeToMono(clientResponse -> {
+          if (clientResponse.statusCode().is2xxSuccessful() || clientResponse.statusCode()
+              .is5xxServerError()) {
+            ParameterizedTypeReference<BungieResponse<SearchResult>> typeReference = new ParameterizedTypeReference<>() {
+            };
+            return clientResponse.bodyToMono(typeReference);
+          } else {
+            return Mono.error(new ResourceNotFoundException(
+                "Something wrong happened while retrieving users, user not found with value [%s] not found".formatted(
+                    searchBody)));
+          }
+        });
+  }
+
   @Override
   public Mono<InteractionResponse> resolve(Interaction interaction) {
-    var asyncScheduler = Schedulers.boundedElastic();
-    var raidsAsync = processRaidsAsync(interaction)
-        .subscribeOn(asyncScheduler)
-        .flatMap(response -> discordClient.editOriginalInteraction(
-            discordConfiguration.getApplicationId(), interaction.getToken(), response));
+    var raidsAsyncProcessing = processRaidsAsync(interaction)
+        .subscribeOn(Schedulers.boundedElastic())
+        .flatMap(response ->
+            discordAPIService.editOriginalInteraction(interaction.getToken(), response));
+    raidsAsyncProcessing.subscribe();
 
-    raidsAsync.subscribe();
-
-    return Mono.just(InteractionResponse.builder()
+    InteractionResponse ack = InteractionResponse.builder()
         .type(5)
         .data(new InteractionResponseData())
-        .build());
+        .build();
+
+    return Mono.just(ack);
   }
 
   private Mono<InteractionResponseData> processRaidsAsync(Interaction interaction) {

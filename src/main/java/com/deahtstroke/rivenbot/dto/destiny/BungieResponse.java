@@ -19,4 +19,7 @@ public class BungieResponse<T> {
   @JsonAlias("Response")
   @Nullable
   private T response;
+
+  @JsonAlias("ErrorCode")
+  private Integer errorCode;
 }

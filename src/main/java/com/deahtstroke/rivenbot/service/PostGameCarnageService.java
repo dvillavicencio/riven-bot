@@ -1,15 +1,14 @@
 package com.deahtstroke.rivenbot.service;
 
+import static com.deahtstroke.rivenbot.config.BungieConfiguration.PGCR_RATE_LIMITER;
+
 import com.deahtstroke.rivenbot.dto.destiny.BungieResponse;
 import com.deahtstroke.rivenbot.dto.destiny.PostGameCarnageReport;
 import com.deahtstroke.rivenbot.entity.PGCRDetails;
 import com.deahtstroke.rivenbot.mapper.PGCRMapper;
 import com.deahtstroke.rivenbot.repository.PGCRRepository;
-import io.github.resilience4j.ratelimiter.RateLimiter;
-import io.github.resilience4j.ratelimiter.RateLimiterConfig;
 import io.github.resilience4j.reactor.ratelimiter.operator.RateLimiterOperator;
 import io.netty.handler.codec.DecoderException;
-import java.time.Duration;
 import java.util.concurrent.atomic.AtomicInteger;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.ParameterizedTypeReference;
@@ -29,20 +28,14 @@ import reactor.core.publisher.Mono;
 public class PostGameCarnageService {
 
   private static final String PGCR_ENDPOINT_URL = "/Destiny2/Stats/PostGameCarnageReport/{activityId}/";
-  private static final RateLimiter PGCR_RATE_LIMITER = RateLimiter.of("pgcr-rate-limiter",
-      RateLimiterConfig.custom()
-          .limitForPeriod(23)
-          .limitRefreshPeriod(Duration.ofMillis(1500))
-          .timeoutDuration(Duration.ofSeconds(30))
-          .writableStackTraceEnabled(true)
-          .build());
 
   private final WebClient.Builder builder;
   private final PGCRMapper pgcrMapper;
   private final PGCRRepository pgcrRepository;
 
   public PostGameCarnageService(
-      Builder builder, PGCRMapper pgcrMapper,
+      Builder builder,
+      PGCRMapper pgcrMapper,
       PGCRRepository pgcrRepository) {
     this.builder = builder;
     this.pgcrMapper = pgcrMapper;
@@ -97,7 +90,7 @@ public class PostGameCarnageService {
     Mono<PGCRDetails> cachedPGCR = pgcrRepository.findById(activityInstanceId);
 
     return pgcrRepository.existsById(activityInstanceId)
-        .flatMap(existsById -> existsById ? cachedPGCR : remotePGCR);
+        .flatMap(existsById -> Boolean.TRUE.equals(existsById) ? cachedPGCR : remotePGCR);
   }
 
 }

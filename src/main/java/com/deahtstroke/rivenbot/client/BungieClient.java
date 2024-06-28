@@ -71,18 +71,6 @@ public interface BungieClient {
   );
 
   /**
-   * Search for Bungie users using a name prefix and get specific pages based on search results
-   *
-   * @param searchBody the search body for the request
-   * @param page       the page number requested
-   * @return the paged-list of the responses
-   */
-  @PostExchange("/User/Search/GlobalName/{page}/")
-  Mono<BungieResponse<SearchResult>> searchByGlobalName(
-      @RequestBody UserGlobalSearchBody searchBody,
-      @PathVariable Integer page);
-
-  /**
    * Get the groups for a specific user based on their membershipId and their membershipType. This
    * is mainly used to retrieve clans and groups that the user belongs to
    *
