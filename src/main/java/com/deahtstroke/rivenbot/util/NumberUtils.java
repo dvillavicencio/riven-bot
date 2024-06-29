@@ -1,7 +1,5 @@
 package com.deahtstroke.rivenbot.util;
 
-import java.util.Objects;
-
 public class NumberUtils {
 
   private NumberUtils() {
@@ -23,23 +21,34 @@ public class NumberUtils {
   }
 
   /**
-   * Determines whether the number contains the digit or not
+   * Determines whether the number contains all the digits or not
    *
    * @param number the number to check
-   * @param digit  the digit to find
-   * @return true if it contains the digit, false if not
+   * @param digits the digits to find
+   * @return true if it contains the digits, false if not
    */
-  public static boolean containsDigit(Integer number, Integer digit) {
+  public static boolean contains(Integer number, Integer digits) {
     if (number < 0) {
       return false;
     }
+    int[] countA = new int[10];
+    int[] countB = new int[10];
+
     while (number > 0) {
-      int currentDigit = number % 10;
-      if (Objects.equals(digit, currentDigit)) {
-        return true;
-      }
+      countA[number % 10]++;
       number /= 10;
     }
-    return false;
+
+    while (digits > 0) {
+      countB[digits % 10]++;
+      digits /= 10;
+    }
+
+    for (int i = 0; i < 10; i++) {
+      if (countA[i] > countB[i]) {
+        return false;
+      }
+    }
+    return true;
   }
 }

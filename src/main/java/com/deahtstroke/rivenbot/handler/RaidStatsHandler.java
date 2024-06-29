@@ -1,9 +1,8 @@
 package com.deahtstroke.rivenbot.handler;
 
 import com.deahtstroke.rivenbot.client.BungieClient;
-import com.deahtstroke.rivenbot.dto.destiny.BungieResponse;
+import com.deahtstroke.rivenbot.config.BungieConfiguration;
 import com.deahtstroke.rivenbot.dto.destiny.MemberGroupResponse;
-import com.deahtstroke.rivenbot.dto.destiny.SearchResult;
 import com.deahtstroke.rivenbot.dto.destiny.UserGlobalSearchBody;
 import com.deahtstroke.rivenbot.dto.destiny.UserSearchResult;
 import com.deahtstroke.rivenbot.dto.discord.Choice;
@@ -18,18 +17,16 @@ import com.deahtstroke.rivenbot.dto.discord.InteractionResponseData;
 import com.deahtstroke.rivenbot.dto.discord.Option;
 import com.deahtstroke.rivenbot.entity.RaidStatistics;
 import com.deahtstroke.rivenbot.enums.InteractionResponseType;
-import com.deahtstroke.rivenbot.exception.ResourceNotFoundException;
+import com.deahtstroke.rivenbot.service.BungieAPIService;
 import com.deahtstroke.rivenbot.service.DiscordAPIService;
 import com.deahtstroke.rivenbot.service.RaidStatsService;
 import com.deahtstroke.rivenbot.util.NumberUtils;
-import java.net.URI;
+import io.github.resilience4j.reactor.ratelimiter.operator.RateLimiterOperator;
 import java.time.Instant;
 import java.util.List;
+import java.util.Objects;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
-import org.springframework.core.ParameterizedTypeReference;
-import org.springframework.web.reactive.function.BodyInserters;
-import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
@@ -58,18 +55,18 @@ public class RaidStatsHandler implements AutocompleteSource, ApplicationCommandS
 
   private final BungieClient defaultBungieClient;
   private final RaidStatsService raidStatsService;
-  private final WebClient webClient;
   private final DiscordAPIService discordAPIService;
+  private final BungieAPIService bungieAPIService;
 
   public RaidStatsHandler(
       BungieClient defaultBungieClient,
       RaidStatsService raidStatsService,
-      WebClient userBungieClient,
-      DiscordAPIService discordAPIService) {
+      DiscordAPIService discordAPIService,
+      BungieAPIService bungieAPIService) {
     this.defaultBungieClient = defaultBungieClient;
     this.raidStatsService = raidStatsService;
-    this.webClient = userBungieClient;
     this.discordAPIService = discordAPIService;
+    this.bungieAPIService = bungieAPIService;
   }
 
   @Override
@@ -97,11 +94,15 @@ public class RaidStatsHandler implements AutocompleteSource, ApplicationCommandS
       tag = 0;
     }
     return Flux.range(0, MAX_NUMBER_OF_USER_PAGES)
-        .concatMap(pageNumber -> retrievePlayers(new UserGlobalSearchBody(username), pageNumber))
+        .flatMapSequential(pageNumber -> bungieAPIService.retrievePlayers(
+            new UserGlobalSearchBody(username), pageNumber))
+        .transformDeferred(RateLimiterOperator.of(BungieConfiguration.PGCR_RATE_LIMITER))
+        .takeWhile(response -> !Objects.equals(response.getErrorCode(), NO_USERS_FOUND_ERROR_CODE))
         .flatMapIterable(response -> response.getResponse().getSearchResults())
         .filter(result -> CollectionUtils.isNotEmpty(result.getDestinyMemberships()))
-        .filter(result -> tag == null || NumberUtils.containsDigit(
+        .filter(result -> tag == null || NumberUtils.contains(
             result.getBungieGlobalDisplayNameCode(), tag))
+        .take(25)
         .flatMap(this::createUserChoices)
         .collectList()
         .map(choices -> new InteractionResponse(
@@ -121,25 +122,6 @@ public class RaidStatsHandler implements AutocompleteSource, ApplicationCommandS
           String choiceName = name(result, clanResponse.getResponse());
           String choiceValue = value(result);
           return new Choice(choiceName, choiceValue);
-        });
-  }
-
-  private Mono<BungieResponse<SearchResult>> retrievePlayers(UserGlobalSearchBody searchBody,
-      Integer page) {
-    URI playersUri = URI.create("/User/Search/GlobalName/" + page + "/");
-    return this.webClient.post().uri(playersUri)
-        .body(BodyInserters.fromValue(searchBody))
-        .exchangeToMono(clientResponse -> {
-          if (clientResponse.statusCode().is2xxSuccessful() || clientResponse.statusCode()
-              .is5xxServerError()) {
-            ParameterizedTypeReference<BungieResponse<SearchResult>> typeReference = new ParameterizedTypeReference<>() {
-            };
-            return clientResponse.bodyToMono(typeReference);
-          } else {
-            return Mono.error(new ResourceNotFoundException(
-                "Something wrong happened while retrieving users, user not found with value [%s] not found".formatted(
-                    searchBody)));
-          }
         });
   }
 

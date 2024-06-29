@@ -3,6 +3,8 @@ package com.deahtstroke.rivenbot.service;
 import com.deahtstroke.rivenbot.client.BungieClient;
 import com.deahtstroke.rivenbot.dto.destiny.ActivitiesResponse;
 import com.deahtstroke.rivenbot.dto.destiny.BungieResponse;
+import com.deahtstroke.rivenbot.dto.destiny.SearchResult;
+import com.deahtstroke.rivenbot.dto.destiny.UserGlobalSearchBody;
 import com.deahtstroke.rivenbot.dto.destiny.characters.UserCharacter;
 import com.deahtstroke.rivenbot.dto.destiny.manifest.ManifestResponseFields;
 import com.deahtstroke.rivenbot.dto.destiny.milestone.MilestoneEntry;
@@ -14,8 +16,12 @@ import java.util.Objects;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.reactive.function.BodyInserters;
+import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.web.reactive.function.client.WebClient.Builder;
 import reactor.core.publisher.Mono;
 
 @Service
@@ -23,12 +29,16 @@ import reactor.core.publisher.Mono;
 public class BungieAPIService {
 
   private static final Integer MAX_NUMBER_OF_ELEMENTS = 250;
+  private static final String PREFIX_PLAYERS_URL = "/User/Search/GlobalName/{pageNumber}/";
   private static final Integer RAID_MODE = 4;
 
   private final BungieClient defaultBungieClient;
+  private final WebClient.Builder builder;
 
-  public BungieAPIService(BungieClient defaultBungieClient) {
+  public BungieAPIService(BungieClient defaultBungieClient,
+      Builder builder) {
     this.defaultBungieClient = defaultBungieClient;
+    this.builder = builder;
   }
 
   /**
@@ -82,18 +92,14 @@ public class BungieAPIService {
    * @param hash       The hash of the entity
    * @return {@link ManifestResponseFields}
    */
-  @Cacheable(cacheNames = "manifestEntity", cacheManager = "inMemoryCacheManager")
+  @Cacheable(cacheNames = "manifestEntity", cacheManager = "redisCacheManager")
   public Mono<ManifestResponseFields> getManifestEntity(ManifestEntity entityType, Long hash) {
     return defaultBungieClient.getManifestEntity(entityType.getId(), hash).cache()
         .filter(Objects::nonNull)
         .map(BungieResponse::getResponse);
   }
 
-  /**
-   * Retrieve all the public milestones
-   *
-   * @return Map containing all public milestones
-   */
+
   public Mono<Map<String, MilestoneEntry>> getPublicMilestones() {
     return defaultBungieClient.getPublicMilestones()
         .flatMap(response -> {
@@ -103,6 +109,35 @@ public class BungieAPIService {
                 HttpStatus.INTERNAL_SERVER_ERROR));
           }
           return Mono.just(response.getResponse());
+        });
+  }
+
+  /**
+   * Get players by their basename prefix. This method is resilient towards 500 status error codes
+   * because the API itself is not consistent with the 'hasMore' flag if there's more pages in the
+   * API itself
+   *
+   * @param searchBody the prefix to look for
+   * @param page       the number of the page
+   * @return {@link SearchResult}
+   */
+  @Cacheable(cacheNames = "playersPrefixSearch", cacheManager = "redisCacheManager")
+  public Mono<BungieResponse<SearchResult>> retrievePlayers(UserGlobalSearchBody searchBody,
+      Integer page) {
+    WebClient webClient = this.builder.build();
+    return webClient.post().uri(PREFIX_PLAYERS_URL, page)
+        .body(BodyInserters.fromValue(searchBody))
+        .exchangeToMono(clientResponse -> {
+          if (clientResponse.statusCode().is2xxSuccessful() || clientResponse.statusCode()
+              .is5xxServerError()) {
+            ParameterizedTypeReference<BungieResponse<SearchResult>> typeReference = new ParameterizedTypeReference<>() {
+            };
+            return clientResponse.bodyToMono(typeReference);
+          } else {
+            return Mono.error(new ResourceNotFoundException(
+                "Something wrong happened while retrieving users, user not found with value [%s] not found".formatted(
+                    searchBody)));
+          }
         });
   }
 }

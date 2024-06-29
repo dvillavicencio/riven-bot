@@ -16,7 +16,7 @@ class NumberUtilsTest {
     int digit = 5;
 
     // when: containsDigit is called
-    boolean result = NumberUtils.containsDigit(number, digit);
+    boolean result = NumberUtils.contains(number, digit);
 
     // then: the result is false
     Assertions.assertThat(result).isFalse();
@@ -30,7 +30,7 @@ class NumberUtilsTest {
     int number = 217;
 
     // when: containsDigit is called
-    boolean result = NumberUtils.containsDigit(number, digit);
+    boolean result = NumberUtils.contains(number, digit);
 
     // then: the result is true
     Assertions.assertThat(result).isTrue();
