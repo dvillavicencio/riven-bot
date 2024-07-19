@@ -8,5 +8,5 @@ public interface MessageComponentHandler<T> {
    * @param componentId The componentId of the button
    * @return Type of the button handler
    */
-  T handle(String componentId);
+  T getHandler(String componentId);
 }

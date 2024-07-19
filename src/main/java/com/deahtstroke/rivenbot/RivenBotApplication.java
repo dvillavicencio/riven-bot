@@ -9,7 +9,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.EnableAspectJAutoProxy;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.server.RouterFunction;
@@ -18,7 +17,6 @@ import org.springframework.web.reactive.function.server.ServerResponse;
 
 @Slf4j
 @SpringBootApplication
-@EnableAspectJAutoProxy
 public class RivenBotApplication {
 
   public static void main(String[] args) {
@@ -30,7 +28,7 @@ public class RivenBotApplication {
       InteractionHandler interactionHandler,
       SignatureFilterFunction signatureFilterFunction) {
     return RouterFunctions.route()
-        .POST("/interactions", interactionHandler::handle)
+        .POST("/interactions", interactionHandler::resolveRequest)
         .filter(signatureFilterFunction)
         .build();
   }

@@ -20,7 +20,7 @@ import org.springframework.core.io.Resource;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.MediaType;
 
-class HttpUtilTest {
+class HttpUtilsTest {
 
   @Test
   @DisplayName("Prepare multipart payload has all correct parts for /raid_map")

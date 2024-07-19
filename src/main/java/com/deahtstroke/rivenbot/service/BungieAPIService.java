@@ -9,7 +9,6 @@ import com.deahtstroke.rivenbot.dto.destiny.characters.UserCharacter;
 import com.deahtstroke.rivenbot.dto.destiny.manifest.ManifestResponseFields;
 import com.deahtstroke.rivenbot.dto.destiny.milestone.MilestoneEntry;
 import com.deahtstroke.rivenbot.enums.ManifestEntity;
-import com.deahtstroke.rivenbot.exception.InternalServerException;
 import com.deahtstroke.rivenbot.exception.ResourceNotFoundException;
 import java.util.Map;
 import java.util.Objects;
@@ -17,7 +16,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.core.ParameterizedTypeReference;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -104,9 +102,8 @@ public class BungieAPIService {
     return defaultBungieClient.getPublicMilestones()
         .flatMap(response -> {
           if (Objects.isNull(response) || Objects.isNull(response.getResponse())) {
-            return Mono.error(new InternalServerException(
-                "No available milestone data was available for processing",
-                HttpStatus.INTERNAL_SERVER_ERROR));
+            return Mono.error(new ResourceNotFoundException(
+                "No available milestone data was available for processing"));
           }
           return Mono.just(response.getResponse());
         });

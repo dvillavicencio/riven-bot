@@ -40,13 +40,11 @@ public class InteractionHandler {
    * @param request the incoming server request from Discord chat
    * @return {@link InteractionResponse}
    */
-  public Mono<ServerResponse> handle(ServerRequest request) {
+  public Mono<ServerResponse> resolveRequest(ServerRequest request) {
     return request.bodyToMono(Interaction.class)
         .flatMap(interaction -> {
           InteractionType interactionType = InteractionType.findByValue(interaction.getType());
-          Mono<InteractionResponse> interactionResponse = resolveResponse(interaction,
-              interactionType);
-          return interactionResponse
+          return resolveResponse(interaction, interactionType)
               .flatMap(response -> ServerResponse.ok().body(BodyInserters.fromValue(response)))
               .onErrorResume(BaseException.class,
                   error -> {
@@ -64,16 +62,19 @@ public class InteractionHandler {
     return switch (interactionType) {
       case MESSAGE_COMPONENT -> {
         String componentId = interaction.getData().getCustomId();
-        yield messageComponentFactory.handle(componentId).respond(interaction);
+        var handler = messageComponentFactory.getHandler(componentId);
+        yield handler.handle(interaction);
       }
       case MODAL_SUBMIT -> Mono.just(new InteractionResponse());
       case APPLICATION_COMMAND_AUTOCOMPLETE -> {
         SlashCommand command = SlashCommand.findByName(interaction.getData().getName());
-        yield autocompleteFactory.getHandler(command).autocomplete(interaction);
+        var handler = autocompleteFactory.getHandler(command);
+        yield handler.handle(interaction);
       }
       case APPLICATION_COMMAND -> {
         SlashCommand command = SlashCommand.findByName(interaction.getData().getName());
-        yield applicationCommandFactory.getHandler(command).resolve(interaction);
+        var handler = applicationCommandFactory.getHandler(command);
+        yield handler.resolve(interaction);
       }
       case PING -> Mono.just(InteractionResponse.PING());
     };

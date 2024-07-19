@@ -30,8 +30,11 @@ public class DiscordAPIService {
   public Mono<Void> editOriginalInteraction(String interactionToken, InteractionResponseData data) {
     Long applicationId = discordConfiguration.getApplicationId();
     return discordClient.editOriginalInteraction(applicationId, interactionToken, data)
-        .doOnSuccess(s -> log.info("Updating message with interaction token [{}] with data [{}]",
-            interactionToken, data));
+        .doOnSubscribe(s -> log.debug("Updating message with interaction token [{}] with data [{}]",
+            interactionToken, data))
+        .doOnSuccess(
+            s -> log.debug("Finished updating message with interaction token [{}] and data [{}]",
+                interactionToken, data));
   }
 
 }

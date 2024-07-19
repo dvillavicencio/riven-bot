@@ -105,10 +105,10 @@ public class BungieConfiguration {
    * @param builder The default WebClient.Builder defined in the main application
    * @return {@link BungieClient}
    */
-  @Bean(name = "pgcrBungieClient")
-  public BungieClient pgcrBungieClient(WebClient.Builder builder) {
+  @Bean
+  public WebClient pgcrWebClient(WebClient.Builder builder) {
     // Don't keep alive connections with Bungie.net
-    var webClient = builder
+    return builder
         .baseUrl(this.statsBaseUrl)
         .defaultHeader(API_KEY_HEADER_NAME, this.key)
         .defaultHeader(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
@@ -116,10 +116,6 @@ public class BungieConfiguration {
         .codecs(clientCodecConfigurer -> clientCodecConfigurer.defaultCodecs()
             .maxInMemorySize(1024 * 1024 * 10))
         .build();
-    return HttpServiceProxyFactory.builder()
-        .exchangeAdapter(WebClientAdapter.create(webClient))
-        .build()
-        .createClient(BungieClient.class);
   }
 
   @Bean(name = "userBungieClient")

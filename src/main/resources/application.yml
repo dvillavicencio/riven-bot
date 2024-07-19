@@ -44,7 +44,3 @@ cache:
   expirations:
     playersPrefixSearch: 5
     manifestEntity: 3600
-
-logging:
-  level:
-    web: debug

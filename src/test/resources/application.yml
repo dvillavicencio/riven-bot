@@ -1,9 +1,6 @@
 spring:
   main:
     web-application-type: reactive
-  data:
-    redis:
-      port: 6379
 
 bungie:
   api:
@@ -34,3 +31,9 @@ discord:
 
 wiremock:
   reset-mappings-after-each-test: true
+
+cache:
+  # in minutes
+  expirations:
+    playersPrefixSearch: 5
+    manifestEntity: 3600

@@ -18,4 +18,6 @@ public class ExactUserSearchResponse {
   private String membershipId;
 
   private String displayName;
+
+  private Boolean isPublic;
 }

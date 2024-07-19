@@ -3,7 +3,6 @@ package com.deahtstroke.rivenbot.enums;
 import lombok.Getter;
 
 public enum ActivityMode {
-
   STORY("story"),
   STRIKE("strike"),
   DUNGEON("dungeon"),

@@ -7,8 +7,6 @@ import com.deahtstroke.rivenbot.dto.destiny.ExactUserSearchResponse;
 import com.deahtstroke.rivenbot.dto.destiny.MemberGroupResponse;
 import com.deahtstroke.rivenbot.dto.destiny.MembershipResponse;
 import com.deahtstroke.rivenbot.dto.destiny.PostGameCarnageReport;
-import com.deahtstroke.rivenbot.dto.destiny.SearchResult;
-import com.deahtstroke.rivenbot.dto.destiny.UserGlobalSearchBody;
 import com.deahtstroke.rivenbot.dto.destiny.characters.CharactersResponse;
 import com.deahtstroke.rivenbot.dto.destiny.manifest.ManifestResponseFields;
 import com.deahtstroke.rivenbot.dto.destiny.milestone.MilestoneEntry;

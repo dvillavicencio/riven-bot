@@ -8,15 +8,17 @@ import org.springframework.stereotype.Component;
 @Component
 public class MessageComponentFactory implements MessageComponentHandler<MessageComponentSource> {
 
-  private final Map<String, MessageComponentSource> messageComponentFactory;
+  private static final String STATS_COMPREHENSION_ID = "raid_stats_comprehension";
+
+  private final Map<String, MessageComponentSource> componentFactory;
 
   public MessageComponentFactory(
       RaidStatsButtonHandler raidStatsButtonHandler) {
-    messageComponentFactory = Map.of("raid_stats_comprehension", raidStatsButtonHandler);
+    componentFactory = Map.of(STATS_COMPREHENSION_ID, raidStatsButtonHandler);
   }
 
   @Override
-  public MessageComponentSource handle(String componentId) {
-    return messageComponentFactory.get(componentId);
+  public MessageComponentSource getHandler(String componentId) {
+    return componentFactory.get(componentId);
   }
 }

@@ -161,7 +161,7 @@ public class InteractionControllerTest extends BaseIntegrationTest {
 
   @Test
   @DisplayName("get weekly dungeon works successfully")
-  public void getWeeklyDungeonWorksSuccessfully() throws JsonProcessingException, DecoderException {
+  void getWeeklyDungeonWorksSuccessfully() throws JsonProcessingException, DecoderException {
     // given: a weekly_dungeon interaction with a valid signature
     InteractionData weeklyDungeonData = InteractionData.builder()
         .id(2).name("weekly_dungeon").type(1)
@@ -236,7 +236,7 @@ public class InteractionControllerTest extends BaseIntegrationTest {
 
   @Test
   @DisplayName("get weekly raid works successfully")
-  public void getWeeklyRaidWorksSuccessfully() throws JsonProcessingException, DecoderException {
+  void getWeeklyRaidWorksSuccessfully() throws JsonProcessingException, DecoderException {
     // given: a weekly_raid interaction with a valid signature
     InteractionData weeklyRaidData = InteractionData.builder()
         .id(2).name("weekly_raid").type(1)
@@ -296,12 +296,13 @@ public class InteractionControllerTest extends BaseIntegrationTest {
             """
                 This week's raid is: Garden of Salvation.
                 You have until %s to complete it before the next raid comes along.
-                """.formatted(MessageUtils.formatDate(MessageUtils.NEXT_TUESDAY.toLocalDate())));
+                """.formatted(MessageUtils.formatDate(MessageUtils.NEXT_TUESDAY.toLocalDate())))
+        .consumeWith(System.out::println);
   }
 
   @Test
   @DisplayName("get weekly raid fails if no milestones are found")
-  public void getWeeklyRaidsShouldThrowErrors() throws JsonProcessingException, DecoderException {
+  void getWeeklyRaidsShouldThrowErrors() throws JsonProcessingException, DecoderException {
     // given: a weekly_raid interaction with a valid signature
     InteractionData weeklyRaidData = InteractionData.builder()
         .id(2).name("weekly_raid").type(1)
@@ -321,16 +322,16 @@ public class InteractionControllerTest extends BaseIntegrationTest {
 
     // then: the response JSON is correct
     response.expectStatus()
-        .is5xxServerError()
+        .is4xxClientError()
         .expectBody()
-        .jsonPath("$.status").isEqualTo(500)
+        .jsonPath("$.status").isEqualTo(404)
         .jsonPath("$.detail").isEqualTo("No available milestone data was available for processing")
         .returnResult();
   }
 
   @Test
   @DisplayName("Interactions fail if the signature is invalid")
-  public void invalidSignatureInteraction() throws JsonProcessingException, DecoderException {
+  void invalidSignatureInteraction() throws JsonProcessingException, DecoderException {
     // given: an interaction with an invalid signature
     InteractionData data = InteractionData.builder()
         .id(2)
@@ -365,7 +366,7 @@ public class InteractionControllerTest extends BaseIntegrationTest {
 
   @Test
   @DisplayName("PING interactions with valid signatures are ack'd correctly")
-  public void pingRequestsAreAckdCorrectly() throws JsonProcessingException, DecoderException {
+  void pingRequestsAreAckdCorrectly() throws JsonProcessingException, DecoderException {
     // given: an interaction with an invalid signature
     Interaction body = Interaction.builder().id(1L).applicationId("theApplicationId").type(1)
         .build();
@@ -382,7 +383,7 @@ public class InteractionControllerTest extends BaseIntegrationTest {
 
   @Test
   @DisplayName("PING interactions with invalid signatures are not ack'd")
-  public void invalidPingRequestsAreNotAckd() throws JsonProcessingException, DecoderException {
+  void invalidPingRequestsAreNotAckd() throws JsonProcessingException, DecoderException {
     // given: an interaction with an invalid signature
     Interaction body = Interaction.builder().id(1L)
         .applicationId("theApplicationId").type(1)

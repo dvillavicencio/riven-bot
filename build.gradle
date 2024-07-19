@@ -47,6 +47,9 @@ ext {
     set('resilienceRateLimiterVersion', '1.6.1')
     set('lokiLogbackAppenderVersion', '1.5.1')
     set('micrometerCoreVersion', '1.12.2')
+    set('apacheCommonsTextVersion', '1.9')
+    set('okHttpVersion', '4.12.0')
+    set('okHttpMockServerVersion', '4.12.0')
 }
 
 jar {
@@ -70,6 +73,7 @@ dependencies {
     implementation "org.aspectj:aspectjweaver:${aspectJWeaverVersion}"
     implementation "commons-codec:commons-codec:${commonsCodecVersion}"
     implementation "software.pando.crypto:salty-coffee:${pandoCryptoVersion}"
+    implementation "org.apache.commons:commons-text:${apacheCommonsTextVersion}"
     implementation "org.apache.commons:commons-collections4:${apacheCollectionsVersion}"
     implementation "com.github.loki4j:loki-logback-appender:${lokiLogbackAppenderVersion}"
     implementation "io.micrometer:micrometer-core:${micrometerCoreVersion}"
@@ -83,6 +87,8 @@ dependencies {
     testImplementation "io.projectreactor:reactor-test:${reactorTestVersion}"
     testImplementation "org.testcontainers:testcontainers:${testContainersVersion}"
     testImplementation "org.junit.jupiter:junit-jupiter-params:${junitJupiterParamsVersion}"
+    testImplementation "com.squareup.okhttp3:okhttp:${okHttpVersion}"
+    testImplementation "com.squareup.okhttp3:mockwebserver:${okHttpMockServerVersion}"
 }
 
 dependencyManagement {

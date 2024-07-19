@@ -40,21 +40,21 @@ import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
 @ExtendWith(MockitoExtension.class)
-public class UserRaidDetailsServiceTest {
+class UserRaidDetailsServiceTest {
 
   @Mock
   BungieAPIService bungieAPIService;
   @Mock
   UserDetailsRepository userDetailsRepository;
   @Mock
-  PostGameCarnageService postGameCarnageService;
+  PGCRService postGameCarnageService;
 
   @InjectMocks
-  UserRaidDetailsService sut;
+  UserDetailsService sut;
 
   @Test
   @DisplayName("Get all activities works successfully for characters with only one page")
-  public void getUserActivitiesSuccess() {
+  void getUserActivitiesSuccess() {
     // given: membershipType, membershipId, and characterId
     Integer membershipType = 3;
     String membershipId = "1389012";
@@ -98,7 +98,7 @@ public class UserRaidDetailsServiceTest {
 
   @Test
   @DisplayName("Get all activities works successfully for characters with more than one page")
-  public void getUserActivitiesMoreThanOnePageSuccess() {
+  void getUserActivitiesMoreThanOnePageSuccess() {
     // given: membershipType, membershipId, and characterId
     Integer membershipType = 3;
     String membershipId = "1389012";
@@ -155,7 +155,7 @@ public class UserRaidDetailsServiceTest {
 
   @Test
   @DisplayName("Get all activities returns an empty list for characters with no raids")
-  public void getUserActivitiesEmptyActivityHistorySuccess() {
+  void getUserActivitiesEmptyActivityHistorySuccess() {
     // given: membershipType, membershipId, and characterId
     Integer membershipType = 3;
     String membershipId = "1389012";
@@ -180,10 +180,10 @@ public class UserRaidDetailsServiceTest {
 
   @Test
   @DisplayName("Create action for a new user is successful")
-  public void createUserRaidDetailsIsSuccessful() {
+  void createUserRaidDetailsIsSuccessful() {
     // given: parsed data for user details
     String username = "Deaht";
-    int userTag = 8080;
+    String userTag = "8080";
     String membershipId = "12345";
     Integer membershipType = 3;
     String userId = username + "#" + userTag;
@@ -237,7 +237,7 @@ public class UserRaidDetailsServiceTest {
           .filter(raid -> raid.getInstanceId() == 789124L)
           .findFirst().orElse(null);
 
-      assertThat(ud.getUserIdentifier()).isEqualTo(userId);
+      assertThat(ud.getId()).isEqualTo(userId);
       assertThat(ud.getLastRequestDateTime()).isEqualTo(creationInstant);
       assertThat(ud.getUserRaidDetails().size()).isEqualTo(5);
       assertThat(lastWish.getRaidName()).isEqualTo("Last Wish");
@@ -252,7 +252,7 @@ public class UserRaidDetailsServiceTest {
 
     // when: create user details is called
     var response = StepVerifier.create(
-        sut.createUserDetails(creationInstant, userId, membershipId, membershipType));
+        sut.createUserDetails(creationInstant, userId, userTag, membershipId, membershipType));
 
     // then: the saved entity is saved correctly
     response.verifyComplete();
@@ -266,10 +266,10 @@ public class UserRaidDetailsServiceTest {
 
   @Test
   @DisplayName("Raids missing attributes such as deaths, kills, etc. should be defaulted to zero")
-  public void createUserDetailsRaidStatsDefaultValues() {
+  void createUserDetailsRaidStatsDefaultValues() {
     // given: parsed data for user details
     String username = "Deaht";
-    int userTag = 8080;
+    String userTag = "8080";
     String membershipId = "12345";
     Integer membershipType = 3;
     String userId = username + "#" + userTag;
@@ -315,7 +315,7 @@ public class UserRaidDetailsServiceTest {
           .filter(raid -> raid.getInstanceId() == 789124L)
           .findFirst().orElse(null);
 
-      assertThat(ud.getUserIdentifier()).isEqualTo(userId);
+      assertThat(ud.getId()).isEqualTo(userId);
       assertThat(ud.getLastRequestDateTime()).isEqualTo(creationInstant);
       assertThat(ud.getUserRaidDetails().size()).isEqualTo(5);
       assertThat(lastWish.getRaidName()).isEqualTo("Last Wish");
@@ -330,7 +330,7 @@ public class UserRaidDetailsServiceTest {
 
     // when: create user details is called
     var response = StepVerifier.create(
-        sut.createUserDetails(creationInstant, userId, membershipId, membershipType));
+        sut.createUserDetails(creationInstant, userId, userTag, membershipId, membershipType));
 
     // then: the saved entity is saved correctly
     response.verifyComplete();
@@ -344,7 +344,7 @@ public class UserRaidDetailsServiceTest {
 
   @Test
   @DisplayName("Get all characters activities until works for updating user raid details")
-  public void getCharacterActivitiesUntil() {
+  void getCharacterActivitiesUntil() {
     // given: membershipType, membershipId, characterId, and a timestamp
     Integer membershipType = 3;
     String membershipId = "SomeId";
@@ -382,7 +382,7 @@ public class UserRaidDetailsServiceTest {
 
   @Test
   @DisplayName("Get all characters activities until works for more than one page of information")
-  public void getCharacterActivitiesUntilVariousPages() {
+  void getCharacterActivitiesUntilVariousPages() {
     // given: membershipType, membershipId, characterId, and a timestamp
     Integer membershipType = 3;
     String membershipId = "SomeId";
@@ -444,7 +444,7 @@ public class UserRaidDetailsServiceTest {
 
   @Test
   @DisplayName("Get activities until works when there's no new activities for a user")
-  public void getCharacter() {
+  void getCharacter() {
     // given: membershipType, membershipId, characterId, and a timestamp
     Integer membershipType = 3;
     String membershipId = "SomeId";
@@ -489,10 +489,10 @@ public class UserRaidDetailsServiceTest {
 
   @Test
   @DisplayName("Update action is successful for updating user raids with latest information")
-  public void updateActionSuccessful() {
+  void updateActionSuccessful() {
     // given: the timestamp this action was triggered and parsed user data
     String username = "Deaht";
-    int userTag = 8080;
+    String userTag = "8080";
     String membershipId = "12345";
     Integer membershipType = 3;
     String clanName = "Legends of Honor";
@@ -514,8 +514,10 @@ public class UserRaidDetailsServiceTest {
             333, true, 4L));
 
     // Last time this user was searched for was three days ago
-    UserDetails existingUser = new UserDetails(userId, clanName, threeDaysAgo, existingData);
-    when(userDetailsRepository.findById(userId)).thenReturn(Mono.just(existingUser));
+    UserDetails existingUser = new UserDetails(userId, username, userTag, clanName, threeDaysAgo,
+        existingData);
+    when(userDetailsRepository.findUserDetailsByUsernameAndUserTag(username, userTag)).thenReturn(
+        Mono.just(existingUser));
 
     Map<String, UserCharacter> data = Map.of("1", new UserCharacter());
     when(bungieAPIService.getUserCharacters(membershipType, membershipId))
@@ -556,7 +558,7 @@ public class UserRaidDetailsServiceTest {
           .filter(raid -> raid.getInstanceId() == 5L)
           .findFirst().orElse(null);
 
-      assertThat(ud.getUserIdentifier()).isEqualTo(userId);
+      assertThat(ud.getId()).isEqualTo(userId);
       assertThat(ud.getLastRequestDateTime()).isEqualTo(updatedInstant);
       assertThat(ud.getDestinyClanName()).isEqualTo(clanName);
       assertThat(ud.getUserRaidDetails().size()).isEqualTo(5);
@@ -570,7 +572,7 @@ public class UserRaidDetailsServiceTest {
 
     // when: create user details is called
     var response = StepVerifier.create(
-        sut.updateUserDetails(updatedInstant, userId, membershipId, membershipType));
+        sut.updateUserDetails(updatedInstant, username, userTag, membershipId, membershipType));
 
     // then: the saved entity is saved correctly
     response.verifyComplete();

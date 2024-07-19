@@ -48,7 +48,7 @@ class InteractionHandlerTest {
     InteractionHandler handler = new InteractionHandler(applicationCommandFactory,
         autocompleteFactory, messageComponentFactory);
     RouterFunction<?> route = RouterFunctions.route()
-        .route(POST("/interactions"), handler::handle).build();
+        .route(POST("/interactions"), handler::resolveRequest).build();
     webTestClient = WebTestClient.bindToRouterFunction(route).build();
   }
 
