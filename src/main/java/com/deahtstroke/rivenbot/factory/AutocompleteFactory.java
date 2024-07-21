@@ -1,7 +1,7 @@
 package com.deahtstroke.rivenbot.factory;
 
 import com.deahtstroke.rivenbot.enums.SlashCommand;
-import com.deahtstroke.rivenbot.exception.ResourceNotFoundException;
+import com.deahtstroke.rivenbot.exception.NoSuchHandlerException;
 import com.deahtstroke.rivenbot.handler.AutocompleteSource;
 import com.deahtstroke.rivenbot.handler.RaidStatsHandler;
 import java.util.Map;
@@ -20,10 +20,10 @@ public class AutocompleteFactory implements SlashCommandHandler<AutocompleteSour
   }
 
   @Override
-  public AutocompleteSource getHandler(SlashCommand command) {
+  public AutocompleteSource getHandler(SlashCommand command) throws NoSuchHandlerException {
     AutocompleteSource creator = autocompleteMap.get(command);
     if (Objects.isNull(creator)) {
-      throw new ResourceNotFoundException(
+      throw new NoSuchHandlerException(
           "No message creator found for command [%s]".formatted(command));
     }
     return creator;

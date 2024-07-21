@@ -43,11 +43,11 @@ public class RaidStatsService {
   private static final String FROM_BEGINNING = "userRaidDetails.fromBeginning";
   private static final ZoneId AMERICA_LOS_ANGELES = ZoneId.of("America/Los_Angeles");
   private final UserDetailsRepository userDetailsRepository;
-  private final UserDetailsService userRaidDetailsService;
+  private final PlayerRaidDetailsService userRaidDetailsService;
   private final ReactiveMongoTemplate reactiveMongoTemplate;
 
   public RaidStatsService(
-      UserDetailsService userRaidDetailsService,
+      PlayerRaidDetailsService userRaidDetailsService,
       ReactiveMongoTemplate reactiveMongoTemplate,
       UserDetailsRepository userDetailsRepository) {
     this.userRaidDetailsService = userRaidDetailsService;

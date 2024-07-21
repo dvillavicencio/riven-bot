@@ -49,7 +49,4 @@ public class InteractionData {
    * List of resolved values for a select menu option by a user
    */
   private List<String> values;
-
-  private ResolvedData resolved;
-
 }

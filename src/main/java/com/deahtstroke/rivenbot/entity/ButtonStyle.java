@@ -6,8 +6,7 @@ public enum ButtonStyle {
   BLURPLE(1),
   GREY(2),
   GREEN(3),
-  RED(4),
-  LINK(5);
+  RED(4);
 
   @Getter
   private final int buttonValue;

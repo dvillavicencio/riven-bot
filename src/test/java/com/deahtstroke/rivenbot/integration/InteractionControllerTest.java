@@ -54,7 +54,8 @@ public class InteractionControllerTest extends BaseIntegrationTest {
   /**
    * This method replaces all the placeholder values in the milestones-response.json file The reason
    * for this is that the /weekly_raid and /weekly_dungeon responses will be weird if the dates are
-   * not dynamic, therefore this method
+   * not dynamic, therefore this method was created so that the file is dynamically changed every
+   * day
    *
    * @throws IOException in case we are not able to write back to the file (in-place)
    */

@@ -14,6 +14,7 @@ import com.deahtstroke.rivenbot.dto.destiny.MembershipResponse;
 import com.deahtstroke.rivenbot.dto.discord.EmbeddedField;
 import com.deahtstroke.rivenbot.entity.ButtonStyle;
 import com.deahtstroke.rivenbot.entity.RaidStatistics;
+import com.deahtstroke.rivenbot.enums.MessageComponentId;
 import com.deahtstroke.rivenbot.processor.AsyncRaidsProcessor;
 import com.deahtstroke.rivenbot.service.DiscordAPIService;
 import com.deahtstroke.rivenbot.service.RaidStatsService;
@@ -105,7 +106,8 @@ class AsyncRaidsProcessorTest {
       assertThat(button.getStyle()).isEqualTo(ButtonStyle.BLURPLE.getButtonValue());
       assertThat(button.getLabel()).isEqualTo("What is this?");
       assertThat(button.getType()).isEqualTo(2);
-      assertThat(button.getCustomId()).isEqualTo("raid_stats_comprehension");
+      assertThat(button.getCustomId()).isEqualTo(
+          MessageComponentId.RAID_STATS_COMPREHENSION.getId());
     }))).thenReturn(Mono.empty());
 
     // when: process raids async is called
@@ -169,4 +171,51 @@ class AsyncRaidsProcessorTest {
     StepVerifier.create(sut.processRaidsAsync(username, userTag, continuationToken))
         .verifyComplete();
   }
+
+  @Test
+  @DisplayName("Should fail gracefully when raid statistics return an empty map")
+  void shouldFailGracefullyWhenRaidStatisticsAreEmpty() {
+    // given: a username, user tag and continuation token
+    String username = "Deaht";
+    String userTag = "5718";
+    String continuationToken = "123123120319204109i32312";
+
+    Integer membershipType = 1;
+    String membershipId = "123812012012";
+
+    String profilePicPath = "/some/profile/pic/path";
+
+    List<ExactUserSearchResponse> userResults = List.of(
+        new ExactUserSearchResponse(username, Integer.parseInt(userTag), membershipType,
+            membershipId, userTag, true)
+    );
+
+    MembershipResponse membershipResponse = new MembershipResponse(null, null,
+        new BungieNetMembership(membershipId, username + "#" + userTag, username, false, "en_US",
+            profilePicPath));
+
+    when(bungieClient.searchUserByExactNameAndCode(assertArg(ex -> {
+      assertThat(ex.getDisplayName()).isEqualTo(username);
+      assertThat(ex.getDisplayNameCode()).isEqualTo(userTag);
+    }))).thenReturn(Mono.just(BungieResponse.of(userResults)));
+
+    when(bungieClient.getMembershipInfoById(membershipId, membershipType))
+        .thenReturn(Mono.just(BungieResponse.of(membershipResponse)));
+
+    when(raidStatsService.calculateRaidStats(username, userTag, membershipId, membershipType))
+        .thenReturn(Flux.empty());
+
+    when(discordAPIService.editOriginalInteraction(eq(continuationToken), assertArg(data -> {
+      assertThat(data.getContent()).isEqualTo("""
+          Huh... It seems as if %s does not have any raids completed, either this or something went wrong when retrieving the data.\
+          If you are sure this is a bug be sure to let one of the developers know!""".formatted(
+          username + "#" + userTag));
+    }))).thenReturn(Mono.empty());
+
+    // when: process raids is called
+    // then: an error message is both logged and sent to discord chat with the details
+    StepVerifier.create(sut.processRaidsAsync(username, userTag, continuationToken))
+        .verifyComplete();
+  }
+
 }

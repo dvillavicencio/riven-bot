@@ -1,7 +1,7 @@
 package com.deahtstroke.rivenbot.factory;
 
 import com.deahtstroke.rivenbot.enums.SlashCommand;
-import com.deahtstroke.rivenbot.exception.ResourceNotFoundException;
+import com.deahtstroke.rivenbot.exception.NoSuchHandlerException;
 import com.deahtstroke.rivenbot.handler.ApplicationCommandSource;
 import com.deahtstroke.rivenbot.handler.RaidStatsHandler;
 import com.deahtstroke.rivenbot.handler.WeeklyDungeonHandler;
@@ -33,7 +33,7 @@ public class ApplicationCommandFactory implements SlashCommandHandler<Applicatio
   public ApplicationCommandSource getHandler(SlashCommand command) {
     ApplicationCommandSource creator = messageFactory.get(command);
     if (Objects.isNull(creator)) {
-      throw new ResourceNotFoundException(
+      throw new NoSuchHandlerException(
           "No message creator found for command [%s]".formatted(command));
     }
     return creator;

@@ -22,7 +22,7 @@ import reactor.core.publisher.Mono;
 
 @Service
 @Slf4j
-public class UserDetailsService {
+public class PlayerRaidDetailsService {
 
   private static final Integer MAX_SANE_AMOUNT_OF_RAID_PAGES = 50;
   private static final Integer MAX_PAGE_COUNT = 250;
@@ -35,7 +35,7 @@ public class UserDetailsService {
   private final PGCRService postGameCarnageService;
   private final BungieAPIService bungieAPIService;
 
-  public UserDetailsService(
+  public PlayerRaidDetailsService(
       UserDetailsRepository userDetailsRepository,
       PGCRService postGameCarnageService,
       BungieAPIService bungieAPIService) {

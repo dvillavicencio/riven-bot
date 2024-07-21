@@ -3,7 +3,6 @@ package com.deahtstroke.rivenbot.service;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
-import static org.mockito.ArgumentMatchers.assertArg;
 import static org.mockito.Mockito.atMost;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -33,6 +32,7 @@ import java.util.Map;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -50,7 +50,7 @@ class UserRaidDetailsServiceTest {
   PGCRService postGameCarnageService;
 
   @InjectMocks
-  UserDetailsService sut;
+  PlayerRaidDetailsService sut;
 
   @Test
   @DisplayName("Get all activities works successfully for characters with only one page")
@@ -86,7 +86,7 @@ class UserRaidDetailsServiceTest {
     StepVerifier.create(response.collectList())
         .assertNext(list -> {
           assertThat(list).isNotNull();
-          assertThat(list.size()).isEqualTo(249);
+          assertThat(list).hasSize(249);
         }).verifyComplete();
 
     // and: the bungie API calls is only one
@@ -141,7 +141,7 @@ class UserRaidDetailsServiceTest {
     StepVerifier.create(response.collectList())
         .assertNext(list -> {
           assertThat(list).isNotNull();
-          assertThat(list.size()).isEqualTo(499);
+          assertThat(list).hasSize(499);
         }).verifyComplete();
 
     // and: there's two Bungie API calls
@@ -186,8 +186,10 @@ class UserRaidDetailsServiceTest {
     String userTag = "8080";
     String membershipId = "12345";
     Integer membershipType = 3;
-    String userId = username + "#" + userTag;
+
     Instant creationInstant = Instant.now();
+
+    ArgumentCaptor<UserDetails> argumentCaptor = ArgumentCaptor.forClass(UserDetails.class);
 
     Map<String, UserCharacter> data = Map.of("1", new UserCharacter());
     when(bungieAPIService.getUserCharacters(membershipType, membershipId))
@@ -228,31 +230,12 @@ class UserRaidDetailsServiceTest {
     when(postGameCarnageService.retrievePGCR(any(Long.class)))
         .thenReturn(Mono.just((pgcr)));
 
-    when(userDetailsRepository.save(assertArg(ud -> {
-      UserRaidDetails lastWish = ud.getUserRaidDetails().stream()
-          .filter(raid -> raid.getInstanceId() == 789120L)
-          .findFirst().orElse(null);
-
-      UserRaidDetails kingsFall = ud.getUserRaidDetails().stream()
-          .filter(raid -> raid.getInstanceId() == 789124L)
-          .findFirst().orElse(null);
-
-      assertThat(ud.getId()).isEqualTo(userId);
-      assertThat(ud.getLastRequestDateTime()).isEqualTo(creationInstant);
-      assertThat(ud.getUserRaidDetails().size()).isEqualTo(5);
-      assertThat(lastWish.getRaidName()).isEqualTo("Last Wish");
-      assertThat(lastWish.getRaidDifficulty()).isNull();
-      assertThat(lastWish.getIsCompleted()).isTrue();
-      assertThat(lastWish.getTotalKills()).isEqualTo(134);
-      assertThat(lastWish.getTotalDeaths()).isEqualTo(0);
-      assertThat(lastWish.getDurationSeconds()).isEqualTo(3600);
-      assertThat(kingsFall.getRaidName()).isEqualTo("King's Fall");
-      assertThat(kingsFall.getRaidDifficulty()).isEqualTo(RaidDifficulty.MASTER);
-    }))).thenReturn(Mono.empty());
+    when(userDetailsRepository.save(any(UserDetails.class)))
+        .thenReturn(Mono.empty());
 
     // when: create user details is called
     var response = StepVerifier.create(
-        sut.createUserDetails(creationInstant, userId, userTag, membershipId, membershipType));
+        sut.createUserDetails(creationInstant, username, userTag, membershipId, membershipType));
 
     // then: the saved entity is saved correctly
     response.verifyComplete();
@@ -261,7 +244,33 @@ class UserRaidDetailsServiceTest {
     verify(bungieAPIService, times(1)).getUserCharacters(membershipType, membershipId);
     verify(bungieAPIService, times(5)).getManifestEntity(any(), anyLong());
     verify(postGameCarnageService, atMost(5)).retrievePGCR(anyLong());
-    verify(userDetailsRepository, times(1)).save(any());
+    verify(userDetailsRepository, times(1)).save(argumentCaptor.capture());
+
+    UserDetails userDetails = argumentCaptor.getValue();
+    UserRaidDetails lastWish = userDetails.getUserRaidDetails().stream()
+        .filter(raid -> raid.getInstanceId() == 789120L)
+        .findFirst().orElse(null);
+
+    UserRaidDetails kingsFall = userDetails.getUserRaidDetails().stream()
+        .filter(raid -> raid.getInstanceId() == 789124L)
+        .findFirst().orElse(null);
+
+    assertThat(userDetails.getUsername()).isEqualTo(username);
+    assertThat(userDetails.getUserTag()).isEqualTo(userTag);
+    assertThat(userDetails.getLastRequestDateTime()).isEqualTo(creationInstant);
+    assertThat(userDetails.getUserRaidDetails()).hasSize(5);
+
+    assertThat(lastWish).isNotNull();
+    assertThat(lastWish.getRaidName()).isEqualTo("Last Wish");
+    assertThat(lastWish.getRaidDifficulty()).isNull();
+    assertThat(lastWish.getIsCompleted()).isTrue();
+    assertThat(lastWish.getTotalKills()).isEqualTo(134);
+    assertThat(lastWish.getTotalDeaths()).isZero();
+    assertThat(lastWish.getDurationSeconds()).isEqualTo(3600);
+
+    assertThat(kingsFall).isNotNull();
+    assertThat(kingsFall.getRaidName()).isEqualTo("King's Fall");
+    assertThat(kingsFall.getRaidDifficulty()).isEqualTo(RaidDifficulty.MASTER);
   }
 
   @Test
@@ -272,7 +281,8 @@ class UserRaidDetailsServiceTest {
     String userTag = "8080";
     String membershipId = "12345";
     Integer membershipType = 3;
-    String userId = username + "#" + userTag;
+    ArgumentCaptor<UserDetails> userDetailsArgumentCaptor = ArgumentCaptor.forClass(
+        UserDetails.class);
     Instant creationInstant = Instant.now();
 
     Map<String, UserCharacter> data = Map.of("1", new UserCharacter());
@@ -306,31 +316,11 @@ class UserRaidDetailsServiceTest {
     when(postGameCarnageService.retrievePGCR(any(Long.class)))
         .thenReturn(Mono.just((pgcr)));
 
-    when(userDetailsRepository.save(assertArg(ud -> {
-      UserRaidDetails lastWish = ud.getUserRaidDetails().stream()
-          .filter(raid -> raid.getInstanceId() == 789120L)
-          .findFirst().orElse(null);
-
-      UserRaidDetails kingsFall = ud.getUserRaidDetails().stream()
-          .filter(raid -> raid.getInstanceId() == 789124L)
-          .findFirst().orElse(null);
-
-      assertThat(ud.getId()).isEqualTo(userId);
-      assertThat(ud.getLastRequestDateTime()).isEqualTo(creationInstant);
-      assertThat(ud.getUserRaidDetails().size()).isEqualTo(5);
-      assertThat(lastWish.getRaidName()).isEqualTo("Last Wish");
-      assertThat(lastWish.getRaidDifficulty()).isNull();
-      assertThat(lastWish.getIsCompleted()).isFalse();
-      assertThat(lastWish.getTotalKills()).isEqualTo(0);
-      assertThat(lastWish.getTotalDeaths()).isEqualTo(0);
-      assertThat(lastWish.getDurationSeconds()).isEqualTo(0);
-      assertThat(kingsFall.getRaidName()).isEqualTo("King's Fall");
-      assertThat(kingsFall.getRaidDifficulty()).isEqualTo(RaidDifficulty.MASTER);
-    }))).thenReturn(Mono.empty());
+    when(userDetailsRepository.save(any(UserDetails.class))).thenReturn(Mono.empty());
 
     // when: create user details is called
     var response = StepVerifier.create(
-        sut.createUserDetails(creationInstant, userId, userTag, membershipId, membershipType));
+        sut.createUserDetails(creationInstant, username, userTag, membershipId, membershipType));
 
     // then: the saved entity is saved correctly
     response.verifyComplete();
@@ -339,7 +329,33 @@ class UserRaidDetailsServiceTest {
     verify(bungieAPIService, times(1)).getUserCharacters(membershipType, membershipId);
     verify(bungieAPIService, times(5)).getManifestEntity(any(), anyLong());
     verify(postGameCarnageService, atMost(5)).retrievePGCR(anyLong());
-    verify(userDetailsRepository, times(1)).save(any());
+    verify(userDetailsRepository, times(1)).save(userDetailsArgumentCaptor.capture());
+
+    UserDetails userDetails = userDetailsArgumentCaptor.getValue();
+    UserRaidDetails lastWish = userDetails.getUserRaidDetails().stream()
+        .filter(raid -> raid.getInstanceId() == 789120L)
+        .findFirst().orElse(null);
+
+    UserRaidDetails kingsFall = userDetails.getUserRaidDetails().stream()
+        .filter(raid -> raid.getInstanceId() == 789124L)
+        .findFirst().orElse(null);
+
+    assertThat(userDetails.getUsername()).isEqualTo(username);
+    assertThat(userDetails.getUserTag()).isEqualTo(userTag);
+    assertThat(userDetails.getLastRequestDateTime()).isEqualTo(creationInstant);
+    assertThat(userDetails.getUserRaidDetails()).hasSize(5);
+
+    assertThat(lastWish).isNotNull();
+    assertThat(lastWish.getRaidName()).isEqualTo("Last Wish");
+    assertThat(lastWish.getRaidDifficulty()).isNull();
+    assertThat(lastWish.getIsCompleted()).isFalse();
+    assertThat(lastWish.getTotalKills()).isZero();
+    assertThat(lastWish.getTotalDeaths()).isZero();
+    assertThat(lastWish.getDurationSeconds()).isZero();
+
+    assertThat(kingsFall).isNotNull();
+    assertThat(kingsFall.getRaidName()).isEqualTo("King's Fall");
+    assertThat(kingsFall.getRaidDifficulty()).isEqualTo(RaidDifficulty.MASTER);
   }
 
   @Test
@@ -375,9 +391,8 @@ class UserRaidDetailsServiceTest {
 
     // then: we only get the 25 most-recent activities
     StepVerifier.create(response.collectList())
-        .assertNext(list -> {
-          assertThat(list.size()).isEqualTo(25);
-        }).verifyComplete();
+        .assertNext(list -> assertThat(list).hasSize(25))
+        .verifyComplete();
   }
 
   @Test
@@ -428,7 +443,7 @@ class UserRaidDetailsServiceTest {
     StepVerifier.create(response.collectList())
         .assertNext(list -> {
           assertThat(list).isNotNull();
-          assertThat(list.size()).isEqualTo(300);
+          assertThat(list).hasSize(300);
           assertThat(
               list.stream().allMatch(activity -> activity.getPeriod().isAfter(timestamp))).isTrue();
         }).verifyComplete();
@@ -477,7 +492,7 @@ class UserRaidDetailsServiceTest {
     StepVerifier.create(response.collectList())
         .assertNext(list -> {
           assertThat(list).isNotNull();
-          assertThat(list.size()).isEqualTo(0);
+          assertThat(list).isEmpty();
         }).verifyComplete();
 
     // and: verify that the activities endpoint was called for only the first page
@@ -498,6 +513,8 @@ class UserRaidDetailsServiceTest {
     String clanName = "Legends of Honor";
     String userId = username + "#" + userTag;
     var updatedInstant = Instant.now();
+
+    ArgumentCaptor<UserDetails> argumentCaptor = ArgumentCaptor.forClass(UserDetails.class);
 
     var threeDaysAgo = LocalDate.now().minusDays(3).atStartOfDay().toInstant(ZoneOffset.UTC);
     List<UserRaidDetails> existingData = new ArrayList<>();
@@ -553,22 +570,7 @@ class UserRaidDetailsServiceTest {
     when(postGameCarnageService.retrievePGCR(any(Long.class)))
         .thenReturn(Mono.just((pgcr)));
 
-    when(userDetailsRepository.save(assertArg(ud -> {
-      UserRaidDetails lastWish = ud.getUserRaidDetails().stream()
-          .filter(raid -> raid.getInstanceId() == 5L)
-          .findFirst().orElse(null);
-
-      assertThat(ud.getId()).isEqualTo(userId);
-      assertThat(ud.getLastRequestDateTime()).isEqualTo(updatedInstant);
-      assertThat(ud.getDestinyClanName()).isEqualTo(clanName);
-      assertThat(ud.getUserRaidDetails().size()).isEqualTo(5);
-      assertThat(lastWish.getRaidName()).isEqualTo("Last Wish");
-      assertThat(lastWish.getRaidDifficulty()).isNull();
-      assertThat(lastWish.getIsCompleted()).isTrue();
-      assertThat(lastWish.getTotalKills()).isEqualTo(134);
-      assertThat(lastWish.getTotalDeaths()).isEqualTo(0);
-      assertThat(lastWish.getDurationSeconds()).isEqualTo(3600);
-    }))).thenReturn(Mono.empty());
+    when(userDetailsRepository.save(any(UserDetails.class))).thenReturn(Mono.empty());
 
     // when: create user details is called
     var response = StepVerifier.create(
@@ -581,6 +583,27 @@ class UserRaidDetailsServiceTest {
     verify(bungieAPIService, times(1)).getUserCharacters(membershipType, membershipId);
     verify(bungieAPIService, times(1)).getManifestEntity(any(), anyLong());
     verify(postGameCarnageService, atMost(1)).retrievePGCR(anyLong());
-    verify(userDetailsRepository, times(1)).save(any());
+    verify(userDetailsRepository, times(1)).save(argumentCaptor.capture());
+
+    // and: the user details passed to save() are correct
+    UserDetails userDetails = argumentCaptor.getValue();
+    UserRaidDetails lastWish = userDetails.getUserRaidDetails().stream()
+        .filter(raid -> raid.getInstanceId() == 5L)
+        .findFirst().orElse(null);
+
+    assertThat(userDetails.getId()).isEqualTo(userId);
+    assertThat(userDetails.getLastRequestDateTime()).isEqualTo(updatedInstant);
+    assertThat(userDetails.getDestinyClanName()).isEqualTo(clanName);
+    assertThat(userDetails.getUserRaidDetails()).hasSize(5);
+
+    assertThat(lastWish).isNotNull();
+    assertThat(lastWish.getRaidName()).isEqualTo("Last Wish");
+    assertThat(lastWish.getRaidDifficulty()).isNull();
+    assertThat(lastWish.getIsCompleted()).isTrue();
+    assertThat(lastWish.getTotalKills()).isEqualTo(134);
+
+    assertThat(lastWish).isNotNull();
+    assertThat(lastWish.getTotalDeaths()).isZero();
+    assertThat(lastWish.getDurationSeconds()).isEqualTo(3600);
   }
 }

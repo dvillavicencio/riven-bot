@@ -13,8 +13,10 @@ import com.deahtstroke.rivenbot.dto.discord.EmbeddedThumbnail;
 import com.deahtstroke.rivenbot.dto.discord.InteractionResponseData;
 import com.deahtstroke.rivenbot.entity.ButtonStyle;
 import com.deahtstroke.rivenbot.entity.RaidStatistics;
+import com.deahtstroke.rivenbot.enums.MessageComponentId;
 import com.deahtstroke.rivenbot.exception.BaseDiscordChatException;
 import com.deahtstroke.rivenbot.exception.MembershipsNotFoundException;
+import com.deahtstroke.rivenbot.exception.NoRaidDataFoundException;
 import com.deahtstroke.rivenbot.exception.ProfileNotPublicException;
 import com.deahtstroke.rivenbot.service.DiscordAPIService;
 import com.deahtstroke.rivenbot.service.RaidStatsService;
@@ -103,17 +105,17 @@ public class AsyncRaidsProcessor {
     return defaultBungieClient.searchUserByExactNameAndCode(
             new ExactUserSearchRequest(username, userTag))
         .filter(response -> CollectionUtils.isNotEmpty(response.getResponse()))
-        .switchIfEmpty(Mono.deferContextual(ctx -> Mono.error(new MembershipsNotFoundException(
+        .switchIfEmpty(Mono.error(new MembershipsNotFoundException(
             "User [%s] does not have any valid Destiny 2 memberships".formatted(displayUsername),
             "User %s has no valid Destiny 2 memberships! Please contact someone from the Dev Team in order to solve this issue or try again later"
-                .formatted(displayUsername)))))
+                .formatted(displayUsername))))
         .flatMap(response -> {
           ExactUserSearchResponse firstResponse = response.getResponse().getFirst();
           if (Boolean.FALSE.equals(firstResponse.getIsPublic())) {
-            return Mono.deferContextual(ctx -> Mono.error(new ProfileNotPublicException(
+            return Mono.error(new ProfileNotPublicException(
                 "The Bungie.net profile for user [%s] is set to private".formatted(displayUsername),
                 "Oh no! Seems that %s has their privacy settings turned on, therefore we cannot access their stuff right now. Sorry about that."
-                    .formatted(displayUsername))));
+                    .formatted(displayUsername)));
           }
           String membershipId = firstResponse.getMembershipId();
           Integer membershipType = firstResponse.getMembershipType();
@@ -126,10 +128,10 @@ public class AsyncRaidsProcessor {
                 return InteractionResponseData.builder()
                     .embeds(MessageComponents.embeds(
                         createEmbed(displayUsername, usernameIcon, fields)))
-                    .components(MessageComponents.builder()
+                    .components(MessageComponents.components()
                         .addActionRow(MessageComponents.actionRow()
-                            .button(RAID_COMPREHENSION_BUTTON_ID, "What is this?",
-                                ButtonStyle.BLURPLE))
+                            .button(MessageComponentId.RAID_STATS_COMPREHENSION.getId(),
+                                "What is this?", ButtonStyle.BLURPLE))
                         .build())
                     .build();
               });
@@ -144,6 +146,12 @@ public class AsyncRaidsProcessor {
   private Mono<List<EmbeddedField>> createEmbedFields(String username, String userTag,
       String membershipId, Integer membershipType) {
     return raidStatsService.calculateRaidStats(username, userTag, membershipId, membershipType)
+        .switchIfEmpty(Mono.error(new NoRaidDataFoundException(
+            "User [%s] has no raid data available".formatted(username + HASHTAG + userTag), """
+            Huh... It seems as if %s does not have any raids completed, either this or something went wrong when retrieving the data.\
+            If you are sure this is a bug be sure to let one of the developers know!""".formatted(
+            username + HASHTAG + userTag)
+        )))
         .collectMap(RaidStatistics::getRaidName)
         .flatMapIterable(Map::entrySet)
         .map(MessageComponents::createField)

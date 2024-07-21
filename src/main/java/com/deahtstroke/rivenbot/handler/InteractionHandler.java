@@ -3,6 +3,7 @@ package com.deahtstroke.rivenbot.handler;
 import com.deahtstroke.rivenbot.dto.discord.Interaction;
 import com.deahtstroke.rivenbot.dto.discord.InteractionResponse;
 import com.deahtstroke.rivenbot.enums.InteractionType;
+import com.deahtstroke.rivenbot.enums.MessageComponentId;
 import com.deahtstroke.rivenbot.enums.SlashCommand;
 import com.deahtstroke.rivenbot.exception.BaseException;
 import com.deahtstroke.rivenbot.factory.ApplicationCommandFactory;
@@ -61,7 +62,8 @@ public class InteractionHandler {
       InteractionType interactionType) {
     return switch (interactionType) {
       case MESSAGE_COMPONENT -> {
-        String componentId = interaction.getData().getCustomId();
+        MessageComponentId componentId = MessageComponentId.findById(
+            interaction.getData().getCustomId());
         var handler = messageComponentFactory.getHandler(componentId);
         yield handler.handle(interaction);
       }

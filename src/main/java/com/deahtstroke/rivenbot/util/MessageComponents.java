@@ -13,21 +13,18 @@ import com.deahtstroke.rivenbot.dto.discord.EmbeddedField;
 import com.deahtstroke.rivenbot.dto.discord.MessageComponent;
 import com.deahtstroke.rivenbot.entity.ButtonStyle;
 import com.deahtstroke.rivenbot.entity.RaidStatistics;
-import jakarta.annotation.Nullable;
-import jakarta.validation.constraints.NotNull;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map.Entry;
 import java.util.Objects;
-import org.hibernate.validator.constraints.Length;
 
 public class MessageComponents {
 
   private MessageComponents() {
   }
 
-  public static ComponentsBuilder builder() {
+  public static ComponentsBuilder components() {
     return new ComponentsBuilder();
   }
 
@@ -80,23 +77,49 @@ public class MessageComponents {
 
     private final List<MessageComponent> actionRowComponents = new ArrayList<>();
 
-    public ActionRowBuilder linkButton(
-        @Nullable @Length(max = 38) String label,
-        @NotNull String url) {
+    /**
+     * Create a link button in an action row
+     *
+     * @param label the label of the link button
+     * @param url   the url of the link button, cannot be null
+     * @return {@link ActionRowBuilder}
+     */
+    public ActionRowBuilder linkButton(String label, String url) {
+      if (Objects.isNull(label) || label.length() > 38) {
+        throw new IllegalStateException(
+            "Button label cannot be null and must have a maximum length of 38 characters");
+      }
+      if (Objects.isNull(url)) {
+        throw new IllegalStateException("URL of the link button cannot be null");
+      }
       this.actionRowComponents.add(MessageComponent.builder()
           .url(url)
           .type(BUTTON.getType())
-          .style(ButtonStyle.LINK.getButtonValue())
+          .style(5)
           .label(label).build());
       return this;
     }
 
-    public ActionRowBuilder button(@Nullable String buttonId,
-        @Nullable @Length(max = 38) String label, ButtonStyle style) {
-      if (style.equals(ButtonStyle.LINK)) {
-        throw new IllegalStateException("Use the method linkButton() to create a link button");
+    /**
+     * Create a button in an action row
+     *
+     * @param buttonId the ID of this button
+     * @param label    the label that should appear on the button, max 38 characters
+     * @param style    the {@link ButtonStyle} of this button
+     * @return {@link ActionRowBuilder}
+     */
+    public ActionRowBuilder button(String buttonId, String label, ButtonStyle style) {
+      if (Objects.isNull(buttonId) || buttonId.length() > 100) {
+        throw new IllegalStateException(
+            "The buttonId cannot be null and has to have a max of 100 characters");
       }
-
+      if (Objects.isNull(label) || label.length() > 38) {
+        throw new IllegalStateException(
+            "The button label cannot be null and has to be at maximum 38 characters");
+      }
+      if (Objects.isNull(style)) {
+        throw new IllegalStateException("Button style cannot be null");
+      }
       this.actionRowComponents.add(MessageComponent.builder()
           .customId(buttonId)
           .type(BUTTON.getType())
@@ -106,6 +129,12 @@ public class MessageComponents {
       return this;
     }
 
+    /**
+     * Build the current action row that has components. This method additionally runs some input
+     * validation in accordance to Discord's API
+     *
+     * @return {@link MessageComponent}
+     */
     public MessageComponent build() {
       boolean onlyButtons = this.actionRowComponents.stream()
           .map(MessageComponent::getType)

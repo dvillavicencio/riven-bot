@@ -62,7 +62,7 @@ public interface BungieClient {
    * @param destinyMembershipId the destiny membership id of the user
    * @return {@link Mono} containing {@link CharactersResponse}
    */
-  @GetExchange("/Destiny2/{membershipType}/Profile/{destinyMembershipId}/?components=200")
+  @GetExchange(value = "/Destiny2/{membershipType}/Profile/{destinyMembershipId}/?components=200")
   Mono<BungieResponse<CharactersResponse>> getUserCharacters(
       @PathVariable Integer membershipType,
       @PathVariable String destinyMembershipId
