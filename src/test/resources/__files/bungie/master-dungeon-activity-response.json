@@ -1,0 +1,210 @@
+{
+  "Response": {
+    "displayProperties": {
+      "description": "Machinations run wild in this dust-ridden ruin. Bring them to heel.",
+      "name": "Spire of the Watcher: Master",
+      "icon": "/img/misc/missing_icon_d2.png",
+      "hasIcon": false
+    },
+    "originalDisplayProperties": {
+      "description": "Machinations run wild in this dust-ridden ruin. Bring them to heel.",
+      "name": "Spire of the Watcher",
+      "icon": "/img/misc/missing_icon_d2.png",
+      "hasIcon": false
+    },
+    "selectionScreenDisplayProperties": {
+      "description": "Masterful, like everything you do. Only the most powerful will not face instant defeat.\n\nMatchmaking: OFF",
+      "name": "Master",
+      "hasIcon": false
+    },
+    "releaseIcon": "/img/misc/missing_icon_d2.png",
+    "releaseTime": 0,
+    "completionUnlockHash": 0,
+    "activityLightLevel": 0,
+    "destinationHash": 1615213322,
+    "placeHash": 2809578934,
+    "activityTypeHash": 608898761,
+    "tier": -1,
+    "pgcrImage": "/img/destiny_content/pgcr/dungeon_spire_of_the_watcher.jpg",
+    "rewards": [
+      {
+        "rewardItems": [
+          {
+            "itemHash": 1923658473,
+            "quantity": 0,
+            "hasConditionalVisibility": false
+          }
+        ]
+      }
+    ],
+    "modifiers": [
+      {
+        "activityModifierHash": 3746163602
+      },
+      {
+        "activityModifierHash": 2833087500
+      },
+      {
+        "activityModifierHash": 2650740350
+      },
+      {
+        "activityModifierHash": 4087563963
+      },
+      {
+        "activityModifierHash": 1783825372
+      },
+      {
+        "activityModifierHash": 1783825372
+      },
+      {
+        "activityModifierHash": 1990363418
+      },
+      {
+        "activityModifierHash": 197794292
+      },
+      {
+        "activityModifierHash": 4226469317
+      },
+      {
+        "activityModifierHash": 1783825372
+      },
+      {
+        "activityModifierHash": 1783825372
+      },
+      {
+        "activityModifierHash": 1783825372
+      },
+      {
+        "activityModifierHash": 1783825372
+      },
+      {
+        "activityModifierHash": 2691200658
+      },
+      {
+        "activityModifierHash": 426976067
+      },
+      {
+        "activityModifierHash": 3196075844
+      },
+      {
+        "activityModifierHash": 795009574
+      }
+    ],
+    "isPlaylist": false,
+    "challenges": [
+      {
+        "rewardSiteHash": 0,
+        "inhibitRewardsUnlockHash": 0,
+        "objectiveHash": 3211393925,
+        "dummyRewards": [
+          {
+            "itemHash": 73143230,
+            "quantity": 1,
+            "hasConditionalVisibility": false
+          }
+        ]
+      }
+    ],
+    "optionalUnlockStrings": [],
+    "inheritFromFreeRoam": false,
+    "suppressOtherRewards": false,
+    "requirements": {
+      "leaderRequirementLabels": [
+        {
+          "displayString": "PlayStation®Plus Required"
+        },
+        {
+          "displayString": "Xbox Live Gold Required"
+        },
+        {
+          "displayString": "PlayStation®Plus Required"
+        },
+        {
+          "displayString": "Xbox Live Gold Required"
+        }
+      ],
+      "fireteamRequirementLabels": [
+        {
+          "displayString": "Requires Destiny 2: The Witch Queen Dungeon Key"
+        },
+        {
+          "displayString": "Quest progress required. See Ikora Rey in the Tower Bazaar."
+        },
+        {
+          "displayString": "PlayStation®Plus Required"
+        },
+        {
+          "displayString": "Xbox Live Gold Required"
+        },
+        {
+          "displayString": "PlayStation®Plus Required"
+        },
+        {
+          "displayString": "Xbox Live Gold Required"
+        },
+        {
+          "displayString": "Complete step 4 of the \"A Spark of Hope\" quest."
+        }
+      ]
+    },
+    "playlistItems": [],
+    "matchmaking": {
+      "isMatchmade": false,
+      "minParty": 1,
+      "maxParty": 3,
+      "maxPlayers": 3,
+      "requiresGuardianOath": false
+    },
+    "directActivityModeHash": 608898761,
+    "directActivityModeType": 82,
+    "activityModeHashes": [
+      608898761,
+      1164760493
+    ],
+    "activityModeTypes": [
+      82,
+      7
+    ],
+    "isPvP": false,
+    "insertionPoints": [
+      {
+        "phaseHash": 201188049,
+        "unlockHash": 0
+      },
+      {
+        "phaseHash": 1483068591,
+        "unlockHash": 0
+      },
+      {
+        "phaseHash": 2027998024,
+        "unlockHash": 0
+      },
+      {
+        "phaseHash": 1779644342,
+        "unlockHash": 0
+      },
+      {
+        "phaseHash": 3603277873,
+        "unlockHash": 0
+      },
+      {
+        "phaseHash": 3934781543,
+        "unlockHash": 0
+      },
+      {
+        "phaseHash": 2676434388,
+        "unlockHash": 0
+      }
+    ],
+    "activityLocationMappings": [],
+    "hash": 2296818662,
+    "index": 1176,
+    "redacted": false,
+    "blacklisted": false
+  },
+  "ErrorCode": 1,
+  "ThrottleSeconds": 0,
+  "ErrorStatus": "Success",
+  "Message": "Ok",
+  "MessageData": {}
+}
