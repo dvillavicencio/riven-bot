@@ -8,18 +8,22 @@ import com.deahtstroke.rivenbot.dto.destiny.UserGlobalSearchBody;
 import com.deahtstroke.rivenbot.dto.destiny.characters.UserCharacter;
 import com.deahtstroke.rivenbot.dto.destiny.manifest.ManifestResponseFields;
 import com.deahtstroke.rivenbot.dto.destiny.milestone.MilestoneEntry;
+import com.deahtstroke.rivenbot.dto.discord.InteractionResponseData;
 import com.deahtstroke.rivenbot.enums.ManifestEntity;
+import com.deahtstroke.rivenbot.exception.ManifestEntityNotFoundException;
+import com.deahtstroke.rivenbot.exception.NoCharactersFoundException;
 import com.deahtstroke.rivenbot.exception.ResourceNotFoundException;
+import java.util.Collections;
 import java.util.Map;
 import java.util.Objects;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
-import org.springframework.web.reactive.function.client.WebClient.Builder;
 import reactor.core.publisher.Mono;
 
 @Service
@@ -31,12 +35,13 @@ public class BungieAPIService {
   private static final Integer RAID_MODE = 4;
 
   private final BungieClient defaultBungieClient;
-  private final WebClient.Builder builder;
+  private final WebClient webClient;
 
-  public BungieAPIService(BungieClient defaultBungieClient,
-      Builder builder) {
+  public BungieAPIService(
+      BungieClient defaultBungieClient,
+      WebClient defaultBungieWebClient) {
     this.defaultBungieClient = defaultBungieClient;
-    this.builder = builder;
+    this.webClient = defaultBungieWebClient;
   }
 
   /**
@@ -52,11 +57,12 @@ public class BungieAPIService {
       String characterId, Integer pageNumber) {
     return defaultBungieClient.getActivityHistory(membershipType, membershipId, characterId,
             MAX_NUMBER_OF_ELEMENTS, RAID_MODE, pageNumber)
-        .filter(response ->
-            Objects.nonNull(response.getResponse()) &&
-            CollectionUtils.isNotEmpty(response.getResponse().getActivities()))
-        .map(BungieResponse::getResponse)
-        .switchIfEmpty(Mono.just(new ActivitiesResponse()));
+        .filter(data ->
+            Objects.nonNull(data.getResponse()) &&
+            CollectionUtils.isNotEmpty(data.getResponse().getActivities()))
+        .switchIfEmpty(
+            Mono.just(BungieResponse.of(new ActivitiesResponse(Collections.emptyList()))))
+        .map(BungieResponse::getResponse);
   }
 
   /**
@@ -70,15 +76,19 @@ public class BungieAPIService {
   public Mono<Map<String, UserCharacter>> getUserCharacters(Integer membershipType,
       String membershipId) {
     return defaultBungieClient.getUserCharacters(membershipType, membershipId)
-        .flatMap(response -> {
-          if (Objects.isNull(response) || Objects.isNull(response.getResponse())
-              || Objects.isNull(response.getResponse().getCharacters())) {
-            return Mono.error(new ResourceNotFoundException(
-                "No available characters were found for user with membershipId [%s] and membership type [%s]".formatted(
-                    membershipId, membershipType)));
-          }
-          return Mono.just(response.getResponse());
-        })
+        .filter(data -> Objects.equals(data.getErrorCode(), 1))
+        .filter(data -> CollectionUtils.isNotEmpty(
+            data.getResponse().getCharacters().getData().entrySet()))
+        .switchIfEmpty(Mono.error(new NoCharactersFoundException(
+            "No characters found for user with ID [%s] and membership type [%s]".formatted(
+                membershipId, membershipType),
+            InteractionResponseData.builder()
+                .content(
+                    "It seems that the user you were trying to find does not have any Destiny 2 characters")
+                .build()
+        )))
+        .doOnError(err -> log.error(err.getMessage()))
+        .map(BungieResponse::getResponse)
         .map(response -> response.getCharacters().getData());
   }
 
@@ -93,11 +103,18 @@ public class BungieAPIService {
   @Cacheable(cacheNames = "manifestEntity", cacheManager = "redisCacheManager")
   public Mono<ManifestResponseFields> getManifestEntity(ManifestEntity entityType, Long hash) {
     return defaultBungieClient.getManifestEntity(entityType.getId(), hash).cache()
-        .filter(Objects::nonNull)
+        .filter(me -> Objects.nonNull(me) && Objects.nonNull(me.getResponse()))
+        .switchIfEmpty(Mono.error(new ManifestEntityNotFoundException(
+            "Manifest entity not found for [%s] and hash [%s]".formatted(entityType, hash),
+            HttpStatus.INTERNAL_SERVER_ERROR)))
         .map(BungieResponse::getResponse);
   }
 
-
+  /**
+   * Get public milestones
+   *
+   * @return Map containing Strings as keys and {@link MilestoneEntry} as values
+   */
   public Mono<Map<String, MilestoneEntry>> getPublicMilestones() {
     return defaultBungieClient.getPublicMilestones()
         .flatMap(response -> {
@@ -121,19 +138,18 @@ public class BungieAPIService {
   @Cacheable(cacheNames = "playersPrefixSearch", cacheManager = "redisCacheManager")
   public Mono<BungieResponse<SearchResult>> retrievePlayers(UserGlobalSearchBody searchBody,
       Integer page) {
-    WebClient webClient = this.builder.build();
     return webClient.post().uri(PREFIX_PLAYERS_URL, page)
         .body(BodyInserters.fromValue(searchBody))
         .exchangeToMono(clientResponse -> {
-          if (clientResponse.statusCode().is2xxSuccessful() || clientResponse.statusCode()
-              .is5xxServerError()) {
+          var status = clientResponse.statusCode();
+          if (status.is4xxClientError()) {
+            return Mono.error(new ResourceNotFoundException(
+                "Something wrong happened while retrieving users, user not found with value [%s]".formatted(
+                    searchBody)));
+          } else {
             ParameterizedTypeReference<BungieResponse<SearchResult>> typeReference = new ParameterizedTypeReference<>() {
             };
             return clientResponse.bodyToMono(typeReference);
-          } else {
-            return Mono.error(new ResourceNotFoundException(
-                "Something wrong happened while retrieving users, user not found with value [%s] not found".formatted(
-                    searchBody)));
           }
         });
   }

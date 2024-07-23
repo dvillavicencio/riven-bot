@@ -37,7 +37,6 @@ public class AsyncRaidsProcessor {
   private static final String ICON_BASE_URL = "https://www.bungie.net/";
   private static final String STATS_TITLE = "Raid Stats for %s";
   private static final String MANATEE_ICON = "https://www.harvardreview.org/wp-content/uploads/2020/10/Manatee.jpg";
-  private static final String RAID_COMPREHENSION_BUTTON_ID = "raid_stats_comprehension";
   private static final String DEFAULT_RAID_THUMBNAIL_URL = "https://d1lss44hh2trtw.cloudfront.net/resize?type=webp&url=https%3A%2F%2Fshacknews-www.s3.amazonaws.com%2Fassets%2Farticle%2F2023%2F02%2F21%2Fdestiny-2-lightfall-raid-release-time_feature.jpg&width=2064&sign=GYtYnnD6xsEp5pOb7q50FhEUvzN8cE15FT4UUpCT5HA";
 
   private final DiscordAPIService discordAPIService;
@@ -93,9 +92,7 @@ public class AsyncRaidsProcessor {
   public Mono<Void> processRaidsAsync(String username, String userTag, String continuationToken) {
     return createRaidStatsResponse(username, userTag)
         .onErrorResume(BaseDiscordChatException.class,
-            err -> Mono.just(InteractionResponseData.builder()
-                .content(err.getChatErrorMessage())
-                .build()))
+            err -> Mono.just(err.getErrorInteractionResponse()))
         .doOnError(err -> log.error(err.getMessage()))
         .flatMap(data -> discordAPIService.editOriginalInteraction(continuationToken, data));
   }
@@ -107,15 +104,22 @@ public class AsyncRaidsProcessor {
         .filter(response -> CollectionUtils.isNotEmpty(response.getResponse()))
         .switchIfEmpty(Mono.error(new MembershipsNotFoundException(
             "User [%s] does not have any valid Destiny 2 memberships".formatted(displayUsername),
-            "User %s has no valid Destiny 2 memberships! Please contact someone from the Dev Team in order to solve this issue or try again later"
-                .formatted(displayUsername))))
+            InteractionResponseData.builder()
+                .content(
+                    "User %s has no valid Destiny 2 memberships! Please contact someone from the Dev Team in order to solve this issue or try again later"
+                        .formatted(displayUsername))
+                .build())))
         .flatMap(response -> {
           ExactUserSearchResponse firstResponse = response.getResponse().getFirst();
           if (Boolean.FALSE.equals(firstResponse.getIsPublic())) {
             return Mono.error(new ProfileNotPublicException(
                 "The Bungie.net profile for user [%s] is set to private".formatted(displayUsername),
-                "Oh no! Seems that %s has their privacy settings turned on, therefore we cannot access their stuff right now. Sorry about that."
-                    .formatted(displayUsername)));
+                InteractionResponseData.builder()
+                    .content(
+                        "Oh no! Seems that %s has their privacy settings turned on, therefore we cannot access their stuff right now. Sorry about that.".formatted(
+                            username + HASHTAG + userTag))
+                    .build()
+            ));
           }
           String membershipId = firstResponse.getMembershipId();
           Integer membershipType = firstResponse.getMembershipType();
@@ -147,10 +151,13 @@ public class AsyncRaidsProcessor {
       String membershipId, Integer membershipType) {
     return raidStatsService.calculateRaidStats(username, userTag, membershipId, membershipType)
         .switchIfEmpty(Mono.error(new NoRaidDataFoundException(
-            "User [%s] has no raid data available".formatted(username + HASHTAG + userTag), """
-            Huh... It seems as if %s does not have any raids completed, either this or something went wrong when retrieving the data.\
-            If you are sure this is a bug be sure to let one of the developers know!""".formatted(
-            username + HASHTAG + userTag)
+            "User [%s] has no raid data available".formatted(username + HASHTAG + userTag),
+            InteractionResponseData.builder()
+                .content("""
+                    Huh... It seems as if %s does not have any raids completed, either this or something went wrong when retrieving the data.\
+                    If you are sure this is a bug be sure to let one of the developers know!""".formatted(
+                    username + HASHTAG + userTag))
+                .build()
         )))
         .collectMap(RaidStatistics::getRaidName)
         .flatMapIterable(Map::entrySet)

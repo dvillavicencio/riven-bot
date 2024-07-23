@@ -83,7 +83,7 @@ public class BungieConfiguration {
    * @return {@link BungieClient}
    */
   @Bean("defaultBungieClient")
-  public BungieClient bungieCharacterClient(WebClient.Builder builder) {
+  public BungieClient defaultBungieClient(WebClient.Builder builder) {
     HttpClient httpClient = HttpClient.create()
         .keepAlive(false);
     var webClient = builder
@@ -118,8 +118,8 @@ public class BungieConfiguration {
         .build();
   }
 
-  @Bean(name = "userBungieClient")
-  WebClient userBungieClient(WebClient.Builder builder) {
+  @Bean(name = "defaultBungieWebClient")
+  WebClient defaultBungieWebClient(WebClient.Builder builder) {
     return builder
         .baseUrl(this.baseUrl)
         .defaultHeader(API_KEY_HEADER_NAME, this.key)

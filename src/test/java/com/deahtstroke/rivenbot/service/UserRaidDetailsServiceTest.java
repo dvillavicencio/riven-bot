@@ -44,8 +44,10 @@ class UserRaidDetailsServiceTest {
 
   @Mock
   BungieAPIService bungieAPIService;
+
   @Mock
   UserDetailsRepository userDetailsRepository;
+
   @Mock
   PGCRService postGameCarnageService;
 

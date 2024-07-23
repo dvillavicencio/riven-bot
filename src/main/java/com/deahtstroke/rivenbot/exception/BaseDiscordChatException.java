@@ -1,5 +1,6 @@
 package com.deahtstroke.rivenbot.exception;
 
+import com.deahtstroke.rivenbot.dto.discord.InteractionResponseData;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -7,19 +8,13 @@ import lombok.Setter;
 @Setter
 public class BaseDiscordChatException extends RuntimeException {
 
-  private String message;
-  private String chatErrorMessage;
+  private final String message;
+  private final InteractionResponseData errorInteractionResponse;
 
-  public BaseDiscordChatException(String message, String chatErrorMessage) {
+  public BaseDiscordChatException(String message, InteractionResponseData interactionResponseData) {
     super(message);
     this.message = message;
-    this.chatErrorMessage = chatErrorMessage;
-  }
-
-  public BaseDiscordChatException(String message, String chatErrorMessage, Throwable throwable) {
-    super(message, throwable);
-    this.message = message;
-    this.chatErrorMessage = chatErrorMessage;
+    this.errorInteractionResponse = interactionResponseData;
   }
 
 }
