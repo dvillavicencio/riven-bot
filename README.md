@@ -1,7 +1,7 @@
 # Riven Bot for Discord
 > Source code for Riven Bot
 
-This repository has all the source code that makes the Riven Bot work. Destiny 2 is a very famous game created and developed by Bungie game studios. The idea is to have a Discord bot that contains very useful utilities for D2 players that use Discord as their main social media platform like retrieving weekly-rotation information for in-game activities and player-specific raid/dungeon statistics. 
+This repository has all the source code that makes the Riven Bot work. The idea is to have a Discord bot that contains very useful utilities for D2 players that use Discord as their main social media platform like retrieving weekly-rotation information for in-game activities and player-specific raid/dungeon statistics. 
 
 ## Why? 
 Because I can and I want to learn through projects that I find fun and challenging.
