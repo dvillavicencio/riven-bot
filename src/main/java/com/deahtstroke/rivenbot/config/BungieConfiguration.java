@@ -108,8 +108,11 @@ public class BungieConfiguration {
   @Bean
   public WebClient pgcrWebClient(WebClient.Builder builder) {
     // Don't keep alive connections with Bungie.net
+    HttpClient httpClient = HttpClient.create()
+        .keepAlive(false);
     return builder
         .baseUrl(this.statsBaseUrl)
+        .clientConnector(new ReactorClientHttpConnector(httpClient))
         .defaultHeader(API_KEY_HEADER_NAME, this.key)
         .defaultHeader(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
         .defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
