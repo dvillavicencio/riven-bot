@@ -16,5 +16,5 @@ public interface AutocompleteSource {
    * @param interaction Interaction data in-case the autocomplete message source needs context
    * @return {@link InteractionResponse}
    */
-  Mono<InteractionResponse> autocompleteResponse(Interaction interaction);
+  Mono<InteractionResponse> handle(Interaction interaction);
 }

@@ -8,11 +8,7 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.cache.CacheManager;
-import org.springframework.cache.annotation.EnableCaching;
-import org.springframework.cache.concurrent.ConcurrentMapCacheManager;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.EnableAspectJAutoProxy;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.server.RouterFunction;
@@ -20,9 +16,7 @@ import org.springframework.web.reactive.function.server.RouterFunctions;
 import org.springframework.web.reactive.function.server.ServerResponse;
 
 @Slf4j
-@EnableCaching
 @SpringBootApplication
-@EnableAspectJAutoProxy
 public class RivenBotApplication {
 
   public static void main(String[] args) {
@@ -34,7 +28,7 @@ public class RivenBotApplication {
       InteractionHandler interactionHandler,
       SignatureFilterFunction signatureFilterFunction) {
     return RouterFunctions.route()
-        .POST("/interactions", interactionHandler::handle)
+        .POST("/interactions", interactionHandler::resolveRequest)
         .filter(signatureFilterFunction)
         .build();
   }
@@ -51,11 +45,6 @@ public class RivenBotApplication {
     objectMapper.configure(DeserializationFeature.FAIL_ON_IGNORED_PROPERTIES, false);
     objectMapper.registerModule(new JavaTimeModule());
     return objectMapper;
-  }
-
-  @Bean
-  CacheManager inMemoryCacheManager() {
-    return new ConcurrentMapCacheManager();
   }
 
   /**

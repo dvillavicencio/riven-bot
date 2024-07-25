@@ -9,11 +9,11 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 
-public class MessageUtilTest {
+class MessageUtilsTest {
 
   @Test
   @DisplayName("Formatting date works correctly")
-  public void formatDateWorksAsExpected() {
+  void formatDateWorksAsExpected() {
     // given: any local date
     LocalDate localDate = LocalDate.of(2023, 1, 1);
 
@@ -28,7 +28,7 @@ public class MessageUtilTest {
   @ParameterizedTest
   @ValueSource(ints = {4, 5, 11, 12, 13, 20, 24})
   @DisplayName("Formatting date works correctly for suffix 'th'")
-  public void formatDateWorksWorksForSuffixTh(int dayNumber) {
+  void formatDateWorksWorksForSuffixTh(int dayNumber) {
     // given: any local date
     LocalDate localDate = LocalDate.of(2023, 1, dayNumber);
     Pattern pattern = Pattern.compile("(\\w*) %sth, January 2023".formatted(dayNumber));
@@ -43,7 +43,7 @@ public class MessageUtilTest {
   @ParameterizedTest
   @ValueSource(ints = {1, 21})
   @DisplayName("Formatting date works correctly for suffix 'st'")
-  public void formatDateWorksWorksForSuffixSt(int dayNumber) {
+  void formatDateWorksWorksForSuffixSt(int dayNumber) {
     // given: any local date
     LocalDate localDate = LocalDate.of(2023, 1, dayNumber);
     Pattern pattern = Pattern.compile("(\\w*) %sst, January 2023".formatted(dayNumber));
@@ -58,7 +58,7 @@ public class MessageUtilTest {
   @ParameterizedTest
   @ValueSource(ints = {3, 23})
   @DisplayName("Formatting date works correctly for suffix 'rd'")
-  public void formatDateWorksWorksForSuffix(int dayNumber) {
+  void formatDateWorksWorksForSuffix(int dayNumber) {
     // given: any local date
     LocalDate localDate = LocalDate.of(2023, 1, dayNumber);
     Pattern pattern = Pattern.compile("(\\w*) %srd, January 2023".formatted(dayNumber));

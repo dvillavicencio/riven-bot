@@ -1,6 +1,7 @@
 package com.deahtstroke.rivenbot.factory;
 
 import com.deahtstroke.rivenbot.enums.SlashCommand;
+import com.deahtstroke.rivenbot.exception.NoSuchHandlerException;
 
 public interface SlashCommandHandler<T> {
 
@@ -10,5 +11,5 @@ public interface SlashCommandHandler<T> {
    * @param slashCommand The slash command that is invoked
    * @return Message creator of type T
    */
-  T messageCreator(SlashCommand slashCommand);
+  T getHandler(SlashCommand slashCommand) throws NoSuchHandlerException;
 }

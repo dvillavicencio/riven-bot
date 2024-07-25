@@ -30,7 +30,7 @@ public class Embedded {
 
   private EmbeddedImage image;
 
-  private Object thumbnail;
+  private EmbeddedThumbnail thumbnail;
 
   private Object video;
 

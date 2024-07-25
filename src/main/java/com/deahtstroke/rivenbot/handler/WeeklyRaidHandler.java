@@ -25,7 +25,7 @@ public class WeeklyRaidHandler implements ApplicationCommandSource {
   }
 
   @Override
-  public Mono<InteractionResponse> createResponse(Interaction interaction) {
+  public Mono<InteractionResponse> resolve(Interaction interaction) {
     return weeklyActivitiesService.getWeeklyActivity(ActivityMode.RAID)
         .map(activity -> {
           var endDay = MessageUtils.formatDate(activity.getEndDate().toLocalDate());

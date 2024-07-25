@@ -17,5 +17,5 @@ public interface MessageComponentSource {
    * @param interaction Interaction data in-case the message component response needs context
    * @return {@link InteractionResponse}
    */
-  Mono<InteractionResponse> respond(Interaction interaction);
+  Mono<InteractionResponse> handle(Interaction interaction);
 }

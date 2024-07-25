@@ -39,7 +39,7 @@ public class WeeklyDungeonHandlerTest {
 
     // when: create message is called
     FirstStep<InteractionResponse> response = StepVerifier.create(
-        sut.createResponse(null));
+        sut.resolve(null));
 
     // then: the message created is correct
     String expectedMessage = WeeklyDungeonHandler.MESSAGE_TEMPLATE.formatted(

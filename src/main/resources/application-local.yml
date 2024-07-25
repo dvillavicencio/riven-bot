@@ -8,4 +8,4 @@ spring:
 application:
   callback:
     # Replace with your own callback url masking port 8080 to run locally
-    url: https://d093-2600-1700-4390-a930-cdfb-2be0-9169-d68b.ngrok-free.app
+    url: https://c797-2600-1700-4390-a930-95a3-1de8-fb35-181.ngrok-free.app

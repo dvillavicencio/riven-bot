@@ -1,6 +1,9 @@
 package com.deahtstroke.rivenbot.config;
 
 import com.deahtstroke.rivenbot.client.BungieClient;
+import io.github.resilience4j.ratelimiter.RateLimiter;
+import io.github.resilience4j.ratelimiter.RateLimiterConfig;
+import java.time.Duration;
 import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
@@ -18,6 +21,16 @@ import reactor.netty.http.client.HttpClient;
 @ConfigurationProperties(prefix = "bungie.api")
 public class BungieConfiguration {
 
+  /**
+   * Global Rate Limiter for Bungie.net API calls
+   */
+  public static final RateLimiter PGCR_RATE_LIMITER = RateLimiter.of("pgcr-rate-limiter",
+      RateLimiterConfig.custom()
+          .limitForPeriod(23)
+          .limitRefreshPeriod(Duration.ofMillis(1500))
+          .timeoutDuration(Duration.ofSeconds(30))
+          .writableStackTraceEnabled(true)
+          .build());
   /**
    * The name of the Bungie API key header
    */
@@ -70,7 +83,7 @@ public class BungieConfiguration {
    * @return {@link BungieClient}
    */
   @Bean("defaultBungieClient")
-  public BungieClient bungieCharacterClient(WebClient.Builder builder) {
+  public BungieClient defaultBungieClient(WebClient.Builder builder) {
     HttpClient httpClient = HttpClient.create()
         .keepAlive(false);
     var webClient = builder
@@ -92,20 +105,29 @@ public class BungieConfiguration {
    * @param builder The default WebClient.Builder defined in the main application
    * @return {@link BungieClient}
    */
-  @Bean(name = "pgcrBungieClient")
-  public BungieClient pgcrBungieClient(WebClient.Builder builder) {
+  @Bean
+  public WebClient pgcrWebClient(WebClient.Builder builder) {
     // Don't keep alive connections with Bungie.net
-    var webClient = builder
+    HttpClient httpClient = HttpClient.create()
+        .keepAlive(false);
+    return builder
         .baseUrl(this.statsBaseUrl)
+        .clientConnector(new ReactorClientHttpConnector(httpClient))
         .defaultHeader(API_KEY_HEADER_NAME, this.key)
         .defaultHeader(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
         .defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
         .codecs(clientCodecConfigurer -> clientCodecConfigurer.defaultCodecs()
             .maxInMemorySize(1024 * 1024 * 10))
         .build();
-    return HttpServiceProxyFactory.builder()
-        .exchangeAdapter(WebClientAdapter.create(webClient))
-        .build()
-        .createClient(BungieClient.class);
+  }
+
+  @Bean(name = "defaultBungieWebClient")
+  WebClient defaultBungieWebClient(WebClient.Builder builder) {
+    return builder
+        .baseUrl(this.baseUrl)
+        .defaultHeader(API_KEY_HEADER_NAME, this.key)
+        .defaultHeader(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
+        .defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+        .build();
   }
 }

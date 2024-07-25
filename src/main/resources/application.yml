@@ -37,3 +37,10 @@ discord:
     clientId: ${DISCORD_CLIENT_ID}
     clientSecret: ${DISCORD_CLIENT_SECRET}
     scopes: identify
+
+
+cache:
+  # in minutes
+  expirations:
+    playersPrefixSearch: 5
+    manifestEntity: 3600

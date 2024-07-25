@@ -3,19 +3,27 @@ package com.deahtstroke.rivenbot.service;
 import com.deahtstroke.rivenbot.client.BungieClient;
 import com.deahtstroke.rivenbot.dto.destiny.ActivitiesResponse;
 import com.deahtstroke.rivenbot.dto.destiny.BungieResponse;
+import com.deahtstroke.rivenbot.dto.destiny.SearchResult;
+import com.deahtstroke.rivenbot.dto.destiny.UserGlobalSearchBody;
 import com.deahtstroke.rivenbot.dto.destiny.characters.UserCharacter;
 import com.deahtstroke.rivenbot.dto.destiny.manifest.ManifestResponseFields;
 import com.deahtstroke.rivenbot.dto.destiny.milestone.MilestoneEntry;
+import com.deahtstroke.rivenbot.dto.discord.InteractionResponseData;
 import com.deahtstroke.rivenbot.enums.ManifestEntity;
-import com.deahtstroke.rivenbot.exception.InternalServerException;
+import com.deahtstroke.rivenbot.exception.ManifestEntityNotFoundException;
+import com.deahtstroke.rivenbot.exception.NoCharactersFoundException;
 import com.deahtstroke.rivenbot.exception.ResourceNotFoundException;
+import java.util.Collections;
 import java.util.Map;
 import java.util.Objects;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.reactive.function.BodyInserters;
+import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 
 @Service
@@ -23,12 +31,17 @@ import reactor.core.publisher.Mono;
 public class BungieAPIService {
 
   private static final Integer MAX_NUMBER_OF_ELEMENTS = 250;
+  private static final String PREFIX_PLAYERS_URL = "/User/Search/GlobalName/{pageNumber}/";
   private static final Integer RAID_MODE = 4;
 
   private final BungieClient defaultBungieClient;
+  private final WebClient webClient;
 
-  public BungieAPIService(BungieClient defaultBungieClient) {
+  public BungieAPIService(
+      BungieClient defaultBungieClient,
+      WebClient defaultBungieWebClient) {
     this.defaultBungieClient = defaultBungieClient;
+    this.webClient = defaultBungieWebClient;
   }
 
   /**
@@ -44,11 +57,12 @@ public class BungieAPIService {
       String characterId, Integer pageNumber) {
     return defaultBungieClient.getActivityHistory(membershipType, membershipId, characterId,
             MAX_NUMBER_OF_ELEMENTS, RAID_MODE, pageNumber)
-        .filter(response ->
-            Objects.nonNull(response.getResponse()) &&
-            CollectionUtils.isNotEmpty(response.getResponse().getActivities()))
-        .map(BungieResponse::getResponse)
-        .switchIfEmpty(Mono.just(new ActivitiesResponse()));
+        .filter(data ->
+            Objects.nonNull(data.getResponse()) &&
+            CollectionUtils.isNotEmpty(data.getResponse().getActivities()))
+        .switchIfEmpty(
+            Mono.just(BungieResponse.of(new ActivitiesResponse(Collections.emptyList()))))
+        .map(BungieResponse::getResponse);
   }
 
   /**
@@ -62,15 +76,19 @@ public class BungieAPIService {
   public Mono<Map<String, UserCharacter>> getUserCharacters(Integer membershipType,
       String membershipId) {
     return defaultBungieClient.getUserCharacters(membershipType, membershipId)
-        .flatMap(response -> {
-          if (Objects.isNull(response) || Objects.isNull(response.getResponse())
-              || Objects.isNull(response.getResponse().getCharacters())) {
-            return Mono.error(new ResourceNotFoundException(
-                "No available characters were found for user with membershipId [%s] and membership type [%s]".formatted(
-                    membershipId, membershipType)));
-          }
-          return Mono.just(response.getResponse());
-        })
+        .filter(data -> Objects.equals(data.getErrorCode(), 1))
+        .filter(data -> CollectionUtils.isNotEmpty(
+            data.getResponse().getCharacters().getData().entrySet()))
+        .switchIfEmpty(Mono.error(new NoCharactersFoundException(
+            "No characters found for user with ID [%s] and membership type [%s]".formatted(
+                membershipId, membershipType),
+            InteractionResponseData.builder()
+                .content(
+                    "It seems that the user you were trying to find does not have any Destiny 2 characters")
+                .build()
+        )))
+        .doOnError(err -> log.error(err.getMessage()))
+        .map(BungieResponse::getResponse)
         .map(response -> response.getCharacters().getData());
   }
 
@@ -82,27 +100,57 @@ public class BungieAPIService {
    * @param hash       The hash of the entity
    * @return {@link ManifestResponseFields}
    */
-  @Cacheable(cacheNames = "manifestEntity", cacheManager = "inMemoryCacheManager")
+  @Cacheable(cacheNames = "manifestEntity", cacheManager = "redisCacheManager")
   public Mono<ManifestResponseFields> getManifestEntity(ManifestEntity entityType, Long hash) {
     return defaultBungieClient.getManifestEntity(entityType.getId(), hash).cache()
-        .filter(Objects::nonNull)
+        .filter(me -> Objects.nonNull(me) && Objects.nonNull(me.getResponse()))
+        .switchIfEmpty(Mono.error(new ManifestEntityNotFoundException(
+            "Manifest entity not found for [%s] and hash [%s]".formatted(entityType, hash),
+            HttpStatus.INTERNAL_SERVER_ERROR)))
         .map(BungieResponse::getResponse);
   }
 
   /**
-   * Retrieve all the public milestones
+   * Get public milestones
    *
-   * @return Map containing all public milestones
+   * @return Map containing Strings as keys and {@link MilestoneEntry} as values
    */
   public Mono<Map<String, MilestoneEntry>> getPublicMilestones() {
     return defaultBungieClient.getPublicMilestones()
         .flatMap(response -> {
           if (Objects.isNull(response) || Objects.isNull(response.getResponse())) {
-            return Mono.error(new InternalServerException(
-                "No available milestone data was available for processing",
-                HttpStatus.INTERNAL_SERVER_ERROR));
+            return Mono.error(new ResourceNotFoundException(
+                "No available milestone data was available for processing"));
           }
           return Mono.just(response.getResponse());
+        });
+  }
+
+  /**
+   * Get players by their basename prefix. This method is resilient towards 500 status error codes
+   * because the API itself is not consistent with the 'hasMore' flag if there's more pages in the
+   * API itself
+   *
+   * @param searchBody the prefix to look for
+   * @param page       the number of the page
+   * @return {@link SearchResult}
+   */
+  @Cacheable(cacheNames = "playersPrefixSearch", cacheManager = "redisCacheManager")
+  public Mono<BungieResponse<SearchResult>> retrievePlayers(UserGlobalSearchBody searchBody,
+      Integer page) {
+    return webClient.post().uri(PREFIX_PLAYERS_URL, page)
+        .body(BodyInserters.fromValue(searchBody))
+        .exchangeToMono(clientResponse -> {
+          var status = clientResponse.statusCode();
+          if (status.is4xxClientError()) {
+            return Mono.error(new ResourceNotFoundException(
+                "Something wrong happened while retrieving users, user not found with value [%s]".formatted(
+                    searchBody)));
+          } else {
+            ParameterizedTypeReference<BungieResponse<SearchResult>> typeReference = new ParameterizedTypeReference<>() {
+            };
+            return clientResponse.bodyToMono(typeReference);
+          }
         });
   }
 }

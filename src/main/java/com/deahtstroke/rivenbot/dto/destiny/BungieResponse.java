@@ -19,4 +19,18 @@ public class BungieResponse<T> {
   @JsonAlias("Response")
   @Nullable
   private T response;
+
+  @JsonAlias("ErrorCode")
+  private Integer errorCode;
+
+  /**
+   * Static constructor to make a Bungie Response
+   *
+   * @param response The response
+   * @param <E>      The type of response
+   * @return {@link BungieResponse}
+   */
+  public static <E> BungieResponse<E> of(E response) {
+    return new BungieResponse<>(response, 0);
+  }
 }

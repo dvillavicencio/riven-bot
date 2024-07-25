@@ -3,6 +3,7 @@ package com.deahtstroke.rivenbot.handler;
 import com.deahtstroke.rivenbot.dto.discord.Interaction;
 import com.deahtstroke.rivenbot.dto.discord.InteractionResponse;
 import com.deahtstroke.rivenbot.enums.InteractionType;
+import com.deahtstroke.rivenbot.enums.MessageComponentId;
 import com.deahtstroke.rivenbot.enums.SlashCommand;
 import com.deahtstroke.rivenbot.exception.BaseException;
 import com.deahtstroke.rivenbot.factory.ApplicationCommandFactory;
@@ -40,13 +41,11 @@ public class InteractionHandler {
    * @param request the incoming server request from Discord chat
    * @return {@link InteractionResponse}
    */
-  public Mono<ServerResponse> handle(ServerRequest request) {
+  public Mono<ServerResponse> resolveRequest(ServerRequest request) {
     return request.bodyToMono(Interaction.class)
         .flatMap(interaction -> {
           InteractionType interactionType = InteractionType.findByValue(interaction.getType());
-          Mono<InteractionResponse> interactionResponse = resolveResponse(interaction,
-              interactionType);
-          return interactionResponse
+          return resolveResponse(interaction, interactionType)
               .flatMap(response -> ServerResponse.ok().body(BodyInserters.fromValue(response)))
               .onErrorResume(BaseException.class,
                   error -> {
@@ -63,17 +62,21 @@ public class InteractionHandler {
       InteractionType interactionType) {
     return switch (interactionType) {
       case MESSAGE_COMPONENT -> {
-        String componentId = interaction.getData().getCustomId();
-        yield messageComponentFactory.handle(componentId).respond(interaction);
+        MessageComponentId componentId = MessageComponentId.findById(
+            interaction.getData().getCustomId());
+        var handler = messageComponentFactory.getHandler(componentId);
+        yield handler.handle(interaction);
       }
       case MODAL_SUBMIT -> Mono.just(new InteractionResponse());
       case APPLICATION_COMMAND_AUTOCOMPLETE -> {
         SlashCommand command = SlashCommand.findByName(interaction.getData().getName());
-        yield autocompleteFactory.messageCreator(command).autocompleteResponse(interaction);
+        var handler = autocompleteFactory.getHandler(command);
+        yield handler.handle(interaction);
       }
       case APPLICATION_COMMAND -> {
         SlashCommand command = SlashCommand.findByName(interaction.getData().getName());
-        yield applicationCommandFactory.messageCreator(command).createResponse(interaction);
+        var handler = applicationCommandFactory.getHandler(command);
+        yield handler.resolve(interaction);
       }
       case PING -> Mono.just(InteractionResponse.PING());
     };

@@ -12,6 +12,8 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.boot.web.reactive.context.ReactiveWebApplicationContext;
 import org.springframework.cloud.contract.wiremock.AutoConfigureWireMock;
+import org.springframework.test.context.DynamicPropertyRegistry;
+import org.springframework.test.context.DynamicPropertySource;
 import org.springframework.test.web.reactive.server.WebTestClient;
 import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.junit.jupiter.Container;
@@ -24,7 +26,7 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 public abstract class BaseIntegrationTest {
 
   @Container
-  private static final GenericContainer<?> REDIS_CONTAINER = new GenericContainer<>(
+  static final GenericContainer<?> redis = new GenericContainer<>(
       "redis:5.0.3-alpine").withExposedPorts(6379);
 
   @Autowired
@@ -41,6 +43,12 @@ public abstract class BaseIntegrationTest {
 
   @Autowired
   BungieConfiguration bungieConfiguration;
+
+  @DynamicPropertySource
+  static void redisPropertySources(DynamicPropertyRegistry registry) {
+    registry.add("spring.data.redis.host", redis::getHost);
+    registry.add("spring.data.redis.port", redis::getFirstMappedPort);
+  }
 
   /**
    * Asserts a Json input is valid/invalid regardless of formatting, spacing, new-lines, etc.

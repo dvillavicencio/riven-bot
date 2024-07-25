@@ -4,6 +4,7 @@ import java.util.Set;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.data.annotation.Id;
 
 @Data
 @AllArgsConstructor
@@ -15,9 +16,10 @@ public class RaidStatistics {
   );
 
   /**
-   * The _Id of the MongoDB aggregation should be the name of the raid
+   * The name of the raid, should be the _id of the aggregation once the grouping happens
    */
-  private String _id;
+  @Id
+  private String raidName;
 
   /**
    * Total amount of kills done for a raid
@@ -60,12 +62,12 @@ public class RaidStatistics {
   private Integer normalClears;
 
   /**
-   * This toString uses a StringBuilder to manipulate the actual output to send through Discord
-   * chat
+   * This method uses a StringBuilder to manipulate the actual output to send through Discord chat
+   * as part of an inline-field
    *
    * @return String representation of what the user will see in the embed for a given raid
    */
-  public String toString() {
+  public String toDiscordField() {
     StringBuilder fastestRaidDuration = new StringBuilder();
     int hours = (fastestTime / 3600) % 24;
     int minutes = (fastestTime / 60) % 60;
@@ -88,11 +90,11 @@ public class RaidStatistics {
         .append("\n");
     raidTemplate.append(":trophy: ").append("Full Clears: ").append(this.fullClears)
         .append("\n");
-    if (RAIDS_WITH_MASTER_MODE.contains(this._id) && normalClears != 0) {
+    if (RAIDS_WITH_MASTER_MODE.contains(this.raidName) && normalClears != 0) {
       raidTemplate.append(":regional_indicator_n: ").append("Normal Clears: ")
           .append(this.normalClears).append("\n");
     }
-    if (RAIDS_WITH_MASTER_MODE.contains(this._id) && masterClears != 0) {
+    if (RAIDS_WITH_MASTER_MODE.contains(this.raidName) && masterClears != 0) {
       raidTemplate.append(":regional_indicator_m: ").append("Master Clears: ")
           .append(this.masterClears).append("\n");
     }

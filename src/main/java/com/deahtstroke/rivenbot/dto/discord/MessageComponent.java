@@ -14,7 +14,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 @JsonInclude(Include.NON_NULL)
-public class Component {
+public class MessageComponent {
 
   /**
    * Type of the component
@@ -72,5 +72,5 @@ public class Component {
   /**
    * Recursive list of components in the case this component manages other components
    */
-  private List<Component> components;
+  private List<MessageComponent> components;
 }

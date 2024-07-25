@@ -10,14 +10,14 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import software.pando.crypto.nacl.Crypto;
 
-public class CryptoUtilTest {
+class CryptoUtilsTest {
 
   static final String SEED = "F3AA9759D829FAEBED453AAD8D4EB646AC3721C3D33BE7B71530BE62FB040705";
   static final String MALICIOUS_SEED = "FB937F153FAFC87D0B9B40AF0ECFBCF7DCBE359C0E9FF10C6C6EC234375ADF2A";
 
   @Test
   @DisplayName("validateSignature is successful for valid signatures")
-  public void validateSignatureIsSuccessfulForValidSignatures() throws DecoderException {
+  void validateSignatureIsSuccessfulForValidSignatures() throws DecoderException {
     // given: a valid signature and message
     var message = "This is some random message that should be encrypted";
     var timeStamp = "1000";
@@ -38,7 +38,7 @@ public class CryptoUtilTest {
 
   @Test
   @DisplayName("validateSignature is successful for invalid signatures")
-  public void validateSignatureIsSuccessfulForInvalidSignatures() throws DecoderException {
+  void validateSignatureIsSuccessfulForInvalidSignatures() throws DecoderException {
     // given: a valid signature and the message
     var message = "This is some random message that should be encrypted";
     var timestamp = "1000";

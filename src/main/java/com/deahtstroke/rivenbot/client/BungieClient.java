@@ -7,8 +7,6 @@ import com.deahtstroke.rivenbot.dto.destiny.ExactUserSearchResponse;
 import com.deahtstroke.rivenbot.dto.destiny.MemberGroupResponse;
 import com.deahtstroke.rivenbot.dto.destiny.MembershipResponse;
 import com.deahtstroke.rivenbot.dto.destiny.PostGameCarnageReport;
-import com.deahtstroke.rivenbot.dto.destiny.SearchResult;
-import com.deahtstroke.rivenbot.dto.destiny.UserGlobalSearchBody;
 import com.deahtstroke.rivenbot.dto.destiny.characters.CharactersResponse;
 import com.deahtstroke.rivenbot.dto.destiny.manifest.ManifestResponseFields;
 import com.deahtstroke.rivenbot.dto.destiny.milestone.MilestoneEntry;
@@ -64,23 +62,11 @@ public interface BungieClient {
    * @param destinyMembershipId the destiny membership id of the user
    * @return {@link Mono} containing {@link CharactersResponse}
    */
-  @GetExchange("/Destiny2/{membershipType}/Profile/{destinyMembershipId}/?components=200")
+  @GetExchange(value = "/Destiny2/{membershipType}/Profile/{destinyMembershipId}/?components=200")
   Mono<BungieResponse<CharactersResponse>> getUserCharacters(
       @PathVariable Integer membershipType,
       @PathVariable String destinyMembershipId
   );
-
-  /**
-   * Search for Bungie users using a name prefix and get specific pages based on search results
-   *
-   * @param searchBody the search body for the request
-   * @param page       the page number requested
-   * @return the paged-list of the responses
-   */
-  @PostExchange("/User/Search/GlobalName/{page}/")
-  Mono<BungieResponse<SearchResult>> searchByGlobalName(
-      @RequestBody UserGlobalSearchBody searchBody,
-      @PathVariable Integer page);
 
   /**
    * Get the groups for a specific user based on their membershipId and their membershipType. This

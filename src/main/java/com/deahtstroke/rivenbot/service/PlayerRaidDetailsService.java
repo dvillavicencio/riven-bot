@@ -22,7 +22,7 @@ import reactor.core.publisher.Mono;
 
 @Service
 @Slf4j
-public class UserRaidDetailsService {
+public class PlayerRaidDetailsService {
 
   private static final Integer MAX_SANE_AMOUNT_OF_RAID_PAGES = 50;
   private static final Integer MAX_PAGE_COUNT = 250;
@@ -32,26 +32,16 @@ public class UserRaidDetailsService {
   private static final Integer MAX_CONCURRENT_ACTIVITY_HISTORY_CALLS = 3;
 
   private final UserDetailsRepository userDetailsRepository;
-  private final PostGameCarnageService postGameCarnageService;
+  private final PGCRService postGameCarnageService;
   private final BungieAPIService bungieAPIService;
 
-  public UserRaidDetailsService(
+  public PlayerRaidDetailsService(
       UserDetailsRepository userDetailsRepository,
-      PostGameCarnageService postGameCarnageService,
+      PGCRService postGameCarnageService,
       BungieAPIService bungieAPIService) {
     this.userDetailsRepository = userDetailsRepository;
     this.postGameCarnageService = postGameCarnageService;
     this.bungieAPIService = bungieAPIService;
-  }
-
-  /**
-   * Whether a user exists in the database with the given ID
-   *
-   * @param userId the user ID to find
-   * @return True if it exists, else False
-   */
-  public Mono<Boolean> existsById(String userId) {
-    return userDetailsRepository.existsById(userId);
   }
 
   /**
@@ -60,11 +50,12 @@ public class UserRaidDetailsService {
    * @param creationInstant The instant this creation action was fired
    * @param membershipId    The membershipId of the newly created user
    * @param membershipType  The membershipType of the newly created user
-   * @param uniqueUsername  The unique username of the newly created user
+   * @param username        The username of the created user
+   * @param userTag         The userTag of the created user
    * @return {@link UserDetails} that were created and subsequently saved
    */
-  public Mono<UserDetails> createUserDetails(Instant creationInstant, String uniqueUsername,
-      String membershipId, Integer membershipType) {
+  public Mono<Void> createUserDetails(Instant creationInstant, String username,
+      String userTag, String membershipId, Integer membershipType) {
     return bungieAPIService.getUserCharacters(membershipType, membershipId)
         .flatMapMany(characters -> Flux.fromIterable(characters.keySet()))
         .flatMap(characterId -> getActivitiesAll(membershipType, membershipId, characterId))
@@ -72,10 +63,14 @@ public class UserRaidDetailsService {
         .flatMap(this::addPGCRDetails)
         .collectList()
         .flatMap(raidDetails -> {
-          UserDetails newEntry = new UserDetails(uniqueUsername, null, creationInstant,
-              raidDetails);
+          UserDetails newEntry = UserDetails.builder()
+              .username(username)
+              .userTag(userTag)
+              .userRaidDetails(raidDetails)
+              .lastRequestDateTime(creationInstant)
+              .build();
           return userDetailsRepository.save(newEntry);
-        });
+        }).then();
   }
 
   /**
@@ -84,12 +79,13 @@ public class UserRaidDetailsService {
    * @param updateTimestamp The timestamp when this update action was fired
    * @param membershipId    The membershipId of the newly created user
    * @param membershipType  The membershipType of the updated user
-   * @param uniqueUsername  The unique username of the updated user
+   * @param username        The username of the user to be updated
+   * @param userTag         The user tag of the user to be updated
    * @return {@link UserDetails} that were updated
    */
-  public Mono<UserDetails> updateUserDetails(Instant updateTimestamp, String uniqueUsername,
-      String membershipId, Integer membershipType) {
-    return userDetailsRepository.findById(uniqueUsername)
+  public Mono<Void> updateUserDetails(Instant updateTimestamp, String username,
+      String userTag, String membershipId, Integer membershipType) {
+    return userDetailsRepository.findUserDetailsByUsernameAndUserTag(username, userTag)
         .flatMap(userDetails -> bungieAPIService.getUserCharacters(membershipType, membershipId)
             .flatMapIterable(Map::keySet)
             .flatMap(characterId -> getActivitiesUntil(membershipType, membershipId,
@@ -102,15 +98,16 @@ public class UserRaidDetailsService {
               if (CollectionUtils.isEmpty(raidDetails)) {
                 log.warn(
                     "No new raid encounters were found for user [{}]. Last time requested set to: [{}]",
-                    uniqueUsername, updateTimestamp);
+                    username, updateTimestamp);
               } else {
                 log.info(
                     "Adding [{}] new raid encounters for user [{}]. Last time requested set to: [{}]",
-                    raidDetails.size(), uniqueUsername, updateTimestamp);
+                    raidDetails.size(), username, updateTimestamp);
                 userDetails.getUserRaidDetails().addAll(raidDetails);
               }
               return userDetailsRepository.save(userDetails);
-            }));
+            }))
+        .then();
   }
 
   /**

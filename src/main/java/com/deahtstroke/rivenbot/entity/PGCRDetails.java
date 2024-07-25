@@ -4,6 +4,7 @@ import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 @Data
@@ -15,7 +16,8 @@ public class PGCRDetails {
   /**
    * The ID of the Post Game Carnage Report
    */
-  private Long instanceId;
+  @Id
+  private String instanceId;
 
   /**
    * If the raid was started from the beginning

@@ -50,14 +50,16 @@
   <SpringProfile name="prod">
     <root level="INFO">
       <appender-ref ref="LOKI_PROD"/>
-      <appender-ref ref="STDOUT"/>
     </root>
   </SpringProfile>
 
   <SpringProfile name="local">
     <root level="INFO">
       <appender-ref ref="LOKI_LOCAL"/>
-      <appender-ref ref="STDOUT"/>
     </root>
   </SpringProfile>
+
+  <root level="INFO">
+    <appender-ref ref="STDOUT"/>
+  </root>
 </configuration>

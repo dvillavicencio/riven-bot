@@ -31,7 +31,7 @@ public class InteractionResponseData implements Serializable {
   /**
    * List of components in the message
    */
-  private List<Component> components;
+  private List<MessageComponent> components;
 
   /**
    * List of partial attachments to send

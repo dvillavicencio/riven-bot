@@ -30,7 +30,7 @@ public class ApplicationCommandFactoryTest {
     SlashCommand command = SlashCommand.WEEKLY_DUNGEON;
 
     // when: messageCreator is called
-    ApplicationCommandSource creator = sut.messageCreator(command);
+    ApplicationCommandSource creator = sut.getHandler(command);
 
     // then: the correct message creator is returned
     assertThat(creator)
@@ -45,7 +45,7 @@ public class ApplicationCommandFactoryTest {
     SlashCommand command = SlashCommand.WEEKLY_RAID;
 
     // when: messageCreator is called
-    ApplicationCommandSource creator = sut.messageCreator(command);
+    ApplicationCommandSource creator = sut.getHandler(command);
 
     // then: the correct message creator is returned
     assertThat(creator)
