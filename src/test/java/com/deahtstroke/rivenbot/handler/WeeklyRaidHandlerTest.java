@@ -3,11 +3,12 @@ package com.deahtstroke.rivenbot.handler;
 import static org.mockito.Mockito.when;
 
 import com.deahtstroke.rivenbot.dto.WeeklyActivity;
+import com.deahtstroke.rivenbot.dto.discord.InteractionResponse;
 import com.deahtstroke.rivenbot.enums.ActivityMode;
 import com.deahtstroke.rivenbot.enums.InteractionResponseType;
+import com.deahtstroke.rivenbot.handler.weeklyraid.WeeklyRaidHandler;
 import com.deahtstroke.rivenbot.service.WeeklyActivitiesService;
 import com.deahtstroke.rivenbot.util.MessageUtils;
-import com.deahtstroke.rivenbot.dto.discord.InteractionResponse;
 import java.time.ZonedDateTime;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
@@ -21,7 +22,7 @@ import reactor.test.StepVerifier;
 import reactor.test.StepVerifier.FirstStep;
 
 @ExtendWith(MockitoExtension.class)
-public class WeeklyRaidHandlerTest {
+class WeeklyRaidHandlerTest {
 
   @Mock
   WeeklyActivitiesService weeklyActivitiesService;
@@ -31,7 +32,7 @@ public class WeeklyRaidHandlerTest {
 
   @Test
   @DisplayName("Create message is successful")
-  public void createMessageIsSuccessful() {
+  void createMessageIsSuccessful() {
     WeeklyActivity weeklyActivity = new WeeklyActivity(
         "dungeon", "description", ZonedDateTime.now(), ZonedDateTime.now());
     when(weeklyActivitiesService.getWeeklyActivity(ActivityMode.RAID))
@@ -39,7 +40,7 @@ public class WeeklyRaidHandlerTest {
 
     // when: create message is called
     FirstStep<InteractionResponse> response = StepVerifier.create(
-        sut.resolve(null));
+        sut.serve(null));
 
     // then: the message created is correct
     String expectedMessage = WeeklyRaidHandler.MESSAGE_TEMPLATE.formatted(

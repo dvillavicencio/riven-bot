@@ -97,6 +97,10 @@ dependencyManagement {
     }
 }
 
+springBoot {
+    buildInfo()
+}
+
 tasks.named('test') {
     outputs.dir snippetsDir
     useJUnitPlatform()

@@ -9,6 +9,7 @@ public enum SlashCommand {
   WEEKLY_DUNGEON("weekly_dungeon"),
   WEEKLY_RAID("weekly_raid"),
   RAID_STATS("raid_stats"),
+  ABOUT("about"),
   TEST_COMMAND("test_command");
 
   @Getter

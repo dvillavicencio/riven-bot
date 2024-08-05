@@ -1,4 +1,4 @@
-package com.deahtstroke.rivenbot.processr;
+package com.deahtstroke.rivenbot.processor;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.assertArg;
@@ -15,7 +15,6 @@ import com.deahtstroke.rivenbot.dto.discord.EmbeddedField;
 import com.deahtstroke.rivenbot.entity.ButtonStyle;
 import com.deahtstroke.rivenbot.entity.RaidStatistics;
 import com.deahtstroke.rivenbot.enums.MessageComponentId;
-import com.deahtstroke.rivenbot.processor.AsyncRaidsProcessor;
 import com.deahtstroke.rivenbot.service.DiscordAPIService;
 import com.deahtstroke.rivenbot.service.RaidStatsService;
 import com.deahtstroke.rivenbot.util.MessageComponents;

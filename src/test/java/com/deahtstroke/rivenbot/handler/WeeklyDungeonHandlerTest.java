@@ -6,6 +6,7 @@ import com.deahtstroke.rivenbot.dto.WeeklyActivity;
 import com.deahtstroke.rivenbot.dto.discord.InteractionResponse;
 import com.deahtstroke.rivenbot.enums.ActivityMode;
 import com.deahtstroke.rivenbot.enums.InteractionResponseType;
+import com.deahtstroke.rivenbot.handler.weeklydungeon.WeeklyDungeonHandler;
 import com.deahtstroke.rivenbot.service.WeeklyActivitiesService;
 import com.deahtstroke.rivenbot.util.MessageUtils;
 import java.time.ZonedDateTime;
@@ -21,7 +22,7 @@ import reactor.test.StepVerifier;
 import reactor.test.StepVerifier.FirstStep;
 
 @ExtendWith(MockitoExtension.class)
-public class WeeklyDungeonHandlerTest {
+class WeeklyDungeonHandlerTest {
 
   @Mock
   WeeklyActivitiesService weeklyActivitiesService;
@@ -31,7 +32,7 @@ public class WeeklyDungeonHandlerTest {
 
   @Test
   @DisplayName("Create message is successful")
-  public void createMessageIsSuccessful() {
+  void createMessageIsSuccessful() {
     WeeklyActivity weeklyActivity = new WeeklyActivity(
         "dungeon", "description", ZonedDateTime.now(), ZonedDateTime.now());
     when(weeklyActivitiesService.getWeeklyActivity(ActivityMode.DUNGEON))
@@ -39,7 +40,7 @@ public class WeeklyDungeonHandlerTest {
 
     // when: create message is called
     FirstStep<InteractionResponse> response = StepVerifier.create(
-        sut.resolve(null));
+        sut.serve(null));
 
     // then: the message created is correct
     String expectedMessage = WeeklyDungeonHandler.MESSAGE_TEMPLATE.formatted(

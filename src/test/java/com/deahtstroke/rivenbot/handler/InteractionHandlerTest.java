@@ -1,9 +1,9 @@
 package com.deahtstroke.rivenbot.handler;
 
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.springframework.web.reactive.function.server.RequestPredicates.POST;
 
+import com.deahtstroke.rivenbot.dispatcher.DiscordInteractionDispatcher;
 import com.deahtstroke.rivenbot.dto.discord.DiscordUser;
 import com.deahtstroke.rivenbot.dto.discord.Interaction;
 import com.deahtstroke.rivenbot.dto.discord.InteractionData;
@@ -11,10 +11,8 @@ import com.deahtstroke.rivenbot.dto.discord.InteractionResponse;
 import com.deahtstroke.rivenbot.dto.discord.InteractionResponseData;
 import com.deahtstroke.rivenbot.dto.discord.Member;
 import com.deahtstroke.rivenbot.enums.InteractionResponseType;
-import com.deahtstroke.rivenbot.enums.SlashCommand;
-import com.deahtstroke.rivenbot.factory.ApplicationCommandFactory;
-import com.deahtstroke.rivenbot.factory.AutocompleteFactory;
-import com.deahtstroke.rivenbot.factory.MessageComponentFactory;
+import com.deahtstroke.rivenbot.factory.InteractionFactory;
+import com.deahtstroke.rivenbot.handler.weeklydungeon.WeeklyDungeonHandler;
 import com.deahtstroke.rivenbot.util.MessageUtils;
 import java.time.LocalDate;
 import org.junit.jupiter.api.BeforeEach;
@@ -35,18 +33,11 @@ class InteractionHandlerTest {
   WebTestClient webTestClient;
 
   @Mock
-  ApplicationCommandFactory applicationCommandFactory;
-
-  @Mock
-  AutocompleteFactory autocompleteFactory;
-
-  @Mock
-  MessageComponentFactory messageComponentFactory;
+  InteractionFactory interactionFactory;
 
   @BeforeEach
   public void setup() {
-    InteractionHandler handler = new InteractionHandler(applicationCommandFactory,
-        autocompleteFactory, messageComponentFactory);
+    DiscordInteractionDispatcher handler = new DiscordInteractionDispatcher(interactionFactory);
     RouterFunction<?> route = RouterFunctions.route()
         .route(POST("/interactions"), handler::resolveRequest).build();
     webTestClient = WebTestClient.bindToRouterFunction(route).build();
@@ -57,22 +48,26 @@ class InteractionHandlerTest {
   void handleInteractionForPingRequest() {
     // given: interaction data
     Interaction interaction = Interaction.builder()
-        .applicationId("myApplicationId").type(1)
+        .applicationId("myApplicationId")
+        .type(1)
         .build();
 
-    // when: the interaction is received
-    var response = webTestClient.post().uri("/interactions")
-        .body(BodyInserters.fromValue(interaction))
-        .exchange();
+    when(interactionFactory.serve(interaction))
+        .thenReturn(Mono.just(InteractionResponse.pingResponse()));
 
+    // when: the interaction is received
     // then: the response body is correct
-    response.expectBody().jsonPath("$.type").isEqualTo(1);
-    response.expectBody().jsonPath("$.data").isEmpty();
-    response.expectStatus().is2xxSuccessful();
+    webTestClient.post().uri("/interactions")
+        .body(BodyInserters.fromValue(interaction))
+        .exchange()
+        .expectStatus().is2xxSuccessful()
+        .expectBody()
+        .jsonPath("$.type").isEqualTo(1)
+        .jsonPath("$.data").isEmpty();
   }
 
   @Test
-  @DisplayName("Create response is successful for weekly_dungeon slash-command")
+  @DisplayName("serve() successful for weekly_dungeon slash-command")
   void handleInteractionForWeeklyDungeon() {
     // given: interaction data from an application command (slash command)
     InteractionData data = InteractionData.builder().id("someId").name("weekly_dungeon").type(1)
@@ -83,10 +78,6 @@ class InteractionHandlerTest {
         .type(2)
         .member(member).data(data)
         .build();
-
-    WeeklyRaidHandler weeklyRaidHandler = mock(WeeklyRaidHandler.class);
-    when(applicationCommandFactory.getHandler(SlashCommand.WEEKLY_DUNGEON))
-        .thenReturn(weeklyRaidHandler);
 
     String endDate = MessageUtils.formatDate(LocalDate.now());
     String dungeon = "Duality";
@@ -99,7 +90,7 @@ class InteractionHandlerTest {
             .build())
         .build();
 
-    when(weeklyRaidHandler.resolve(interaction))
+    when(interactionFactory.serve(interaction))
         .thenReturn(Mono.just(message));
 
     // when: the interaction is received

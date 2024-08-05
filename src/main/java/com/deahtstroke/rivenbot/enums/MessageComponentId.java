@@ -7,7 +7,8 @@ import lombok.Getter;
 
 public enum MessageComponentId {
   RAID_STATS_COMPREHENSION("raid_stats_comprehension"),
-  MESSAGE_COMPONENT_TEST("message_component_test");
+  MESSAGE_COMPONENT_TEST("message_component_test"),
+  RIVEN_INVITE("riven_invite");
 
   @Getter
   private final String id;

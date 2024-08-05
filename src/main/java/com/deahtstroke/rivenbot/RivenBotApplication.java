@@ -1,7 +1,7 @@
 package com.deahtstroke.rivenbot;
 
 import com.deahtstroke.rivenbot.filter.SignatureFilterFunction;
-import com.deahtstroke.rivenbot.handler.InteractionHandler;
+import com.deahtstroke.rivenbot.dispatcher.DiscordInteractionDispatcher;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
@@ -25,7 +25,7 @@ public class RivenBotApplication {
 
   @Bean
   RouterFunction<ServerResponse> interactionRouterFunction(
-      InteractionHandler interactionHandler,
+      DiscordInteractionDispatcher interactionHandler,
       SignatureFilterFunction signatureFilterFunction) {
     return RouterFunctions.route()
         .POST("/interactions", interactionHandler::resolveRequest)

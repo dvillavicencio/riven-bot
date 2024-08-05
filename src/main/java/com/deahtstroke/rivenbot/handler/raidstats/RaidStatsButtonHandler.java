@@ -1,15 +1,17 @@
-package com.deahtstroke.rivenbot.handler;
+package com.deahtstroke.rivenbot.handler.raidstats;
 
 import com.deahtstroke.rivenbot.dto.discord.Interaction;
 import com.deahtstroke.rivenbot.dto.discord.InteractionResponse;
 import com.deahtstroke.rivenbot.dto.discord.InteractionResponseData;
 import com.deahtstroke.rivenbot.enums.InteractionResponseType;
+import com.deahtstroke.rivenbot.enums.MessageComponentId;
+import com.deahtstroke.rivenbot.handler.MessageComponentHandler;
 import com.deahtstroke.rivenbot.util.MessageUtils;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
 
 @Component
-public class RaidStatsButtonHandler implements MessageComponentSource {
+public class RaidStatsButtonHandler implements MessageComponentHandler {
 
   private static final String RAID_STATS_EXPLANATION = """
       These aggregated raid statistics represent some crunched numbers Bungie has put out for you \
@@ -20,7 +22,12 @@ public class RaidStatsButtonHandler implements MessageComponentSource {
       That means raids that did not start from the beginning **do not count**.""";
 
   @Override
-  public Mono<InteractionResponse> handle(Interaction interaction) {
+  public MessageComponentId getComponentId() {
+    return MessageComponentId.RAID_STATS_COMPREHENSION;
+  }
+
+  @Override
+  public Mono<InteractionResponse> serve(Interaction interaction) {
     return Mono.just(InteractionResponse.builder()
         .type(InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE.getType())
         .data(InteractionResponseData.builder()
