@@ -96,7 +96,7 @@ class AboutHandlerTest {
 
           EmbeddedFooter footer = firstEmbedded.getFooter();
           assertThat(footer.getText()).isEqualTo(
-              "Current Version %s:%s".formatted(buildProperties.getName(),
+              "Current Version: %s:%s".formatted(buildProperties.getName(),
                   buildProperties.getVersion()));
 
           List<MessageComponent> components = data.getComponents();
