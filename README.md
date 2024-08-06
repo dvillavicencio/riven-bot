@@ -25,7 +25,7 @@ Because I can and I want to learn through projects that I find fun and challengi
 
 Any information regarding versions of specific dependencies you can find it in the `build.gradle` file at the root directory of the project
 
-_Bot invite link_: (To be added in the future, current version 0.1.0-alpha isn't stable enough for use)
+You can invite Riven to your server [here](https://discord.com/oauth2/authorize?client_id=1177030727678820362&permissions=274877966400&integration_type=0&scope=bot)
 
 
 ## Raid Stats
