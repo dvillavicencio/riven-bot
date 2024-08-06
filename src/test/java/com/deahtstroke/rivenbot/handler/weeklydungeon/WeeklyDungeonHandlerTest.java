@@ -1,4 +1,4 @@
-package com.deahtstroke.rivenbot.handler;
+package com.deahtstroke.rivenbot.handler.weeklydungeon;
 
 import static org.mockito.Mockito.when;
 
@@ -21,7 +21,7 @@ import reactor.test.StepVerifier;
 import reactor.test.StepVerifier.FirstStep;
 
 @ExtendWith(MockitoExtension.class)
-public class WeeklyDungeonHandlerTest {
+class WeeklyDungeonHandlerTest {
 
   @Mock
   WeeklyActivitiesService weeklyActivitiesService;
@@ -31,7 +31,7 @@ public class WeeklyDungeonHandlerTest {
 
   @Test
   @DisplayName("Create message is successful")
-  public void createMessageIsSuccessful() {
+  void createMessageIsSuccessful() {
     WeeklyActivity weeklyActivity = new WeeklyActivity(
         "dungeon", "description", ZonedDateTime.now(), ZonedDateTime.now());
     when(weeklyActivitiesService.getWeeklyActivity(ActivityMode.DUNGEON))
@@ -39,7 +39,7 @@ public class WeeklyDungeonHandlerTest {
 
     // when: create message is called
     FirstStep<InteractionResponse> response = StepVerifier.create(
-        sut.resolve(null));
+        sut.serve(null));
 
     // then: the message created is correct
     String expectedMessage = WeeklyDungeonHandler.MESSAGE_TEMPLATE.formatted(

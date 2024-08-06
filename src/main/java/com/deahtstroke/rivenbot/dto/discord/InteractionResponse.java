@@ -29,7 +29,7 @@ public class InteractionResponse implements Serializable {
    *
    * @return InteractionResponse with null data and type 1
    */
-  public static InteractionResponse PING() {
+  public static InteractionResponse pingResponse() {
     return new InteractionResponse(1, null);
   }
 }

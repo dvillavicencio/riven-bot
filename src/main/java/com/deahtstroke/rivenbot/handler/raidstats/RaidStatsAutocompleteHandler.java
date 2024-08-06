@@ -1,4 +1,4 @@
-package com.deahtstroke.rivenbot.handler;
+package com.deahtstroke.rivenbot.handler.raidstats;
 
 import com.deahtstroke.rivenbot.client.BungieClient;
 import com.deahtstroke.rivenbot.config.BungieConfiguration;
@@ -11,22 +11,20 @@ import com.deahtstroke.rivenbot.dto.discord.InteractionResponse;
 import com.deahtstroke.rivenbot.dto.discord.InteractionResponseData;
 import com.deahtstroke.rivenbot.dto.discord.Option;
 import com.deahtstroke.rivenbot.enums.InteractionResponseType;
-import com.deahtstroke.rivenbot.processor.AsyncRaidsProcessor;
+import com.deahtstroke.rivenbot.enums.SlashCommand;
+import com.deahtstroke.rivenbot.handler.AutocompleteHandler;
 import com.deahtstroke.rivenbot.service.BungieAPIService;
 import com.deahtstroke.rivenbot.util.NumberUtils;
 import io.github.resilience4j.reactor.ratelimiter.operator.RateLimiterOperator;
 import java.util.Objects;
-import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.text.similarity.LevenshteinDistance;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
-import reactor.core.scheduler.Schedulers;
 
-@Slf4j
 @Component
-public class RaidStatsHandler implements AutocompleteSource, ApplicationCommandSource {
+public class RaidStatsAutocompleteHandler implements AutocompleteHandler {
 
   private static final String USERNAME_OPTION_NAME = "username";
   private static final Integer CLAN_GROUP_TYPE = 1;
@@ -40,19 +38,16 @@ public class RaidStatsHandler implements AutocompleteSource, ApplicationCommandS
 
   private final BungieClient defaultBungieClient;
   private final BungieAPIService bungieAPIService;
-  private final AsyncRaidsProcessor asyncRaidsProcessor;
 
-  public RaidStatsHandler(
+  public RaidStatsAutocompleteHandler(
       BungieClient defaultBungieClient,
-      BungieAPIService bungieAPIService,
-      AsyncRaidsProcessor asyncRaidsProcessor) {
+      BungieAPIService bungieAPIService) {
     this.defaultBungieClient = defaultBungieClient;
     this.bungieAPIService = bungieAPIService;
-    this.asyncRaidsProcessor = asyncRaidsProcessor;
   }
 
   @Override
-  public Mono<InteractionResponse> handle(Interaction interaction) {
+  public Mono<InteractionResponse> serve(Interaction interaction) {
     Option usernameOption = interaction.getData().getOptions().stream()
         .filter(option -> option.getName().equalsIgnoreCase(USERNAME_OPTION_NAME))
         .findAny().orElse(new Option());
@@ -126,20 +121,8 @@ public class RaidStatsHandler implements AutocompleteSource, ApplicationCommandS
   }
 
   @Override
-  public Mono<InteractionResponse> resolve(Interaction interaction) {
-    return Mono.just(InteractionResponse.builder()
-            .type(5)
-            .data(new InteractionResponseData())
-            .build())
-        .publishOn(Schedulers.boundedElastic())
-        .doOnSubscribe(subscription -> {
-          Object optionValue = interaction.getData().getOptions().get(0).getValue();
-          String[] values = ((String) optionValue).split(HASHTAG);
-          String username = values[0];
-          String userTag = values[1];
-          asyncRaidsProcessor.processRaidsAsync(username, userTag, interaction.getToken())
-              .subscribe();
-        });
+  public SlashCommand getSlashCommand() {
+    return SlashCommand.RAID_STATS;
   }
 
   private String name(UserSearchResult result, MemberGroupResponse groupResponse) {

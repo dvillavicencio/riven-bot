@@ -134,7 +134,7 @@ public class AsyncRaidsProcessor {
                         createEmbed(displayUsername, usernameIcon, fields)))
                     .components(MessageComponents.components()
                         .addActionRow(MessageComponents.actionRow()
-                            .button(MessageComponentId.RAID_STATS_COMPREHENSION.getId(),
+                            .button(MessageComponentId.RAID_STATS_COMPREHENSION,
                                 "What is this?", ButtonStyle.BLURPLE))
                         .build())
                     .build();

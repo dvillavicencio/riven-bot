@@ -13,6 +13,7 @@ import com.deahtstroke.rivenbot.dto.discord.EmbeddedField;
 import com.deahtstroke.rivenbot.dto.discord.MessageComponent;
 import com.deahtstroke.rivenbot.entity.ButtonStyle;
 import com.deahtstroke.rivenbot.entity.RaidStatistics;
+import com.deahtstroke.rivenbot.enums.MessageComponentId;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -108,8 +109,8 @@ public class MessageComponents {
      * @param style    the {@link ButtonStyle} of this button
      * @return {@link ActionRowBuilder}
      */
-    public ActionRowBuilder button(String buttonId, String label, ButtonStyle style) {
-      if (Objects.isNull(buttonId) || buttonId.length() > 100) {
+    public ActionRowBuilder button(MessageComponentId buttonId, String label, ButtonStyle style) {
+      if (Objects.isNull(buttonId) || buttonId.getId().length() > 100) {
         throw new IllegalStateException(
             "The buttonId cannot be null and has to have a max of 100 characters");
       }
@@ -121,7 +122,7 @@ public class MessageComponents {
         throw new IllegalStateException("Button style cannot be null");
       }
       this.actionRowComponents.add(MessageComponent.builder()
-          .customId(buttonId)
+          .customId(buttonId.getId())
           .type(BUTTON.getType())
           .style(style.getButtonValue())
           .label(label)

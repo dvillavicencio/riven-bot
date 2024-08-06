@@ -1,17 +1,5 @@
 package com.deahtstroke.rivenbot.util;
 
-import static com.deahtstroke.rivenbot.enums.MessageComponentType.ACTION_ROW;
-import static com.deahtstroke.rivenbot.enums.MessageComponentType.BUTTON;
-import static com.deahtstroke.rivenbot.enums.MessageComponentType.CHANNEL_SELECT;
-import static com.deahtstroke.rivenbot.enums.MessageComponentType.MENTIONABLE_SELECT;
-import static com.deahtstroke.rivenbot.enums.MessageComponentType.ROLE_SELECT;
-import static com.deahtstroke.rivenbot.enums.MessageComponentType.STRING_SELECT;
-import static com.deahtstroke.rivenbot.enums.MessageComponentType.USER_SELECT;
-
-import com.deahtstroke.rivenbot.dto.discord.Embedded;
-import com.deahtstroke.rivenbot.dto.discord.MessageComponent;
-import com.deahtstroke.rivenbot.entity.ButtonStyle;
-import jakarta.annotation.Nullable;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -19,18 +7,20 @@ import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.TemporalAdjusters;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Objects;
-import org.hibernate.validator.constraints.Length;
 import org.springframework.validation.annotation.Validated;
 
 @Validated
 public class MessageUtils {
 
   public static final Integer EPHEMERAL_BYTE = 1000000;
+  public static final String ICON_URL = "https://ih1.redbubble.net/image.2953200665.7291/st,small,507x507-pad,600x600,f8f8f8.jpg";
+  public static final String GITHUB_REPO = "https://github.com/dvillavicencio/riven-bot";
+  public static final String DISCORD_SERVER = "https://discord.gg/yMShmXQs";
+  public static final String BOT_INVITE_LINK = "https://discord.com/oauth2/authorize?client_id=1109351854934065213&permissions=274877966400&integration_type=0&scope=bot";
+
   private static final LocalTime DESTINY_2_STANDARD_RESET_TIME = LocalTime.of(9, 0);
   private static final ZoneId STANDARD_TIMEZONE = ZoneId.of("America/Los_Angeles");
+
   public static final ZonedDateTime NEXT_TUESDAY = ZonedDateTime.of(
           LocalDate.now(STANDARD_TIMEZONE), DESTINY_2_STANDARD_RESET_TIME, STANDARD_TIMEZONE)
       .with(TemporalAdjusters.next(DayOfWeek.TUESDAY));
@@ -43,6 +33,7 @@ public class MessageUtils {
    */
   private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern(
       "EEEE d'%s', MMMM yyyy");
+
 
   private MessageUtils() {
   }

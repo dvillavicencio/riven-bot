@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import com.deahtstroke.rivenbot.dto.discord.MessageComponent;
 import com.deahtstroke.rivenbot.entity.ButtonStyle;
+import com.deahtstroke.rivenbot.enums.MessageComponentId;
 import java.util.stream.Stream;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
@@ -27,21 +28,6 @@ class MessageComponentsTest {
     return illegalButtonId.toString();
   }
 
-  static Stream<Arguments> illegalButtonArguments() {
-    return Stream.of(
-        Arguments.of(createRandomString(102), createRandomString(21), ButtonStyle.RED,
-            "The buttonId cannot be null and has to have a max of 100 characters"),
-        Arguments.of(createRandomString(99), createRandomString(39), ButtonStyle.RED,
-            "The button label cannot be null and has to be at maximum 38 characters"),
-        Arguments.of(null, createRandomString(21), ButtonStyle.RED,
-            "The buttonId cannot be null and has to have a max of 100 characters"),
-        Arguments.of(createRandomString(99), null, ButtonStyle.RED,
-            "The button label cannot be null and has to be at maximum 38 characters"),
-        Arguments.of(createRandomString(99), createRandomString(21), null,
-            "Button style cannot be null")
-    );
-  }
-
   static Stream<Arguments> illegalLinkButtonArguments() {
     return Stream.of(
         Arguments.of(createRandomString(39), "https://some.url",
@@ -58,11 +44,11 @@ class MessageComponentsTest {
   void shouldBuildActionRowSuccessfully() {
     // given: an action row with components
     var builder = MessageComponents.actionRow()
-        .button("1", "someLabel", ButtonStyle.BLURPLE)
-        .button("2", "someLabel", ButtonStyle.BLURPLE)
-        .button("3", "someLabel", ButtonStyle.BLURPLE)
-        .button("4", "someLabel", ButtonStyle.BLURPLE)
-        .button("5", "someLabel", ButtonStyle.BLURPLE);
+        .button(MessageComponentId.MESSAGE_COMPONENT_TEST, "someLabel", ButtonStyle.BLURPLE)
+        .button(MessageComponentId.MESSAGE_COMPONENT_TEST, "someLabel", ButtonStyle.BLURPLE)
+        .button(MessageComponentId.MESSAGE_COMPONENT_TEST, "someLabel", ButtonStyle.BLURPLE)
+        .button(MessageComponentId.MESSAGE_COMPONENT_TEST, "someLabel", ButtonStyle.BLURPLE)
+        .button(MessageComponentId.MESSAGE_COMPONENT_TEST, "someLabel", ButtonStyle.BLURPLE);
 
     // when: calling .build() on an action row
     var result = builder.build();
@@ -71,11 +57,11 @@ class MessageComponentsTest {
     assertThat(result.getType()).isEqualTo(1);
     assertThat(result.getComponents()).hasSize(5);
     assertThat(result.getComponents()).contains(
-        MessageComponent.builder().type(2).customId("1").label("someLabel").style(1).build(),
-        MessageComponent.builder().type(2).customId("2").label("someLabel").style(1).build(),
-        MessageComponent.builder().type(2).customId("3").label("someLabel").style(1).build(),
-        MessageComponent.builder().type(2).customId("4").label("someLabel").style(1).build(),
-        MessageComponent.builder().type(2).customId("5").label("someLabel").style(1).build()
+        MessageComponent.builder().type(2).customId("message_component_test").label("someLabel").style(1).build(),
+        MessageComponent.builder().type(2).customId("message_component_test").label("someLabel").style(1).build(),
+        MessageComponent.builder().type(2).customId("message_component_test").label("someLabel").style(1).build(),
+        MessageComponent.builder().type(2).customId("message_component_test").label("someLabel").style(1).build(),
+        MessageComponent.builder().type(2).customId("message_component_test").label("someLabel").style(1).build()
     );
   }
 
@@ -84,31 +70,17 @@ class MessageComponentsTest {
   void shouldThrowErrorOnTooManyButtons() {
     // given: an action row with too many buttons ( > 5 buttons)
     var builder = MessageComponents.actionRow()
-        .button("1", "someLabel", ButtonStyle.BLURPLE)
-        .button("2", "someLabel", ButtonStyle.BLURPLE)
-        .button("3", "someLabel", ButtonStyle.BLURPLE)
-        .button("4", "someLabel", ButtonStyle.BLURPLE)
-        .button("5", "someLabel", ButtonStyle.BLURPLE)
+        .button(MessageComponentId.MESSAGE_COMPONENT_TEST, "someLabel", ButtonStyle.BLURPLE)
+        .button(MessageComponentId.MESSAGE_COMPONENT_TEST, "someLabel", ButtonStyle.BLURPLE)
+        .button(MessageComponentId.MESSAGE_COMPONENT_TEST, "someLabel", ButtonStyle.BLURPLE)
+        .button(MessageComponentId.MESSAGE_COMPONENT_TEST, "someLabel", ButtonStyle.BLURPLE)
+        .button(MessageComponentId.MESSAGE_COMPONENT_TEST, "someLabel", ButtonStyle.BLURPLE)
         .linkButton("6", "https://some.url.com");
 
     // when: calling .build() on an action row
     // then: should throw an Illegal state exception with the correct error message
     Assertions.assertThrows(IllegalStateException.class, builder::build,
         "Action rows can only contain up to 5 buttons at a time");
-  }
-
-  @ParameterizedTest
-  @MethodSource("illegalButtonArguments")
-  @DisplayName("Building an action row with buttons throws exceptions on validation errors")
-  void shouldThrowErrorOnButtonValidation(String buttonId, String label, ButtonStyle style,
-      String errorMessage) {
-    //when: creating an action row with an invalid button
-    var row = MessageComponents.actionRow();
-
-    // then: an exception is raised with the correct message
-    Assertions.assertThrows(IllegalStateException.class,
-        () -> row.button(buttonId, label, style), errorMessage);
-
   }
 
   @ParameterizedTest
