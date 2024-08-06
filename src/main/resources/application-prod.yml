@@ -6,5 +6,6 @@ spring:
       host: mongo
 
 application:
+  inviteLink: https://discord.com/oauth2/authorize?client_id=1177030727678820362&permissions=274877966400&integration_type=0&scope=bot
   callback:
     url: https://rivenbot.app
