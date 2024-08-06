@@ -1,4 +1,4 @@
-package com.deahtstroke.rivenbot.factory;
+package com.deahtstroke.rivenbot.handler;
 
 import com.deahtstroke.rivenbot.dto.discord.Interaction;
 import com.deahtstroke.rivenbot.dto.discord.InteractionResponse;
@@ -6,10 +6,6 @@ import com.deahtstroke.rivenbot.enums.InteractionType;
 import com.deahtstroke.rivenbot.enums.MessageComponentId;
 import com.deahtstroke.rivenbot.enums.SlashCommand;
 import com.deahtstroke.rivenbot.exception.NoSuchHandlerException;
-import com.deahtstroke.rivenbot.handler.AutocompleteHandler;
-import com.deahtstroke.rivenbot.handler.Handler;
-import com.deahtstroke.rivenbot.handler.MessageComponentHandler;
-import com.deahtstroke.rivenbot.handler.SlashCommandHandler;
 import jakarta.annotation.PostConstruct;
 import java.util.EnumMap;
 import java.util.List;

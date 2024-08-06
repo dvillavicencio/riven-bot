@@ -3,7 +3,7 @@ package com.deahtstroke.rivenbot.dispatcher;
 import com.deahtstroke.rivenbot.dto.discord.Interaction;
 import com.deahtstroke.rivenbot.dto.discord.InteractionResponse;
 import com.deahtstroke.rivenbot.exception.BaseException;
-import com.deahtstroke.rivenbot.factory.InteractionFactory;
+import com.deahtstroke.rivenbot.handler.InteractionFactory;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ProblemDetail;
 import org.springframework.stereotype.Service;

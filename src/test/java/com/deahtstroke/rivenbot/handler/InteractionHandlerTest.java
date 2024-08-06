@@ -11,7 +11,6 @@ import com.deahtstroke.rivenbot.dto.discord.InteractionResponse;
 import com.deahtstroke.rivenbot.dto.discord.InteractionResponseData;
 import com.deahtstroke.rivenbot.dto.discord.Member;
 import com.deahtstroke.rivenbot.enums.InteractionResponseType;
-import com.deahtstroke.rivenbot.factory.InteractionFactory;
 import com.deahtstroke.rivenbot.handler.weeklydungeon.WeeklyDungeonHandler;
 import com.deahtstroke.rivenbot.util.MessageUtils;
 import java.time.LocalDate;

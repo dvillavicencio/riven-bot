@@ -1,4 +1,4 @@
-package com.deahtstroke.rivenbot.handler;
+package com.deahtstroke.rivenbot.handler.about;
 
 import static com.deahtstroke.rivenbot.util.MessageUtils.BOT_INVITE_LINK;
 import static com.deahtstroke.rivenbot.util.MessageUtils.DISCORD_SERVER;

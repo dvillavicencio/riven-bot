@@ -1,4 +1,4 @@
-package com.deahtstroke.rivenbot.handler;
+package com.deahtstroke.rivenbot.handler.weeklydungeon;
 
 import static org.mockito.Mockito.when;
 
@@ -6,7 +6,6 @@ import com.deahtstroke.rivenbot.dto.WeeklyActivity;
 import com.deahtstroke.rivenbot.dto.discord.InteractionResponse;
 import com.deahtstroke.rivenbot.enums.ActivityMode;
 import com.deahtstroke.rivenbot.enums.InteractionResponseType;
-import com.deahtstroke.rivenbot.handler.weeklydungeon.WeeklyDungeonHandler;
 import com.deahtstroke.rivenbot.service.WeeklyActivitiesService;
 import com.deahtstroke.rivenbot.util.MessageUtils;
 import java.time.ZonedDateTime;
