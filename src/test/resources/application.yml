@@ -37,3 +37,6 @@ cache:
   expirations:
     playersPrefixSearch: 5
     manifestEntity: 3600
+
+application:
+  inviteLink: https://some.invite.link

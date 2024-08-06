@@ -16,7 +16,6 @@ public class MessageUtils {
   public static final String ICON_URL = "https://ih1.redbubble.net/image.2953200665.7291/st,small,507x507-pad,600x600,f8f8f8.jpg";
   public static final String GITHUB_REPO = "https://github.com/dvillavicencio/riven-bot";
   public static final String DISCORD_SERVER = "https://discord.gg/yMShmXQs";
-  public static final String BOT_INVITE_LINK = "https://discord.com/oauth2/authorize?client_id=1109351854934065213&permissions=274877966400&integration_type=0&scope=bot";
 
   private static final LocalTime DESTINY_2_STANDARD_RESET_TIME = LocalTime.of(9, 0);
   private static final ZoneId STANDARD_TIMEZONE = ZoneId.of("America/Los_Angeles");

@@ -1,6 +1,5 @@
 package com.deahtstroke.rivenbot.handler.about;
 
-import static com.deahtstroke.rivenbot.util.MessageUtils.BOT_INVITE_LINK;
 import static com.deahtstroke.rivenbot.util.MessageUtils.DISCORD_SERVER;
 import static com.deahtstroke.rivenbot.util.MessageUtils.GITHUB_REPO;
 import static com.deahtstroke.rivenbot.util.MessageUtils.ICON_URL;
@@ -17,6 +16,7 @@ import com.deahtstroke.rivenbot.enums.SlashCommand;
 import com.deahtstroke.rivenbot.handler.SlashCommandHandler;
 import com.deahtstroke.rivenbot.util.MessageComponents;
 import java.util.List;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.info.BuildProperties;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
@@ -25,9 +25,12 @@ import reactor.core.publisher.Mono;
 public class AboutHandler implements SlashCommandHandler {
 
   private final BuildProperties buildProperties;
+  private final String inviteLink;
 
-  public AboutHandler(BuildProperties buildProperties) {
+  public AboutHandler(BuildProperties buildProperties,
+      @Value("${application.inviteLink}") String inviteLink) {
     this.buildProperties = buildProperties;
+    this.inviteLink = inviteLink;
   }
 
   @Override
@@ -76,7 +79,7 @@ public class AboutHandler implements SlashCommandHandler {
                     """)
                 .build()))
         .footer(EmbeddedFooter.builder()
-            .text("Current Version %s:%s".formatted(buildProperties.getName(),
+            .text("Current Version: %s:%s".formatted(buildProperties.getName(),
                 buildProperties.getVersion()))
             .build())
         .build();
@@ -85,7 +88,7 @@ public class AboutHandler implements SlashCommandHandler {
         .embeds(List.of(aboutEmbed))
         .components(MessageComponents.components()
             .addActionRow(MessageComponents.actionRow()
-                .linkButton("Add to Server", BOT_INVITE_LINK))
+                .linkButton("Add to Server", inviteLink))
             .build())
         .build();
     return Mono.just(InteractionResponse.builder()

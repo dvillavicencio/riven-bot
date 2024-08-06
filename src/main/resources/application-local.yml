@@ -6,6 +6,7 @@ spring:
       host: localhost
 
 application:
+  inviteLink: https://discord.com/oauth2/authorize?client_id=1109351854934065213&permissions=274877966400&integration_type=0&scope=bot
   callback:
     # Replace with your own callback url masking port 8080 to run locally
     url: https://c797-2600-1700-4390-a930-95a3-1de8-fb35-181.ngrok-free.app

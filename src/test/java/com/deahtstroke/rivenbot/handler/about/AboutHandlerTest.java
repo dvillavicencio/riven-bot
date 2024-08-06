@@ -1,9 +1,9 @@
 package com.deahtstroke.rivenbot.handler.about;
 
-import static com.deahtstroke.rivenbot.util.MessageUtils.BOT_INVITE_LINK;
 import static com.deahtstroke.rivenbot.util.MessageUtils.DISCORD_SERVER;
 import static com.deahtstroke.rivenbot.util.MessageUtils.GITHUB_REPO;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import com.deahtstroke.rivenbot.dto.discord.Embedded;
@@ -13,13 +13,11 @@ import com.deahtstroke.rivenbot.dto.discord.Interaction;
 import com.deahtstroke.rivenbot.dto.discord.InteractionResponseData;
 import com.deahtstroke.rivenbot.dto.discord.MessageComponent;
 import com.deahtstroke.rivenbot.enums.InteractionResponseType;
-import com.deahtstroke.rivenbot.handler.about.AboutHandler;
 import java.util.List;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.boot.info.BuildProperties;
 import reactor.test.StepVerifier;
@@ -27,11 +25,17 @@ import reactor.test.StepVerifier;
 @ExtendWith(MockitoExtension.class)
 class AboutHandlerTest {
 
-  @Mock
+  String inviteLink = "https://discord.invite.link.for.bot/";
+
   BuildProperties buildProperties;
 
-  @InjectMocks
   AboutHandler sut;
+
+  @BeforeEach
+  void setup() {
+    buildProperties = mock(BuildProperties.class);
+    sut = new AboutHandler(buildProperties, inviteLink);
+  }
 
   @Test
   @DisplayName("Serving a request is successful")
@@ -92,7 +96,7 @@ class AboutHandlerTest {
 
           EmbeddedFooter footer = firstEmbedded.getFooter();
           assertThat(footer.getText()).isEqualTo(
-              "Current Version %s:%s".formatted(buildProperties.getName(),
+              "Current Version: %s:%s".formatted(buildProperties.getName(),
                   buildProperties.getVersion()));
 
           List<MessageComponent> components = data.getComponents();
@@ -105,7 +109,7 @@ class AboutHandlerTest {
           assertThat(linkButton.getType()).isEqualTo(2);
           assertThat(linkButton.getLabel()).isEqualTo("Add to Server");
           assertThat(linkButton.getStyle()).isEqualTo(5);
-          assertThat(linkButton.getUrl()).isEqualTo(BOT_INVITE_LINK);
+          assertThat(linkButton.getUrl()).isEqualTo(inviteLink);
         }).verifyComplete();
   }
 }
